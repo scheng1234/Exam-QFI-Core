@@ -1,0 +1,292 @@
+---
+title: "Exam QFI"
+author: "Steven"
+date: "2023-04-28"
+output: 
+  html_document:
+    theme: simplex
+    toc: true
+    toc_float: true
+    toc_depth: 3
+editor_options:
+  markdown:
+    wrap: 72
+# header-includes:
+#   - \usepackage{tikz}
+#   - \ifdefined\HCode
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\newpage
+
+# Financial Derivatives
+
+|       **Financial Derivatives** are securities that derive their value from cash markets. In Ingersoll's definition, a financial contract is a derivative security.
+|       **Cash and Carry Markets**: Gold, silver, T-bonds. The idea is to borrow cash, buy asset, and hold until expiration.
+|       **Forward Contract**: obligation to buy/sell an asset at a specified price at a future date. if cash price is higher at expiration then forward, and long position make a profit.
+
+```{r, echo = FALSE}
+ForwardContracts <- cbind(c( "Mark to Market", "Settlement", "Margin System", "Trading", "Types", "Flexibility", "Liquidity", "Counterparty Risk"),
+                          c( "Yes", "Daily", "Yes", "Exchanges", "Standardized" , "Less", "More", "Less"),
+                          c("No", "Upon Maturity", "No", "OTC", "Custom", "More", "Less", "More")
+                          )
+
+knitr::kable(ForwardContracts, col.names = c("Characteristic", "Futures", "Forwards"), format = "latex")
+
+
+```
+
+|       **Repurchase Agreement (REPO)**: A transaction in which one party sells a security in return for cash, with an agreement to repurchase the security at an agreed upon price at a future date.
+|       **Options**: \n
+
+-   European: The right to buy $S_t$ at strike k. This right may be
+    excercised at time T. Where $S_T <K$ is out the money and $S_T > K$
+    is in the money. $$C_T = \max(S_T -K)$$
+
+|       **Swaps**: Exchange of one set of cashflows for another. Swaps are simultaneous and can involve curruncies, interst rates, etc. Swaps can be priced through forwards. Cancelable swaps allow the right to cancel swap contracts.
+|       **Arbitrage**: Taking simultaneous positions so that it guarantees a riskless profit higher than the risk-free rate. Let $d_{ij}$ be the number of units of account paid by one unit of security i in state j. Rows represent asset, columns represent state (interest, conflict, recession, etc...)
+
+---
+classoption:
+- twocolumn
+---
+
+::: columns
+::: {.column width="20%"}
+:::
+
+::: {.column width="30%"}
+$$
+\text{Asset Values} = S_T = 
+\begin{bmatrix} 
+S_1(t) \\
+S_2(t) \\
+\vdots \\
+S_n(t)
+\end{bmatrix}
+$$
+:::
+
+::: {.column width="30%"}
+$$
+D_t = \begin{bmatrix}
+d_{11} & d_{12} & \cdots & d_{1k} \\
+d_{21} & d_{22} & & d_{2k} \\
+\vdots & & \ddots & \vdots\\
+d_{i1} & d_{i2} & \cdots & d_{ik}
+\end{bmatrix}
+$$
+:::
+
+::: {.column width="20%"}
+:::
+:::
+
+$$
+\text{example of a 2 state portfolio with cash, security, and call}\\ \begin{bmatrix}
+(1+r\Delta) & (1+r\Delta) \\
+S_1(t + \Delta) & S_2(t + \Delta) \\
+C_1(t + \Delta) & C_2(t + \Delta) 
+\end{bmatrix}
+$$
+
+No arbitrage possibility exists iff:
+
+$$
+\begin{bmatrix}
+1 \\ S(t) \\ C(t)
+\end{bmatrix} 
+=
+\begin{bmatrix}
+(1+r\Delta) & (1+r\Delta) \\
+S_1(t + \Delta) & S_2(t + \Delta) \\
+C_1(t + \Delta) & C_2(t + \Delta) 
+\end{bmatrix} 
+\begin{bmatrix}
+\psi_1 \\ \psi_2
+\end{bmatrix} 
+$$
+
+$\psi_n$ represents the risk neutral probability discounted at the risk
+free rate and:
+
+$$ \sum_i^n \psi_i = v = \frac{1}{1+r} \rightarrow \sum_i^n \psi_i \cdot (1+r) = \sum_i^n  Q_i  = 1 $$
+
+|       **Binomial Tree Pricing**: A method of valuing options. Steps to determine option value is to first determine the value at expiration, then work backwards each step until the current price is obtained.
+
+$$
+C_T = \frac{1}{1+r}[Q_{up} C_{t+\Delta}^{up} + Q_{down} C_{t+\Delta}^{down}]
+$$
+
+```{tikz, BinomialTree, fig.ext = 'png', cache=TRUE, echo = FALSE, fig.dim = c(5, 4), fig.align="center"}
+  \begin{tikzpicture}[>=stealth,sloped]
+    \matrix (tree) [%
+      matrix of nodes,
+      minimum size=1cm,
+      column sep=3.5cm,
+      row sep=1cm,
+    ]
+    {
+            &     & {$C^{uu}$} \\
+            & {$C^u$} &   \\
+      {$C_T$} &     & {$C^{ud/du}$} \\
+            & {$C^d$} &   \\
+            &     & {$C^{dd}$} \\
+    };
+    \draw[->] (tree-3-1) -- (tree-2-2) node [midway,above] {$P$};
+    \draw[->] (tree-3-1) -- (tree-4-2) node [midway,below] {$(1-p)$};
+    \draw[->] (tree-2-2) -- (tree-1-3) node [midway,above] {$P^2$};
+    \draw[->] (tree-2-2) -- (tree-3-3) node [midway,below] {$(1-p)p$};
+    \draw[->] (tree-4-2) -- (tree-3-3) node [midway,above] {$(1-p)p$};
+    \draw[->] (tree-4-2) -- (tree-5-3) node [midway,below] {$(1-p)^2$};
+  \end{tikzpicture}
+```
+
+If we assume dividends are paid as a % of $S_{t+\Delta}$. Then by
+arbitrage: $$
+\begin{bmatrix}
+1 \\ S(t) \\ C(t)
+\end{bmatrix} =
+\begin{bmatrix}
+B^u_{t+\Delta} & B^d_{t+\Delta} \\
+S^u_{t+\Delta} + d_tS^u_{t+\Delta} & S^d_{t+\Delta} + d_tS^d_{t+\Delta} \\
+C^u_{t+\Delta} & C^d_{t+\Delta} 
+\end{bmatrix} 
+\begin{bmatrix}
+\psi_1 \\ \psi_2
+\end{bmatrix}\\
+E^Q[\frac{S_{t+\Delta}}{S}] = \frac{1+r\Delta}{1+d\Delta} \approx 1+(r-d)\Delta \\
+E^Q[\frac{C_{t+\Delta}}{C}] = 1+r\Delta
+$$ Under risk-neutral expectations. S grows below the risk free rate at
+r-d while the call option is expected to return r. For foreign
+currencies, replace d with the foreign savings interest rate rf.
+
+## Risk Neutral Pricing Summary
+
+-   Obtain a model to track dynamics of underlying
+-   Calculate how derivative asset price relates to the price of the
+    underlying asset ast expiration or other boundaries
+-   Obtain risk adjusted probabilities
+-   Calculate expected payoffs of derivative at expiration using risk
+    adjusted probabilities
+-   Discount this expectation using the risk-free return.
+
+# Martingales
+
+Suppose at time t one has information $I_t$. For a random variable $X_t$
+such that s \> 0 satisfies the equality:
+
+-   $E^P[X_{t+s} | I_t] = X_t$ - This is a martingale with respect to
+    probability measure P
+-   $E^P[X_{t+s} | I_t] \geq X_t$ - This is a submartingale with respect
+    to probability measure P
+
+# Math of Financial Derivatives
+
+### Basics
+
+$$
+1 + 1 + \frac{1}{2!} + \frac{1}{3!} \dots = e \\
+e^{x+y} = e^x \cdot e^y\\
+\frac{d}{dx} e^{kx} = ke^{kx} 
+$$
+
+**Function of Bounded Variation**
+
+$$
+V_0 = \max{\sum^n_{i=1}|f(t_i) - f(t_{i-1})|} < \infty
+$$
+
+**Definition of a derivative**
+
+$$ 
+f'_x = \lim_{\Delta \rightarrow 0} \frac{f(x+\Delta) - f(x)}{\Delta} \\
+f_x'' = \frac{f_x'(x+\Delta) - f_x'(x)}{\Delta} \approx \frac{f(x+\Delta) - 2f(x) + f(x-\Delta)}{\Delta^2}
+$$
+
+### Intermediate
+
+**First order approximations of functions**
+
+$$ 
+f(x+\Delta) \approx f(x) + f'_x(\Delta)
+$$
+
+**Chain Rule**
+
+$$
+y_t = f(g(t)) \text{   and   } x_t = g(t) \\
+\frac{dy}{dt} = \frac{df(g(t))}{dg(t)} \cdot\frac{dg(t)}{dt} 
+$$
+
+
+**Riemann Integral**
+
+Given max $|t_i - t_{i+1}| \rightarrow 0$, the Riemann integral will be
+defined by the limit
+
+$$
+\sum_{i=1}^n f(\frac{t_i + t_{i-1}}{2})(t_i + t_{i-1}) \rightarrow \int_0^T f(s)ds
+$$
+
+**Integration by Parts**
+
+$$
+d(f(t) \cdot h(t)) = f'(t)h(t) + f(t)h'(t) \Rightarrow f(T)h(T) -f(0)h(0) - \int_0^Tf(t)h'(t)dt
+$$
+
+**Partial vs Total Differentials**
+
+Let $C_t = F(S_t,t)$ 
+
+$$
+\frac{\partial F(S_t,t)}{\partial S_t} = F_s : \text{Partial Derivative} \\
+df = F_sdS_t + F_tdt : \text{Total Differential}
+$$
+
+**1D Taylor Series**
+
+Let f(x) be an infinitely differentiable function of $x \in \mathbb{R}$.
+Expanding around point $x_0$
+
+$$
+f(x) = f(x_0) + f'_(x_0)(x-x_0) + \frac{1}{2}f''_x(x_0)(x-x_0)^2 + \dots = \sum_{n=0}^\infty \frac{f^n_x(x_0)}{n!}(x-x_0)^n
+$$
+
+**Ordinary Differential Equations**
+
+$$
+dB_t = -r_tB_tdt \Rightarrow B_t = e^{\int_0^tr_udu}
+$$
+
+# Pricing Methods
+
+1) Arbitrage on financial assets which are martingales. Known as the method of equivalent martingales.
+2) Construct a risk-free portfolio to obtain a partial-differential equation (PDE) that is implied by the lack of arbitrage opportunities.
+
++ Gold Example
++ Delta Hedging Example
+
+**Binomial Models**
+
+ * $Pr(\Delta F(t) = a \sqrt{\Delta} = p)$
+ * Assume F(t) is the real time price, and that over a small time
+    interval there is either an uptick or downtick.
+ * $E[\Delta F(t) = ap\sqrt{\Delta} - a(1-p)\sqrt{\Delta} ]$
+ * $V[\Delta F(t)] = 4a^2\Delta p(1-p)$
+
+**Poisson Distribution**
+
+ * Unpredictable occurrence at times t = 1,2,3.
+ * Jumps are assumed to be independent and of the same size.
+ * In a given small interval, the probability of observing more than 1 jump is negligible.
+ * Denote $N_t$ as number of jumps up to time t.
+ * Let $\Delta$ be a small time interval.
+ * $\lambda$ = positive constant called intensity
+ * $\Delta N_t = 1$ if there is a jump, otherwise it's 0
+ * $P(\Delta N_t =1) \approx \lambda N, P(\Delta N_t = 0) \approx 1-\lambda N, P(\Delta N_t = n) = \frac{e^{-\lambda\Delta}(\lambda \Delta)^N}{n!}$
+
+**Markov Processes**
