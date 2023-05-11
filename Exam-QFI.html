@@ -9,9 +9,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Steven Cheng" />
+<meta name="author" content="Steven" />
 
-<meta name="date" content="2023-05-03" />
+<meta name="date" content="2023-04-28" />
 
 <title>Exam QFI</title>
 
@@ -1498,8 +1498,8 @@ border-radius: 0px;
 
 
 <h1 class="title toc-ignore">Exam QFI</h1>
-<h4 class="author">Steven Cheng</h4>
-<h4 class="date">2023-05-03</h4>
+<h4 class="author">Steven</h4>
+<h4 class="date">2023-04-28</h4>
 
 </div>
 
@@ -1628,6 +1628,17 @@ adjusted probabilities</li>
 </ul>
 </div>
 </div>
+<div id="martingales" class="section level1">
+<h1>Martingales</h1>
+<p>Suppose at time t one has information <span class="math inline">\(I_t\)</span>. For a random variable <span class="math inline">\(X_t\)</span> such that s &gt; 0 satisfies the
+equality:</p>
+<ul>
+<li><span class="math inline">\(E^P[X_{t+s} | I_t] = X_t\)</span> - This
+is a martingale with respect to probability measure P</li>
+<li><span class="math inline">\(E^P[X_{t+s} | I_t] \geq X_t\)</span> -
+This is a submartingale with respect to probability measure P</li>
+</ul>
+</div>
 <div id="math-of-financial-derivatives" class="section level1">
 <h1>Math of Financial Derivatives</h1>
 <div id="basics" class="section level3">
@@ -1648,6 +1659,9 @@ f&#39;_x = \lim_{\Delta \rightarrow 0} \frac{f(x+\Delta) - f(x)}{\Delta}
 f_x&#39;&#39; = \frac{f_x&#39;(x+\Delta) - f_x&#39;(x)}{\Delta} \approx
 \frac{f(x+\Delta) - 2f(x) + f(x-\Delta)}{\Delta^2}
 \]</span></p>
+</div>
+<div id="intermediate" class="section level3">
+<h3>Intermediate</h3>
 <p><strong>First order approximations of functions</strong></p>
 <p><span class="math display">\[
 f(x+\Delta) \approx f(x) + f&#39;_x(\Delta)
@@ -1657,42 +1671,6 @@ f(x+\Delta) \approx f(x) + f&#39;_x(\Delta)
 y_t = f(g(t)) \text{   and   } x_t = g(t) \\
 \frac{dy}{dt} = \frac{df(g(t))}{dg(t)} \cdot\frac{dg(t)}{dt}
 \]</span></p>
-<p><strong>Probability Basics</strong></p>
-<ul>
-<li><span class="math inline">\(\omega = \text{particular state of the
-world}\)</span></li>
-<li><span class="math inline">\(\Omega = \text{all possible states of
-the world}\)</span></li>
-<li><span class="math inline">\(I = \text{set of all possible
-events}\)</span></li>
-<li><span class="math inline">\(P(A) \geq 0\)</span> for any <span class="math inline">\(A \in I\)</span></li>
-<li><span class="math inline">\(\int_{A \in I} dP(A) = 1\)</span></li>
-<li>distribution function: <span class="math inline">\(G(x) = P(X \leq
-x)\)</span></li>
-</ul>
-<p><strong>Moments</strong></p>
-<ul>
-<li>Expectation first moment: <span class="math inline">\(E(X) =
-\int_{-\infty}^{\infty} xf(x)dx\)</span></li>
-<li>Second moment is variance</li>
-<li>Third moment is skew</li>
-<li>Fourth moment is kurtosis</li>
-</ul>
-<p><strong>Normal Distribution</strong></p>
-<p><span class="math display">\[
-X \sim N(\mu, \sigma^2)
-\]</span></p>
-<ul>
-<li>PDF: <span class="math inline">\(f(x) = \frac{1}{\sigma
-\sqrt{2\pi}}e^{-\frac{1}{2}(\frac{x-\mu}{\sigma})^2}\)</span></li>
-<li><span class="math inline">\(E(X) = \mu\)</span></li>
-<li><span class="math inline">\(V(X) = \sigma^2\)</span></li>
-<li>skew = <span class="math inline">\(E((X - E(X))^3) = 0\)</span></li>
-<li>kurtosis = <span class="math inline">\(E[(\frac{x-\mu}{\sigma})^4]\)</span></li>
-</ul>
-</div>
-<div id="intermediate" class="section level3">
-<h3>Intermediate</h3>
 <p><strong>Riemann Integral</strong></p>
 <p>Given max <span class="math inline">\(|t_i - t_{i+1}| \rightarrow
 0\)</span>, the Riemann integral will be defined by the limit</p>
@@ -1724,21 +1702,6 @@ f(x) = f(x_0) + f&#39;_(x_0)(x-x_0) +
 <p><span class="math display">\[
 dB_t = -r_tB_tdt \Rightarrow B_t = e^{\int_0^tr_udu}
 \]</span></p>
-<p><strong>Conditional Expectation</strong></p>
-<ul>
-<li><span class="math inline">\(I_{t_0} \subseteq I_{t_1} \subseteq
-\dots \subseteq I_{t_k}\)</span></li>
-<li>A family <span class="math inline">\(I_t\)</span> satisfying the
-above property is called filtration.</li>
-<li><span class="math inline">\(I_t\)</span> contains the information
-that we condition on</li>
-<li><span class="math inline">\(P(|X-X_0| \leq \frac{dx}{2} \approx
-f(x_0)dx\)</span></li>
-<li><span class="math inline">\(E(S_t | I_u) = \int_{-\infty}^\infty S_t
-f(S_t | I_u) dS_t, u &lt; t\)</span></li>
-<li>Linearity property: <span class="math inline">\(E[S_t + F(t)] =
-E[S_t] + E[F(t)]\)</span></li>
-</ul>
 </div>
 </div>
 <div id="pricing-methods" class="section level1">
@@ -1747,28 +1710,13 @@ E[S_t] + E[F(t)]\)</span></li>
 <li>Arbitrage on financial assets which are martingales. Known as the
 method of equivalent martingales.</li>
 <li>Construct a risk-free portfolio to obtain a partial-differential
-equation (PDE) that is implied by the lack of arbitrage opportunities.
-<ul>
-<li>Gold Example:
-<ul>
-<li>Portfolio 1: Borrow money, buy gold, hold until expiration. Pay back
-money at time T</li>
-<li>Portfolio 2: Buy forward contract (cash exchanged at T to receive
-gold).</li>
-<li><span class="math inline">\(F(S_t,t) =
-\underbrace{S_te^{r_t(T-t)}}_{\text{loan repayment}} +
-\underbrace{c(T-t)}_{\text{storage costs}}\)</span></li>
-</ul></li>
-<li>Delta Hedging Example:
-<ul>
-<li>Construct a risk free portfolio by combining loans, a long call, and
-short <span class="math inline">\(\Delta\)</span> shares. (requires
-continuous delta hedging)</li>
-<li><span class="math inline">\(\frac{\partial F(S_t,t)}{\partial S_t} =
-F(s) = \Delta\)</span></li>
-</ul></li>
-</ul></li>
+equation (PDE) that is implied by the lack of arbitrage
+opportunities.</li>
 </ol>
+<ul>
+<li>Gold Example</li>
+<li>Delta Hedging Example</li>
+</ul>
 <p><strong>Binomial Models</strong></p>
 <ul>
 <li><span class="math inline">\(Pr(\Delta F(t) = a \sqrt{\Delta} =
@@ -1799,74 +1747,6 @@ P(\Delta N_t = 0) \approx 1-\lambda N, P(\Delta N_t = n) =
 \frac{e^{-\lambda\Delta}(\lambda \Delta)^N}{n!}\)</span></li>
 </ul>
 <p><strong>Markov Processes</strong></p>
-<p>A discrete time process <span class="math inline">\({X_1, \dots
-,X_t}\)</span> with joint probability distribution function <span class="math inline">\(F(x_1,\dots, x_t)\)</span> is said to be a Markov
-Process iff:</p>
-<p><span class="math display">\[
-Pr(X_{t+s} \leq X_{t+s} | X_1, \dots, X_t) = Pr(X_{t+s} \leq X_{t+s}
-|  X_t)
-\]</span></p>
-<p>Where s &gt; 0, <span class="math inline">\(P(. | I_t)\)</span> is
-the probability conditional on the information set <span class="math inline">\(I_t\)</span>. Basically saying that the
-probability of the next state is only conditional on the state prior to
-the event.</p>
-<div id="convergence" class="section level2">
-<h2>Convergence</h2>
-<p><strong>Almost Sure Convergence</strong></p>
-<p>A random variable <span class="math inline">\(X_n\)</span> converges
-to X almost surely if, for arbitrary <span class="math inline">\(\delta
-&gt; 0\)</span></p>
-<p><span class="math display">\[
-P(|\lim_{n \rightarrow \infty} X_n - X| &gt; \delta ) = 0
-\]</span></p>
-<p><strong>Mean Square Convergence</strong></p>
-<p>Let <span class="math inline">\(X_0, X_1, X_2 \dots ,X_n\)</span> be
-a sequence of random variables. Then <span class="math inline">\(X_n\)</span> is said to converge to X in mean
-square if:</p>
-<p><span class="math display">\[
-\lim_{n \rightarrow \infty} E[(X_n - X)^2] =0
-\]</span></p>
-<p><strong>Weak Convergence</strong></p>
-<p><span class="math inline">\(X_n\)</span> = a random variable indexed
-by in with probability <span class="math inline">\(P_n \cdot
-X_n\)</span> converges to X weakly if <span class="math inline">\(\lim_{n \rightarrow \infty} P_n = P\)</span>.
-Where P is the probability distribution of X if:</p>
-<p><span class="math display">\[
-E^{P_n}[F(X_n)] \rightarrow E^{P}[F(X)]
-\]</span></p>
-</div>
-<div id="brownian-bridges" class="section level2">
-<h2>Brownian Bridges</h2>
-<div class="columns">
-<div class="column" style="width:&quot;50;">
-<p><span class="math display">\[
-\text{For }i \in \lbrace1,2 \dots,n \rbrace \text{ define:} \\
-X_i(t) = \begin{cases}
-1 &amp; \text{if } \in_i &lt; t\\
-0 &amp; \text{otherwise}
-\end{cases}\\
-\text{Then let }\\
-S_n(t) = \frac{1}{\sqrt{n}}\sum^n_{i=1}(X_i(t)-t)
-\]</span></p>
-</div><div class="column" style="width:50%;">
-<p><span class="math inline">\(\in_i\)</span> assumed to have uniform
-distribution on (0,1)</p>
-<p>In the limit as <span class="math inline">\(n \rightarrow
-\infty\)</span>, this is called the Brownian Bridge</p>
-</div>
-</div>
-</div>
-</div>
-<div id="martingales" class="section level1">
-<h1>Martingales</h1>
-<p>Suppose at time t one has information <span class="math inline">\(I_t\)</span>. For a random variable <span class="math inline">\(X_t\)</span> such that s &gt; 0 satisfies the
-equality:</p>
-<ul>
-<li><span class="math inline">\(E^P[X_{t+s} | I_t] = X_t\)</span> - This
-is a martingale with respect to probability measure P</li>
-<li><span class="math inline">\(E^P[X_{t+s} | I_t] \geq X_t\)</span> -
-This is a submartingale with respect to probability measure P</li>
-</ul>
 </div>
 
 
