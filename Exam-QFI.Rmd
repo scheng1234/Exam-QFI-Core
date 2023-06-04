@@ -1,7 +1,7 @@
 ---
 title: "Exam QFI"
-author: "Steven"
-date: "2023-04-28"
+author: "Steven Cheng"
+date: "2023-05-03"
 output: 
   html_document:
     theme: simplex
@@ -174,16 +174,6 @@ currencies, replace d with the foreign savings interest rate rf.
     adjusted probabilities
 -   Discount this expectation using the risk-free return.
 
-# Martingales
-
-Suppose at time t one has information $I_t$. For a random variable $X_t$
-such that s \> 0 satisfies the equality:
-
--   $E^P[X_{t+s} | I_t] = X_t$ - This is a martingale with respect to
-    probability measure P
--   $E^P[X_{t+s} | I_t] \geq X_t$ - This is a submartingale with respect
-    to probability measure P
-
 # Math of Financial Derivatives
 
 ### Basics
@@ -207,8 +197,6 @@ f'_x = \lim_{\Delta \rightarrow 0} \frac{f(x+\Delta) - f(x)}{\Delta} \\
 f_x'' = \frac{f_x'(x+\Delta) - f_x'(x)}{\Delta} \approx \frac{f(x+\Delta) - 2f(x) + f(x-\Delta)}{\Delta^2}
 $$
 
-### Intermediate
-
 **First order approximations of functions**
 
 $$ 
@@ -222,6 +210,36 @@ y_t = f(g(t)) \text{   and   } x_t = g(t) \\
 \frac{dy}{dt} = \frac{df(g(t))}{dg(t)} \cdot\frac{dg(t)}{dt} 
 $$
 
+**Probability Basics**
+
+-   $\omega = \text{particular state of the world}$
+-   $\Omega = \text{all possible states of the world}$
+-   $I = \text{set of all possible events}$
+-   $P(A) \geq 0$ for any $A \in I$
+-   $\int_{A \in I} dP(A) = 1$
+-   distribution function: $G(x) = P(X \leq x)$
+
+**Moments**
+
+-   Expectation first moment: $E(X) = \int_{-\infty}^{\infty} xf(x)dx$
+-   Second moment is variance
+-   Third moment is skew
+-   Fourth moment is kurtosis
+
+**Normal Distribution**
+
+$$
+X \sim N(\mu, \sigma^2)
+$$
+
+-   PDF:
+    $f(x) = \frac{1}{\sigma \sqrt{2\pi}}e^{-\frac{1}{2}(\frac{x-\mu}{\sigma})^2}$
+-   $E(X) = \mu$
+-   $V(X) = \sigma^2$
+-   skew = $E((X - E(X))^3) = 0$
+-   kurtosis = $E[(\frac{x-\mu}{\sigma})^4]$
+
+### Intermediate
 
 **Riemann Integral**
 
@@ -240,7 +258,7 @@ $$
 
 **Partial vs Total Differentials**
 
-Let $C_t = F(S_t,t)$ 
+Let $C_t = F(S_t,t)$
 
 $$
 \frac{\partial F(S_t,t)}{\partial S_t} = F_s : \text{Partial Derivative} \\
@@ -262,31 +280,663 @@ $$
 dB_t = -r_tB_tdt \Rightarrow B_t = e^{\int_0^tr_udu}
 $$
 
+**Conditional Expectation**
+
+-   $I_{t_0} \subseteq I_{t_1} \subseteq \dots \subseteq I_{t_k}$
+-   A family $I_t$ satisfying the above property is called filtration.
+-   $I_t$ contains the information that we condition on
+-   $P(|X-X_0| \leq \frac{dx}{2} \approx f(x_0)dx$
+-   $E(S_t | I_u) = \int_{-\infty}^\infty S_t f(S_t | I_u) dS_t, u < t$
+-   Linearity property: $E[S_t + F(t)] = E[S_t] + E[F(t)]$
+
 # Pricing Methods
 
-1) Arbitrage on financial assets which are martingales. Known as the method of equivalent martingales.
-2) Construct a risk-free portfolio to obtain a partial-differential equation (PDE) that is implied by the lack of arbitrage opportunities.
-
-+ Gold Example
-+ Delta Hedging Example
+1.  Arbitrage on financial assets which are martingales. Known as the
+    method of equivalent martingales.
+2.  Construct a risk-free portfolio to obtain a partial-differential
+    equation (PDE) that is implied by the lack of arbitrage
+    opportunities.
+    -   Gold Example:
+        -   Portfolio 1: Borrow money, buy gold, hold until expiration.
+            Pay back money at time T
+        -   Portfolio 2: Buy forward contract (cash exchanged at T to
+            receive gold).
+        -   $F(S_t,t) = \underbrace{S_te^{r_t(T-t)}}_{\text{loan repayment}} + \underbrace{c(T-t)}_{\text{storage costs}}$
+    -   Delta Hedging Example:
+        -   Construct a risk free portfolio by combining loans, a long
+            call, and short $\Delta$ shares. (requires continuous delta
+            hedging)
+        -   $\frac{\partial F(S_t,t)}{\partial S_t} = F(s) = \Delta$
 
 **Binomial Models**
 
- * $Pr(\Delta F(t) = a \sqrt{\Delta} = p)$
- * Assume F(t) is the real time price, and that over a small time
+-   $Pr(\Delta F(t) = a \sqrt{\Delta} = p)$
+-   Assume F(t) is the real time price, and that over a small time
     interval there is either an uptick or downtick.
- * $E[\Delta F(t) = ap\sqrt{\Delta} - a(1-p)\sqrt{\Delta} ]$
- * $V[\Delta F(t)] = 4a^2\Delta p(1-p)$
+-   $E[\Delta F(t) = ap\sqrt{\Delta} - a(1-p)\sqrt{\Delta} ]$
+-   $V[\Delta F(t)] = 4a^2\Delta p(1-p)$
 
 **Poisson Distribution**
 
- * Unpredictable occurrence at times t = 1,2,3.
- * Jumps are assumed to be independent and of the same size.
- * In a given small interval, the probability of observing more than 1 jump is negligible.
- * Denote $N_t$ as number of jumps up to time t.
- * Let $\Delta$ be a small time interval.
- * $\lambda$ = positive constant called intensity
- * $\Delta N_t = 1$ if there is a jump, otherwise it's 0
- * $P(\Delta N_t =1) \approx \lambda N, P(\Delta N_t = 0) \approx 1-\lambda N, P(\Delta N_t = n) = \frac{e^{-\lambda\Delta}(\lambda \Delta)^N}{n!}$
+-   Unpredictable occurrence at times t = 1,2,3.
+-   Jumps are assumed to be independent and of the same size.
+-   In a given small interval, the probability of observing more than 1
+    jump is negligible.
+-   Denote $N_t$ as number of jumps up to time t.
+-   Let $\Delta$ be a small time interval.
+-   $\lambda$ = positive constant called intensity
+-   $\Delta N_t = 1$ if there is a jump, otherwise it's 0
+-   $P(\Delta N_t =1) \approx \lambda N, P(\Delta N_t = 0) \approx 1-\lambda N, P(\Delta N_t = n) = \frac{e^{-\lambda\Delta}(\lambda \Delta)^N}{n!}$
 
 **Markov Processes**
+
+A discrete time process ${X_1, \dots ,X_t}$ with joint probability
+distribution function $F(x_1,\dots, x_t)$ is said to be a Markov Process
+iff:
+
+$$
+Pr(X_{t+s} \leq X_{t+s} | X_1, \dots, X_t) = Pr(X_{t+s} \leq X_{t+s} |  X_t)
+$$
+
+Where s \> 0, $P(. | I_t)$ is the probability conditional on the
+information set $I_t$. Basically saying that the probability of the next
+state is only conditional on the state prior to the event.
+
+## Convergence
+
+**Almost Sure Convergence**
+
+A random variable $X_n$ converges to X almost surely if, for arbitrary
+$\delta > 0$
+
+$$
+P(|\lim_{n \rightarrow \infty} X_n - X| > \delta ) = 0
+$$
+
+**Mean Square Convergence**
+
+Let $X_0, X_1, X_2 \dots ,X_n$ be a sequence of random variables. Then
+$X_n$ is said to converge to X in mean square if:
+
+$$
+\lim_{n \rightarrow \infty} E[(X_n - X)^2] =0
+$$
+
+**Weak Convergence**
+
+$X_n$ = a random variable indexed by in with probability $P_n \cdot X_n$
+converges to X weakly if $\lim_{n \rightarrow \infty} P_n = P$. Where P
+is the probability distribution of X if:
+
+$$
+E^{P_n}[F(X_n)] \rightarrow E^{P}[F(X)]
+$$
+
+## Martingales
+
+If the value of $S_t$ is included in the information set $I_t$ at t > 0, then it is said that $\lbrace S_t, t \in [0,t]\rbrace$ is _adapted_ to  $\lbrace I_t, t \in [0,\infty]\rbrace$. We can say that $E_t[S_t] = E(S_t|I_t)$ forecasts $S_t$ given information at $I_t$.
+
+A process $\lbrace S_t, t \in [0,\infty]\rbrace$ is a martingale w.r.t the family of information sets $I_t$ and w.r.t probability P if for all t > 0, the following 3 properties are satisfied
+
+1. $S_t$ is known given $I_t$ ($S_t$ is $I_t$ adapted).
+2. $E^P|S_t| < \infty$ : probabilities are finite.
+3. $E^P[S_t] = S_t$ for all t < T
+
+Martingales satisfies the important property that it is not expected to grow or shrink over time (the expectation = current value) $E_t[S_{t+u} - S_t] = 0$
+
+* A **submartingale** is expected to grow over time or stay the same level.
+  + $E^P[X_{t+s} | I_t] \geq X_t$
+* A **supermartingale** is expected to shrink over time or stay the same level.
+  + $E^P[X_{t+s} | I_t] \leq X_t$
+  
+To convert to a martingale:
+  
+  * Change to a different probability measure.
+  * Apply scaling factor (multiplicative/additive)
+
+<!-- Suppose at time t one has information $I_t$. For a random variable $X_t$ -->
+<!-- such that s \> 0 satisfies the equality: -->
+
+<!-- -   $E^P[X_{t+s} | I_t] = X_t$ - This is a martingale with respect to -->
+<!--     probability measure P -->
+<!-- -   $E^P[X_{t+s} | I_t] \geq X_t$ - This is a submartingale with respect -->
+<!--     to probability measure P -->
+
+
+# Brownian Motion and Wiener Processes
+
+**Understanding Variance**
+
+* $V(X) \approx E(X^2)$ : Assume the interval is small enough where the expected movement is negligible.
+* $V(X) \ approx \sum_k p_k k^2 \propto h \text{ where } p_k = \Pr(X=k)$
+* k = size term and $p_k$ = probability
+* The probability times the size squared will be linear to h which leads to the following 3 cases:    
+  + Probability proportional to h, size independent of h
+  + Probability independent of h, size propotional to $\sqrt{h}$
+  + Something more complicated and in between
+
+**Brownian Bridge**
+
+::: columns
+::: {.column width="\"50"}
+$$
+\text{For }i \in \lbrace1,2 \dots,n \rbrace \text{ define:} \\
+X_i(t) = \begin{cases}
+1 & \text{if } \in_i < t\\
+0 & \text{otherwise}
+\end{cases}\\
+\text{Then let } S_n(t) = \frac{1}{\sqrt{n}}\sum^n_{i=1}(X_i(t)-t)
+$$
+:::
+
+::: {.column width="50%"}
+$\in_i$ assumed to have uniform distribution on (0,1)
+
+In the limit as $n \rightarrow \infty$, this is called the Brownian
+Bridge
+:::
+:::
+
+## Brownian Motion
+
+Brownian motion is approximated by Taylor Series Approximation. Suppose that x is a martingale process.
+
+$$
+f(x_0 - \Delta x) - f(x_0) = f'_x(\Delta x) + \frac{1}{2}f''_x(\Delta x) ^2 + \cdots
+$$
+
+Usually we ignore higher order terms and just look at first order approximation for deterministic calculus. However we cannot ignore higher order terms for stochastic calculus. Getting rid of second order term in stochastic calculus means that we assume the underlying random variable has:
+
+$$
+\matrix{
+V(\Delta x) = E[(\Delta x)^2] - E[(\Delta x)]^2 = E[(\Delta x)^2] = 0 & \text{Wrong for stochastic setting}
+}
+$$
+
+**Definition of Brownian Motion**
+
+A random process $B_t, t \in [0,T]$ is a brownian motion if:
+
+1. $B_0 = 0$
+2. $B_t$ has stationary, independent increments
+3. $B_t$ is continuous in t.
+4. $B_t - B_s \sim N(0,|t-s|)$
+
+## Wiener Process
+
+**Definition of a Wiener Process**
+
+A Weiner process, $W_t$, relative to a family of information sets ${I_t}$, is a stochastic process such that:
+
+1. $W_t$ is a square integrable martingale
+2. $W_0 = 0$ 
+3. $E[(W_t - W_s)^2] = t-s, s\leq t$
+4. The trajectories of $W_t$ are continuous over t.
+
+**Properties of Wiener Process**
+
+1. $W_t$ has uncorrelated increments )note every martingale has unrelated increments).
+2. $W_t$ has 0 mean. (Since it starts at 0, all increments are expected to have 0 movement).
+3. $W_t$ has variance t
+4. The process is continuous; in infinitesimal intervals, the movements of $W_t$ are infinitesimal.
+
+**Brownian Motion vs Wiener Process**
+
+* Any Wiener process $W_t$ relative to a family $I_t$ is a Brownian motion process
+* THis is the Levy theorem, and it states that there is no difference between a Wiener process and Brownian motion
+
+
+**Stock Fluctuations From Unpredictable Information** 
+
+* Assume there is no drift and that when news comes out the stock price moves by $\sigma_t dW_t$
+
+$$
+E_t[\int_t^{t+T}\sigma_u dW_u] = 0
+$$
+
+
+## Poisson Process
+
+$$
+dN_t = \cases{
+ 1 & with probability $\lambda$ dt \\
+ 0 & with probability $1-\lambda$ dt
+}
+$$
+
+* The size of poisson outcome does not depend on the size of the time interval dt.
+* The probability of each outcome does depend on the size of the time interval dt
+* $N_t$ is not a martingale since $E(dN_t) = \lambda dt \neq 0$
+
+Can convert to a martingale transforming $\mu_t = N_t - \lambda t$, $E[M_t] = 0$, As $dt \rightarrow 0$, the probability of a Poisson jump goes to 0.
+
+Wiener Integral : $\int_{t_0}^T f(W_t)dW_t$
+  * Very irregular snce there are uncountably many changes as $t \rightarrow 0$
+  * Unbounded variation
+  * Riemann-Stieltjes definition does not apply
+  
+Poisson Integral : $\int_{t_0}^T f(M_t)dM_t$
+  * As $ t \rightarrow 0$, chance of jump goes to 0
+  * Bounded variation
+  * Riemann_Stieltjes definition applies.
+  
+  
+## Characterizing Rare and Normal Events 
+
+
+Assume $\Delta W_k$ can only take on a finite number of possible values. 
+
+$$
+\sigma_k \Delta W_k = \begin{cases}
+w_1 & \text{probability } p_1 \\
+w_2 & p_2 \\
+\vdots \\
+w_n & p_n
+\end{cases}
+$$
+$$
+E[(\sigma_k \Delta w_k)^2] = \sigma^2_k h
+$$
+
+$$
+V[\sigma_k \Delta w_k] = \sigma^2_kh = \sum^m_{i=1} p_i w_i^2 \rightarrow p_i w_i^2 = c_ih
+$$
+Assume we can specify $w_i$ and $p_i$ in the following forms: <span style="color: red;">[FLAG] what is w?<span style="color: red;">
+
+$$
+w_i(h)  = \bar w_i h^{r_i} \\
+p_i(h) = \bar p_i h^{q_i} \\ 
+$$
+
+$$
+\text{Then: } p_i w_i^2 = c_i h - \underbrace{p_i w_i^2}_{c_i} h^{q_i}h^{2r_i} = q_i + 2r_i = 1 \text{ where } \begin{matrix} 0 \leq r_i \leq \frac{1}{2} \\ 0 \leq q_i  \leq 1 \end{matrix}
+$$
+
+**Summary Table for Characterizing Rare and Normal Events**
+
+| Event | $r_i$ | $q_i$ | Limiting Size | Limiting Prob | Time Independence |
+|:-----:|:---:|:---:|:-----:|:-----:|:-----:|
+| Normal | $\frac{1}{2}$ | 0 | 0 | $\bar p_i > 0$ | probability |
+| Rare | 0 | 1 | $\bar w_i > 0 | 0 | size | 
+
+
+# Stochastic Derivative
+
+Modify definition of the derivative slightly to include extra term:
+
+$$
+\lim_{x \rightarrow 0} \frac{f(x + \Delta x) - f(x)}{\Delta x} \approx f'_x + \frac{1}{2}f''_x\Delta x
+$$
+
+## Framework
+
+ - $S_k = S(kh)$
+ - Divide an interval length T into n intervals of length h:
+ 
+ $$
+ \sigma_k \Delta W_k = \underbrace{[S_k - S_{k-1}]}_\text{innovation} - \underbrace{E_{k-1}[S_k - S_{k-1}]}_\text{expected movement}
+ $$
+ 
+ - Key property $E[\Delta W_k] = 0$ for all k.
+ - $E_{k-1}[\Delta W_k] = W_{k-1}$
+ - Define the martingale $W_k = \sum_{i=1}^k \Delta W_i$
+ 
+ 
+### Analyzing Innovation Term
+
+Define (note that $V^k$ represents variance):
+
+$$
+V^k = E_0[(\Delta W_k)^2] \\
+V = E_0[\sum_{k=1}^n \Delta W_k]^2 = \sum_{k=1}^n E_0[( \Delta W_k)^2] = \sum_{k=1}^nV^k \\
+V_\text{max} = \max[V^k, k=1,2,\dots,n]
+$$
+
+Let there be n intervals of length h and T = nh. Let $\Delta W_k = W((k+1)h) - W(kh)$.
+
+**Assumptions**
+
+* $0 < V < \infty$ : variation is non-zero and finite
+* $0 < \frac{V^k}{V^\max} \leq 1$ : no subinterval dominates the randomness.
+
+As long as the assumptions are met, then the variance of $\Delta W_k$ is proportional to h.
+
+$$
+E_[(\Delta W_k)^2] = h
+$$
+
+giving us the approximation: $\Delta W_k \approx \sqrt{h}$. If we had tried to apply this to a traditional deterministic method we get:
+
+$$
+\lim_{h \rightarrow 0^+} \frac{\Delta W_k}{h} \approx \lim_{h \rightarrow 0^+} \frac{\sqrt{h}}{h} = {\frac{1}{\sqrt{h}} \rightarrow \infty} \text{ (Impossible!)}
+$$
+
+rearranging: 
+
+$$
+\sigma_k \Delta W_k = [S_k - S_{k-1}] - E_{k-1}[S_k - S_{k-1}] \\ 
+\downarrow \\
+dS_t = \underbrace{a (S_t,t)dt}_\text{drift} + \underbrace{b(S_t, t) dW_t}_\text{diffusion}
+$$
+**Takeaway**
+
+$dW_t$ is irregular and its derivative does not exist in the traditional sense.
+
+$$
+\matrix{E[(\Delta W_k])^2]=h & E[\Delta W_k] = 0 & V[\Delta W_k] = h}
+$$
+The distribution of $W_{t+h} - W$ conditioned on the information set $I_t$ is normally distributed with mean 0 and variance h.
+
+## Ito's Garbage
+
+### Ito Integral <span style="color: red;">[FLAG] need to review from book?<span style="color: red;">
+
+$$
+\int_0^t \sigma(S_u,u)dW_u
+$$
+
+1. $\lim_{sup_i |t_{i r} - t_i| \rightarrow 0} \sum^{n-1}_{i=0} g(X_{t_{i+1}})[F(X_{t_{i+1}}) - F(X_{t_i})] = \int_0^T g(X_T)dF(X_t)$
+2. $\lim_{n \rightarrow \infty} \sum^{n-1}_{k=1} \sigma (S_{k-1}, k)[w_k - w_{k-1}] = \int_0^T \sigma(S_u,u)dW_u$
+3. Used for constructing stochastic integrals involving Wiener Process.
+$$
+\lim_{n \rightarrow \infty} E [\sum^{n-1}_{k=1} \sigma (S_{k-1}, k)[w_k - w_{k-1}] -  \int_0^T \sigma(S_u,u)dW_u]^2 =0
+$$
+
+**Ito Definition**
+
+Consider the finite interval approximation of the stochastic differential equation.
+
+$$
+S_k - S_{k-1}  = a (S_{k-1}, k)h + \sigma (S_{k-1}, k)[w_k - w_{k-1}]
+$$
+
+when $[w_k - w_{k-1}]$ is a standard Wiener process with 0 mean and variance h.
+  
+  - $\sigma (S_t,t)$ is non-anticipative (independent of the future)
+  - $\sigma (S_t,t)$ is non-explosive $E[\int_0^T \sigma(S_t,t)^2 dt] < 0$
+
+Then the Ito Integral is the mean square limit 
+
+$$
+\int_0^T \sigma (S_t,t) dW_t = \sum^n_{k=1} \sigma (S_k,k)[w_k - w_{k-1}]
+$$
+
+Additional notes:
+
+ - The Ito Integral here is $\int_0^T \sigma (S_t,t) dW_t$
+ - Ito is a random variable and a martingale
+ - Ito Integral is a mean-square limit
+ 
+**Stochastic vs Deterministic Integrals**
+
+  - The notion of a limit involves random variables
+  - Ito integral defined for non-anticipative functions only
+  - Deterministic calculus uses actual paths followed by functions, stochastic integrals use stochastic equivalence.
+  
+### Ito's Isometry
+
+For any $X_t(w)$ which is square integrable, the following holds
+
+$$
+E[(\int_0^t X_u(w)dW_u(w))^2] = E[\int_0^t X_u(w)]^2 du
+$$
+
+ * *Existence*: If f is continuous and non-anticipating, Then the Ito Integral exists
+ * *Martingale*: $E[\int_0^T f(W_t,t)dW_t] = 0$
+ * *Additive*
+
+Products
+
+1. $E[\int_0^T f(W_t,t)dW_t \int_0^T g(W_t,t)dW_t] = E[\int_0^T f(W_t,t)g(W_t,t)dW_t]$
+2. $E[\int_0^T f(W_t,t)dW_t \int_0^T f(W_t,t)dW_t] = E[\int_0^T f(W_t,t)^2 dW_t]$
+
+### Ito's Lemma
+
+1. Identify $F(S_t,t)$
+2. Identify $a_t$ and $\sigma_t$
+  + $dS_t = a_t dt + \sigma_t dW_t$
+3. Calculate Partial Derivatives
+  + $\frac{\partial F}{\partial S_t }$ , $\frac{\partial F}{\partial t}$ , $\frac{\partial^2 F}{\partial S_t^2}$
+4. Plug and Chug
+  + $dF_t = [a_t \frac{\partial F}{\partial S_t} + \frac{\partial F}{\partial t} + \frac{1}{2}\sigma \frac{\partial^2 F}{\partial S_t^2}]dt +  \frac{\partial F}{\partial S_t } \sigma_t dW_t $
+
+## Common SDE's
+
+**Linear:**
+
+$$
+\begin{aligned}
+& dS_t = a(S_t,t)dt + \sigma (S_t,t) dW_t \\
+&  a(S_t,t)  = \mu \\
+&  \sigma (S_t,t) = \sigma
+\end{aligned}
+$$
+
+ - This gives the linear SDE: $dS_t = \mu dt + \sigma dW_t$
+ - linear trend $\mu$ with noise term scaled by $\sigma$
+ 
+**Geometric Brownian Motion (GBM):** $dS_t = \mu S_t dt + \sigma S_t dW_t$
+
+ - This is an exponential trend $e^\mu$ with noise scaled by $\sigma$
+ - Divide both sides by $S_t$ to get an intuition w/ percentages
+ -  $$
+  \underbrace{\frac{dS_t}{S_t}}_{\text{ Actual % Change}} = \overbrace{\mu dt}^{\text{Expected % Change}} + \underbrace{\sigma dW_t}_{\text{Unexpected % Change}}
+  $$
+ - Equivalently written as $d \ln(S_t) = (\mu - \frac{1}{2}\sigma^2)dt = \sigma dW_t$
+ 
+**Square Root Process:** $dS_t = \mu S_t dt + \sigma \sqrt{S_t} dW_t$
+ 
+ - Reduces randomness by taking sqrt of the noise component
+ 
+**Mean-Reverting Process:** $dS_t = \lambda (\mu - S_t) dt + \sigma S_t dW_t$
+ 
+ - $\lambda > 0 $: rate of mean reversion
+ - $\mu$ is the level of mean reversion
+  + if $\mu < S_t$, drift term is negative so the process drifts to $\mu$ <span style="color: red;">[FLAG] review drift<span style="color: red;">
+  + if $\mu > S_t$, drift term is positive, $S_t$ drifts back up to $\mu$
+
+**Ornstein-Uhlenbeck Process:** $dS_t = -\mu S_t dt + \sigma dW_t$
+
+ - $\mu > 0$ sets the speed of reversion
+ - Mean reverting process around $S_t = 0$
+ 
+**Summary**
+
+| SDE Name | SDE Form|
+|:-----|:-----|
+| Linear | $dS_t = a(S_t,t)dt + \sigma (S_t,t) dW_t$ |
+| GBM | $dS_t = \mu S_t dt + \sigma S_t dW_t$ |
+| Square Root |  $dS_t = \mu S_t dt + \sigma \sqrt{S_t} dW_t$|
+| Mean Reverting | $dS_t = \lambda (\mu - S_t) dt + \sigma S_t dW_t$|
+| Ornstein-Uhlenbeck| $dS_t = -\mu S_t dt + \sigma dW_t$|
+
+# Stochastic Variance
+
+$dS_t = \mu S_t dt + \sigma S_t dW_t \rightarrow d\sigma_t = \lambda(\sigma_0 - \sigma_t)dt + \alpha \sigma_t dW_t$
+
+2 kinds of jump framework:
+
+1. Jump-diffusion models: Adds in a jump component to the SDE to our typical diffusion model.
+2. Variange-Gamma: perform a stochastic time change
+
+### Jump-Diffusion
+
+ - $\frac{d S_t}{S_t} = \mu dt + \sigma dW_t$
+ - Jump occurs with probability $\lambda dt$
+  + jump occurs of $dN_t = 1$ otherwise $dN_t =0$
+ - The expected proportion jump size is $K = E(e^{J} -1)$
+  + J > 0 upward jump, J < 0 downward jump
+ - Jump-Diffusion Model cn be based on $\frac{d S_t}{S_t} = (\mu - \lambda K) dt + \sigma dW_t + (e^J -1) dN_t$
+ 
+### Variance-Gamma (VG) Process
+
+ - Performs a stochastic time change. Adjusting time period will adjust the volatility, so this is a stochastic variance model as well.
+ - The stochastic time is $\gamma(t; 1,v)$ which is Gamma distributed
+ - The process given the stochastic time is $b(t, \sigma, \theta) = \theta t + \sigma W_t$
+ - The unconditional process is defined by: $X(t; \sigma, v, \theta) = b(\gamma(t; 1,v), \sigma, \theta) = \theta \gamma(t; 1,v) + \sigma W(\gamma(t; 1,v))$
+ - If $t^* = \gamma(t; 1,v)$, then $X(t; \sigma, v, \theta) = \theta t^* + \sigma W(t^*)$
+ 
+# Black-Scholes PDE
+
+## Forming Risk-Free Portfolios
+
+Suppose $\theta_1 \& \theta_2$ are the quantities of the derivative instrument and the underlying security purchased, respective $P_t$ is the risk free portfolio.
+
+$$
+\begin{aligned}
+& dS'_t = a_tdt + \sigma_t dW_t \\
+& dF'_t = F'_s a_t + 0.5F''_s \sigma^2_t + F_t]dt + F'_s \sigma_t dW_t
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+P_t &= \theta_1 dF_t + \theta_2 dS_t \\
+&= \theta_1 ([F'_s a_t + 0.5F''_s \sigma^2_t + F'_t]dt + F'_s \sigma_t dW_t) + \theta_2(a_tdt + \sigma_t dW_t)
+\end{aligned}
+$$
+
+By setting $\theta_1 = 1$ and $\theta_2 = -F'_s$ (equivalent to delta hedge) Then $dP_t = F'_t dt + 0.5 F''_s \sigma^2_t dt$. Because there is no random noise then we must have that $dP_t = rP_t dt = F'_t dt + 0.5 F''_s \sigma^2_t dt$. (r = risk free rate)
+
+Note that: $P_t = F(S_t,t) -F'_sS_t$
+
+Combining, we get the Black-Scholes PDE
+
+$$
+r(F - F'_sS_t)dt = F'_t dt + 0.5 F''_S \sigma^2_t dt \\
+\rightarrow -rF + rF'_sS_t + F'_t + 0.5F''_s \sigma^2(t) = 0
+$$
+
+## PDE Classification
+
+**Linear and non-linear:** this deals with how partial derivatives are aggregated
+
+ - Linear: $F'_s + 0.2F'_t = 4$
+ - non-linear $F'^2_s + F'^3_t = 4$
+
+**Order:** this deals with the highest power of partial derivative involved
+ 
+ - First Order: $F'_s + 0.2 F'_t = 4$
+ - Second Order: $F''_s + 0.2F''_t = 4, F'_{st} + F_t = 1$
+ 
+**$a_0 + a_1F'_t + a_2F'_s + a_3 F''_s + a_4 F''_t + a_5 F'_{st} = 0$**
+
+ - Elliptic PDE: $a^2_5 -4a_3a_4 < 0$
+ - Parabolic PDE: $a^2_5 -4a_3a_4 = 0$
+ - Hyperbolic PDE: $a^2_5 -4a_3a_4 > 0$
+
+## Partial-Integro Differential Equations 
+
+<span style="color: red;">[FLAG] what are these from book?<span style="color: red;">
+
+Pricing European options under the variance-gamma model involves first conditioning on the random-time g and then simplifying using a Black-Scholes type formula to solve for the conditional option value.
+
+The levy measure for the variance gamma process given by
+$$
+\begin{matrix}
+\underbrace{dv(y)}_{\text{levy measure under Q}} = k(y)dy & \text{Define } k(y) & 
+\begin{cases} 
+\text{if } y> 0 , & k(y) = \frac{e^{-\lambda_p} \rho^y}{vy^{1+Y}} \\
+\text{if } y< 0 , & k(y) = \frac{e^{-\lambda_n} \rho^y}{v|y|^{1+Y}} \\
+\lambda_p = \sqrt{\frac{\theta^2}{\sigma^4} + \frac{2}{\sigma^2 v}} - \frac{\theta}{\sigma^2} \\
+\lambda_n = \sqrt{\frac{\theta^2}{\sigma^4} + \frac{2}{\sigma^2 v}} + \frac{\theta}{\sigma^2}
+\end{cases}
+\end{matrix}
+$$
+
+Behavior of Jumps Given Y
+
+| Threshold | Behavior Below | Behavior Above |
+|:-------|:-------|:-------|
+| Y = 1 | Finite Variation | Infinite Variation | 
+| Y = 0 | Finite Arrival Rate | Infinite Arrival Rate |
+| Y = -1 | Activity concentrated away from 0 | Activity concentrated towards 0 |
+
+<span style="color: red;">[FLAG] clarify the formula below?<span style="color: red;">
+
+$$
+\int_{-\infty}^\infty [F(S_{t-} e^y, t) - F(S_{t-},t) - \frac{\partial V(S_{t-, t})}{\partial S} S_t (e^y - 1)]k(y) dy + \frac{\partial V (S_t,t)}{\partial t} + (r-q) S_t \frac{\partial V (S_t,t)}{\partial S} - rF(S_t,t) = 0
+$$
+
+## Black-Scholes
+
+1. Assume that $dS_t = a(S_t,t)dt + \sigma (S_t,t)dW_t$
+2. Under Black-Scholes, we assume that
+ - $a(S_t,t) = \mu S_t$
+ - $\sigma(S_t,t) = \sigma S_t$
+3. The PDE and boundary conditions are given by:
+ - $-rF + rF'_S S_t + F'_t + 0.5 \sigma^2 F''_s s^2_t$
+ - $F(T) = \max(S_T-K, 0)$ (Assumes we're looking at a call option)
+4. Solution to Black-Scholes given boundary conditions.
+ - $F(S_t,t) = S_t N(d_1) - Ke^{-r(T-t)}N(d_2)$
+ - $d_1 = \frac{ \ln{\frac{s_t}{k}}+ (r + 0.5 \sigma^2)(T-t)}{\sigma \sqrt{T-t}}$
+ - $d_2 = d_1 - \sigma \sqrt{T-t}$
+
+
+
+# Theory
+
+## Doob-Meyer Theorem
+
+Suppose that $X_t , 0 \leq t \leq \infty$, is a right-continuous submartingale w.r.t the family $\lbrace I_t \rbrace$ and $E(X_t) < \infty$ for all t. Then $X_t$ admits the decomposition $X_t = \mu_t + A_t$ where:
+
+  - $\mu_t$ is a right-continuous martingale w.r.t P
+  - $A_t$ is an increasing process measurable w.r.t $I_t$
+    
+## Riemann-Stieltjes
+
+A generalization of the Riemann integral that can be denoted as: 
+
+$$
+\int_{x=a}^b f(x)dg(x)
+$$ 
+
+Using a sequence of partitions $P = {a = x_0 < x_1 < \dots < x_n = b}$ we can approximate the integral to be the sum:
+
+$$
+S(P,f,g) = \sum^{n-1}_{i=0} f(c_i)[g(x_{i+1}) - g(x_i)]
+$$
+
+    
+# Examples
+
+## Brownian Motion
+
+$$
+\Delta X_t \sim N(\mu\Delta, \sigma^2\Delta) \\
+X_t \text{ is not a martingale because }E_t[X_t] = X_t \mu(T-t) \\
+Z_t = X_t - \mu t \text{ is a martingale} \Rightarrow E_t[Z_{t+T} = Z_t]
+$$
+
+### Distribution of $W_5 - W_2$ 
+
+$W_5 - W_2 \sim N(\mu = 0, \sigma^2 = 3)$
+
+### Lognormal
+
+Let $Y(t) = e^{cW(t)}$
+
+Find $E[Y(t)]$
+
+Note $cW(t) \sim N(c^2,t)$
+
+Thus, $E_0[Y(t)] = \exp(\frac{c^2 t}{2})$
+
+
+## Forecasting
+
+* $\mu_t$ is the forecast of some random variable $Y_t$ for $t \leq T$
+* The information set grows over time so that $I_t \subseteq I_{t+1}  \subseteq \dots \subseteq I_T$
+* $\mu_t = E^P[Y_T | I_t]$ is the forecast $\mu_t$ of the random variable $Y_T$ given the information set $I_t$ 
+* Let the sequence of forecasts $\mu_t$ w.r.t probability distribution P and information sets $I_t$ be a martingale. Then:
+
+$$
+E^P[\mu_{t+s} | I_t] = \mu_t \rightarrow \underbrace{E^P[E^P[Y_T | I_{t+s}]|I_t]}_{\text{Tower Property}} = E^P[Y_T | I_t] = \mu_t
+$$
+
+
+The eq. above states that the best forecast of a future forecast is what we forecast now since that is all the info we have.
+
+<span style="color: red;"><span style="color: red;">
+
+
