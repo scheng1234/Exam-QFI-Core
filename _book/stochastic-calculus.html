@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta property="og:title" content="6 Stochastic Calculus | Exam QFI" />
+<meta property="og:type" content="book" />
+
+
+
+
+<meta name="author" content="Steven Cheng" />
+
+<meta name="date" content="2023-05-03" />
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<meta name="description" content="6 Stochastic Calculus | Exam QFI">
+
+<title>6 Stochastic Calculus | Exam QFI</title>
+
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.5/css/simplex.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="libs/navigation-1.1/tabsets.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+/* show arrow before summary tag as in bootstrap
+TODO: remove if boostrap in updated in html_document (rmarkdown#1485) */
+details > summary {
+  display: list-item;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container-fluid main-container">
+
+
+<div class="row">
+<div class="col-sm-12">
+<div id="TOC">
+<ul>
+<li><a href="a-note-about-notations.html#a-note-about-notations" id="toc-a-note-about-notations"><span class="toc-section-number">1</span> A Note About Notations</a></li>
+<li class="has-sub"><a href="FD.html#FD" id="toc-FD"><span class="toc-section-number">2</span> Financial Derivatives</a>
+<ul>
+<li><a href="FD.html#risk-neutral-pricing-summary" id="toc-risk-neutral-pricing-summary"><span class="toc-section-number">2.1</span> Risk Neutral Pricing Summary</a></li>
+<li class="has-sub"><a href="FD.html#Options" id="toc-Options"><span class="toc-section-number">2.2</span> Exotic Options</a>
+<ul>
+<li><a href="FD.html#lookback-options" id="toc-lookback-options"><span class="toc-section-number">2.2.1</span> Lookback Options</a></li>
+<li><a href="FD.html#ladder-options" id="toc-ladder-options"><span class="toc-section-number">2.2.2</span> Ladder Options</a></li>
+<li><a href="FD.html#trigger-or-knock-in-options" id="toc-trigger-or-knock-in-options"><span class="toc-section-number">2.2.3</span> Trigger or Knock-in Options</a></li>
+<li><a href="FD.html#knock-out-options" id="toc-knock-out-options"><span class="toc-section-number">2.2.4</span> Knock-out Options</a></li>
+<li><a href="FD.html#other-exotics" id="toc-other-exotics"><span class="toc-section-number">2.2.5</span> Other Exotics</a></li>
+</ul></li>
+<li class="has-sub"><a href="FD.html#interest-rate-sensitive-securities" id="toc-interest-rate-sensitive-securities"><span class="toc-section-number">2.3</span> Interest Rate Sensitive Securities</a>
+<ul>
+<li><a href="FD.html#interest-rate-derivatives" id="toc-interest-rate-derivatives"><span class="toc-section-number">2.3.1</span> Interest Rate Derivatives</a></li>
+</ul></li>
+</ul></li>
+<li class="has-sub"><a href="math-of-financial-derivatives.html#math-of-financial-derivatives" id="toc-math-of-financial-derivatives"><span class="toc-section-number">3</span> Math of Financial Derivatives</a>
+<ul>
+<li><a href="math-of-financial-derivatives.html#basics" id="toc-basics"><span class="toc-section-number">3.0.1</span> Basics</a></li>
+<li><a href="math-of-financial-derivatives.html#intermediate" id="toc-intermediate"><span class="toc-section-number">3.0.2</span> Intermediate</a></li>
+</ul></li>
+<li class="has-sub"><a href="pricing-methods.html#pricing-methods" id="toc-pricing-methods"><span class="toc-section-number">4</span> Pricing Methods</a>
+<ul>
+<li><a href="pricing-methods.html#convergence" id="toc-convergence"><span class="toc-section-number">4.1</span> Convergence</a></li>
+<li><a href="pricing-methods.html#martingales" id="toc-martingales"><span class="toc-section-number">4.2</span> Martingales</a></li>
+</ul></li>
+<li class="has-sub"><a href="brownian-motion-and-wiener-processes.html#brownian-motion-and-wiener-processes" id="toc-brownian-motion-and-wiener-processes"><span class="toc-section-number">5</span> Brownian Motion and Wiener Processes</a>
+<ul>
+<li><a href="brownian-motion-and-wiener-processes.html#brownian-motion" id="toc-brownian-motion"><span class="toc-section-number">5.1</span> Brownian Motion</a></li>
+<li><a href="brownian-motion-and-wiener-processes.html#wiener-process" id="toc-wiener-process"><span class="toc-section-number">5.2</span> Wiener Process</a></li>
+<li><a href="brownian-motion-and-wiener-processes.html#poisson-process" id="toc-poisson-process"><span class="toc-section-number">5.3</span> Poisson Process</a></li>
+<li><a href="brownian-motion-and-wiener-processes.html#characterizing-rare-and-normal-events" id="toc-characterizing-rare-and-normal-events"><span class="toc-section-number">5.4</span> Characterizing Rare and Normal Events</a></li>
+</ul></li>
+<li class="has-sub"><a href="stochastic-calculus.html#stochastic-calculus" id="toc-stochastic-calculus"><span class="toc-section-number">6</span> Stochastic Calculus</a>
+<ul>
+<li class="has-sub"><a href="stochastic-calculus.html#stochastic-derivative" id="toc-stochastic-derivative"><span class="toc-section-number">6.1</span> Stochastic Derivative</a>
+<ul>
+<li><a href="stochastic-calculus.html#framework" id="toc-framework"><span class="toc-section-number">6.1.1</span> Framework</a></li>
+<li><a href="stochastic-calculus.html#itos" id="toc-itos"><span class="toc-section-number">6.1.2</span> Ito’s</a></li>
+<li><a href="stochastic-calculus.html#common-sdes" id="toc-common-sdes"><span class="toc-section-number">6.1.3</span> Common SDE’s</a></li>
+</ul></li>
+<li class="has-sub"><a href="stochastic-calculus.html#stochastic-variance" id="toc-stochastic-variance"><span class="toc-section-number">6.2</span> Stochastic Variance</a>
+<ul>
+<li><a href="stochastic-calculus.html#jump-diffusion" id="toc-jump-diffusion"><span class="toc-section-number">6.2.1</span> Jump-Diffusion</a></li>
+<li><a href="stochastic-calculus.html#variance-gamma-vg-process" id="toc-variance-gamma-vg-process"><span class="toc-section-number">6.2.2</span> Variance-Gamma (VG) Process</a></li>
+</ul></li>
+</ul></li>
+<li class="has-sub"><a href="black-scholes-pde-derivation.html#black-scholes-pde-derivation" id="toc-black-scholes-pde-derivation"><span class="toc-section-number">7</span> Black-Scholes PDE Derivation</a>
+<ul>
+<li><a href="black-scholes-pde-derivation.html#forming-risk-free-portfolios" id="toc-forming-risk-free-portfolios"><span class="toc-section-number">7.1</span> Forming Risk-Free Portfolios</a></li>
+<li><a href="black-scholes-pde-derivation.html#pde-classification" id="toc-pde-classification"><span class="toc-section-number">7.2</span> PDE Classification</a></li>
+<li class="has-sub"><a href="black-scholes-pde-derivation.html#black-scholes" id="toc-black-scholes"><span class="toc-section-number">7.3</span> Black-Scholes</a>
+<ul>
+<li><a href="black-scholes-pde-derivation.html#geometric-look-at-black-scholes" id="toc-geometric-look-at-black-scholes"><span class="toc-section-number">7.3.1</span> Geometric Look at Black-Scholes</a></li>
+<li><a href="black-scholes-pde-derivation.html#partial-integro-differential-equations-pide" id="toc-partial-integro-differential-equations-pide"><span class="toc-section-number">7.3.2</span> Partial-Integro Differential Equations (PIDE)</a></li>
+<li><a href="black-scholes-pde-derivation.html#complications-of-black-scholes" id="toc-complications-of-black-scholes"><span class="toc-section-number">7.3.3</span> Complications of Black-Scholes</a></li>
+</ul></li>
+</ul></li>
+<li class="has-sub"><a href="equivalent-martingale-measures.html#equivalent-martingale-measures" id="toc-equivalent-martingale-measures"><span class="toc-section-number">8</span> Equivalent Martingale Measures</a>
+<ul>
+<li><a href="equivalent-martingale-measures.html#radon-nikodym-derivative" id="toc-radon-nikodym-derivative"><span class="toc-section-number">8.1</span> Radon-Nikodym Derivative</a></li>
+<li><a href="equivalent-martingale-measures.html#converting-asset-prices-into-martingales" id="toc-converting-asset-prices-into-martingales"><span class="toc-section-number">8.2</span> Converting Asset Prices into Martingales</a></li>
+</ul></li>
+<li class="has-sub"><a href="extension-of-arbitrage-theorem.html#extension-of-arbitrage-theorem" id="toc-extension-of-arbitrage-theorem"><span class="toc-section-number">9</span> Extension of Arbitrage Theorem</a>
+<ul>
+<li><a href="extension-of-arbitrage-theorem.html#forward-measure" id="toc-forward-measure"><span class="toc-section-number">9.1</span> Forward Measure</a></li>
+<li><a href="extension-of-arbitrage-theorem.html#other-measures" id="toc-other-measures"><span class="toc-section-number">9.2</span> Other Measures</a></li>
+</ul></li>
+<li class="has-sub"><a href="modeling-term-structure-and-related-concepts.html#modeling-term-structure-and-related-concepts" id="toc-modeling-term-structure-and-related-concepts"><span class="toc-section-number">10</span> Modeling Term Structure and Related Concepts</a>
+<ul>
+<li><a href="modeling-term-structure-and-related-concepts.html#classical-vs-hjm" id="toc-classical-vs-hjm"><span class="toc-section-number">10.1</span> Classical vs HJM</a></li>
+<li><a href="modeling-term-structure-and-related-concepts.html#fitting-to-initial-term-structure-flag-review-this-section-again-or-combine-because-its-too-short" id="toc-fitting-to-initial-term-structure-flag-review-this-section-again-or-combine-because-its-too-short"><span class="toc-section-number">10.2</span> Fitting to Initial Term Structure <span style="color: red;">[FLAG] Review this section again, or combine because it’s too short? <span style="color: red;"></a></li>
+<li class="has-sub"><a href="modeling-term-structure-and-related-concepts.html#classical-pde-analysis-for-interest-rate-derivatives" id="toc-classical-pde-analysis-for-interest-rate-derivatives"><span class="toc-section-number">10.3</span> Classical PDE Analysis for Interest Rate Derivatives</a>
+<ul>
+<li><a href="modeling-term-structure-and-related-concepts.html#derivation-of-bond-price-pde" id="toc-derivation-of-bond-price-pde"><span class="toc-section-number">10.3.1</span> Derivation of Bond Price PDE</a></li>
+<li><a href="modeling-term-structure-and-related-concepts.html#comparing-to-black-scholes" id="toc-comparing-to-black-scholes"><span class="toc-section-number">10.3.2</span> Comparing to Black-Scholes</a></li>
+</ul></li>
+</ul></li>
+<li class="has-sub"><a href="term-structure-models---continuous-time.html#term-structure-models---continuous-time" id="toc-term-structure-models---continuous-time"><span class="toc-section-number">11</span> Term Structure Models - Continuous Time</a>
+<ul>
+<li class="has-sub"><a href="term-structure-models---continuous-time.html#no-arbitrage-pricing-vasicek-model" id="toc-no-arbitrage-pricing-vasicek-model"><span class="toc-section-number">11.1</span> No-Arbitrage Pricing: Vasicek Model</a>
+<ul>
+<li><a href="term-structure-models---continuous-time.html#vasicek-zero-coupon-bond" id="toc-vasicek-zero-coupon-bond"><span class="toc-section-number">11.1.1</span> Vasicek Zero Coupon Bond</a></li>
+<li><a href="term-structure-models---continuous-time.html#spot-rate-duration" id="toc-spot-rate-duration"><span class="toc-section-number">11.1.2</span> Spot Rate Duration</a></li>
+<li><a href="term-structure-models---continuous-time.html#coupon-bond" id="toc-coupon-bond"><span class="toc-section-number">11.1.3</span> Coupon Bond</a></li>
+<li><a href="term-structure-models---continuous-time.html#estimating-parameters-of-vasicek-model" id="toc-estimating-parameters-of-vasicek-model"><span class="toc-section-number">11.1.4</span> Estimating Parameters of Vasicek Model</a></li>
+<li><a href="term-structure-models---continuous-time.html#pricing-options-on-zero-coupon-bonds" id="toc-pricing-options-on-zero-coupon-bonds"><span class="toc-section-number">11.1.5</span> Pricing Options on Zero-Coupon Bonds</a></li>
+<li><a href="term-structure-models---continuous-time.html#problems" id="toc-problems"><span class="toc-section-number">11.1.6</span> Problems</a></li>
+</ul></li>
+<li><a href="term-structure-models---continuous-time.html#cir-model" id="toc-cir-model"><span class="toc-section-number">11.2</span> CIR Model</a></li>
+<li><a href="term-structure-models---continuous-time.html#replicating-portfolio-and-relative-value-trades" id="toc-replicating-portfolio-and-relative-value-trades"><span class="toc-section-number">11.3</span> Replicating Portfolio and Relative Value Trades</a></li>
+<li><a href="term-structure-models---continuous-time.html#risk-premiums" id="toc-risk-premiums"><span class="toc-section-number">11.4</span> Risk Premiums</a></li>
+</ul></li>
+<li><a href="macroeconomic-model-of-term-structure.html#macroeconomic-model-of-term-structure" id="toc-macroeconomic-model-of-term-structure"><span class="toc-section-number">12</span> Macroeconomic Model of Term Structure</a></li>
+<li class="has-sub"><a href="HoLee.html#HoLee" id="toc-HoLee"><span class="toc-section-number">13</span> Ho-Lee Model</a>
+<ul>
+<li><a href="HoLee.html#approximating-theta_t" id="toc-approximating-theta_t"><span class="toc-section-number">13.1</span> Approximating <span class="math inline">\(\theta_t\)</span></a></li>
+<li><a href="HoLee.html#term-structure-of-volaitility" id="toc-term-structure-of-volaitility"><span class="toc-section-number">13.2</span> Term Structure of Volaitility</a></li>
+<li><a href="HoLee.html#summary" id="toc-summary"><span class="toc-section-number">13.3</span> Summary</a></li>
+</ul></li>
+<li class="has-sub"><a href="theory.html#theory" id="toc-theory"><span class="toc-section-number">14</span> Theory</a>
+<ul>
+<li><a href="theory.html#doob-meyer-theorem" id="toc-doob-meyer-theorem"><span class="toc-section-number">14.1</span> Doob-Meyer Theorem</a></li>
+<li><a href="theory.html#riemann-stieltjes" id="toc-riemann-stieltjes"><span class="toc-section-number">14.2</span> Riemann-Stieltjes</a></li>
+<li class="has-sub"><a href="theory.html#Girsanov" id="toc-Girsanov"><span class="toc-section-number">14.3</span> Girsanov Theorem</a>
+<ul>
+<li><a href="theory.html#preliminary-setup" id="toc-preliminary-setup"><span class="toc-section-number">14.3.1</span> Preliminary Setup</a></li>
+<li><a href="theory.html#theorem" id="toc-theorem"><span class="toc-section-number">14.3.2</span> Theorem</a></li>
+<li><a href="theory.html#notes" id="toc-notes"><span class="toc-section-number">14.3.3</span> Notes</a></li>
+</ul></li>
+</ul></li>
+<li class="has-sub"><a href="examples-consider-moving-this-to-another-markdown-file.html#examples-consider-moving-this-to-another-markdown-file" id="toc-examples-consider-moving-this-to-another-markdown-file"><span class="toc-section-number">15</span> Examples <span style="color: red;">Consider moving this to another markdown file<span style="color: red;"></a>
+<ul>
+<li class="has-sub"><a href="examples-consider-moving-this-to-another-markdown-file.html#brownian-motion-1" id="toc-brownian-motion-1"><span class="toc-section-number">15.1</span> Brownian Motion</a>
+<ul>
+<li><a href="examples-consider-moving-this-to-another-markdown-file.html#distribution-of-w_5---w_2" id="toc-distribution-of-w_5---w_2"><span class="toc-section-number">15.1.1</span> Distribution of <span class="math inline">\(W_5 - W_2\)</span></a></li>
+<li><a href="examples-consider-moving-this-to-another-markdown-file.html#lognormal" id="toc-lognormal"><span class="toc-section-number">15.1.2</span> Lognormal</a></li>
+</ul></li>
+<li><a href="examples-consider-moving-this-to-another-markdown-file.html#forecasting" id="toc-forecasting"><span class="toc-section-number">15.2</span> Forecasting</a></li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="row">
+<div class="col-sm-12">
+<div id="stochastic-calculus" class="section level1" number="6">
+<h1><span class="header-section-number">6</span> Stochastic Calculus</h1>
+<div id="stochastic-derivative" class="section level2" number="6.1">
+<h2><span class="header-section-number">6.1</span> Stochastic Derivative</h2>
+<p>Modify definition of the derivative slightly to include extra term:</p>
+<p><span class="math display">\[
+\lim_{x \rightarrow 0} \frac{f(x + \Delta x) - f(x)}{\Delta x} \approx f&#39;_x + \frac{1}{2}f&#39;&#39;_x\Delta x
+\]</span></p>
+<div id="framework" class="section level3" number="6.1.1">
+<h3><span class="header-section-number">6.1.1</span> Framework</h3>
+<ul>
+<li><span class="math inline">\(S_k = S(kh)\)</span></li>
+<li>Divide an interval length T into n intervals of length h:</li>
+</ul>
+<p><span class="math display">\[
+\sigma_k \Delta W_k = \underbrace{[S_k - S_{k-1}]}_\text{innovation} - \underbrace{E_{k-1}[S_k - S_{k-1}]}_\text{expected movement}
+\]</span></p>
+<ul>
+<li>Key property <span class="math inline">\(E[\Delta W_k] = 0\)</span> for all k.</li>
+<li><span class="math inline">\(E_{k-1}[\Delta W_k] = W_{k-1}\)</span></li>
+<li>Define the martingale <span class="math inline">\(W_k = \sum_{i=1}^k \Delta W_i\)</span></li>
+</ul>
+<div id="analyzing-innovation-term" class="section level4" number="6.1.1.1">
+<h4><span class="header-section-number">6.1.1.1</span> Analyzing Innovation Term</h4>
+<p>Define (note that <span class="math inline">\(V^k\)</span> represents variance):</p>
+<p><span class="math display">\[
+V^k = E_0[(\Delta W_k)^2] \\
+V = E_0[\sum_{k=1}^n \Delta W_k]^2 = \sum_{k=1}^n E_0[( \Delta W_k)^2] = \sum_{k=1}^nV^k \\
+V_\text{max} = \max[V^k, k=1,2,\dots,n]
+\]</span></p>
+<p>Let there be n intervals of length h and T = nh. Let
+<span class="math inline">\(\Delta W_k = W((k+1)h) - W(kh)\)</span>.</p>
+<p><strong>Assumptions</strong></p>
+<ul>
+<li><span class="math inline">\(0 &lt; V &lt; \infty\)</span> : variation is non-zero and finite</li>
+<li><span class="math inline">\(0 &lt; \frac{V^k}{V^\max} \leq 1\)</span> : no subinterval dominates the
+randomness.</li>
+</ul>
+<p>As long as the assumptions are met, then the variance of <span class="math inline">\(\Delta W_k\)</span> is
+proportional to h.</p>
+<p><span class="math display">\[
+E_[(\Delta W_k)^2] = h
+\]</span></p>
+<p>giving us the approximation: <span class="math inline">\(\Delta W_k \approx \sqrt{h}\)</span>. If we had
+tried to apply this to a traditional deterministic method we get:</p>
+<p><span class="math display">\[
+\lim_{h \rightarrow 0^+} \frac{\Delta W_k}{h} \approx \lim_{h \rightarrow 0^+} \frac{\sqrt{h}}{h} = {\frac{1}{\sqrt{h}} \rightarrow \infty} \text{ (Impossible!)}
+\]</span></p>
+<p>rearranging:</p>
+<p><span class="math display">\[
+\sigma_k \Delta W_k = [S_k - S_{k-1}] - E_{k-1}[S_k - S_{k-1}] \\
+\downarrow \\
+dS_t = \underbrace{a (S_t,t)dt}_\text{drift} + \underbrace{b(S_t, t) dW_t}_\text{diffusion}
+\]</span> <strong>Takeaway</strong></p>
+<p><span class="math inline">\(dW_t\)</span> is irregular and its derivative does not exist in the traditional
+sense.</p>
+<p><span class="math display">\[
+\matrix{E[(\Delta W_k])^2]=h &amp; E[\Delta W_k] = 0 &amp; V[\Delta W_k] = h}
+\]</span> The distribution of <span class="math inline">\(W_{t+h} - W\)</span> conditioned on the information set
+<span class="math inline">\(I_t\)</span> is normally distributed with mean 0 and variance h.</p>
+</div>
+</div>
+<div id="itos" class="section level3" number="6.1.2">
+<h3><span class="header-section-number">6.1.2</span> Ito’s</h3>
+<div id="ito-integral-flag-need-to-review-from-book" class="section level4" number="6.1.2.1">
+<h4><span class="header-section-number">6.1.2.1</span> Ito Integral <span style="color: red;">[FLAG] need to review from book?<span style="color: red;"></h4>
+<p><span class="math display">\[
+\int_0^t \sigma(S_u,u)dW_u
+\]</span></p>
+<ol style="list-style-type: decimal">
+<li><span class="math inline">\(\lim_{sup_i |t_{i r} - t_i| \rightarrow 0} \sum^{n-1}_{i=0} g(X_{t_{i+1}})[F(X_{t_{i+1}}) - F(X_{t_i})] = \int_0^T g(X_T)dF(X_t)\)</span></li>
+<li><span class="math inline">\(\lim_{n \rightarrow \infty} \sum^{n-1}_{k=1} \sigma (S_{k-1}, k)[w_k - w_{k-1}] = \int_0^T \sigma(S_u,u)dW_u\)</span></li>
+<li>Used for constructing stochastic integrals involving Wiener Process.
+<span class="math display">\[
+\lim_{n \rightarrow \infty} E [\sum^{n-1}_{k=1} \sigma (S_{k-1}, k)[w_k - w_{k-1}] -  \int_0^T \sigma(S_u,u)dW_u]^2 =0
+\]</span></li>
+</ol>
+<p><strong>Ito Definition</strong></p>
+<p>Consider the finite interval approximation of the stochastic
+differential equation.</p>
+<p><span class="math display">\[
+S_k - S_{k-1}  = a (S_{k-1}, k)h + \sigma (S_{k-1}, k)[w_k - w_{k-1}]
+\]</span></p>
+<p>when <span class="math inline">\([w_k - w_{k-1}]\)</span> is a standard Wiener process with 0 mean and
+variance h.</p>
+<ul>
+<li><span class="math inline">\(\sigma (S_t,t)\)</span> is non-anticipative (independent of the future)</li>
+<li><span class="math inline">\(\sigma (S_t,t)\)</span> is non-explosive
+<span class="math inline">\(E[\int_0^T \sigma(S_t,t)^2 dt] &lt; 0\)</span></li>
+</ul>
+<p>Then the Ito Integral is the mean square limit</p>
+<p><span class="math display">\[
+\int_0^T \sigma (S_t,t) dW_t = \sum^n_{k=1} \sigma (S_k,k)[w_k - w_{k-1}]
+\]</span></p>
+<p>Additional notes:</p>
+<ul>
+<li>The Ito Integral here is <span class="math inline">\(\int_0^T \sigma (S_t,t) dW_t\)</span></li>
+<li>Ito is a random variable and a martingale</li>
+<li>Ito Integral is a mean-square limit</li>
+</ul>
+<p><strong>Stochastic vs Deterministic Integrals</strong></p>
+<ul>
+<li>The notion of a limit involves random variables</li>
+<li>Ito integral defined for non-anticipative functions only</li>
+<li>Deterministic calculus uses actual paths followed by functions,
+stochastic integrals use stochastic equivalence.</li>
+</ul>
+</div>
+<div id="itos-isometry" class="section level4" number="6.1.2.2">
+<h4><span class="header-section-number">6.1.2.2</span> Ito’s Isometry</h4>
+<p>For any <span class="math inline">\(X_t(w)\)</span> which is square integrable, the following holds</p>
+<p><span class="math display">\[
+E[(\int_0^t X_u(w)dW_u(w))^2] = E[\int_0^t X_u(w)]^2 du
+\]</span></p>
+<ul>
+<li><em>Existence</em>: If f is continuous and non-anticipating, Then the Ito
+Integral exists</li>
+<li><em>Martingale</em>: <span class="math inline">\(E[\int_0^T f(W_t,t)dW_t] = 0\)</span></li>
+<li><em>Additive</em></li>
+</ul>
+<p>Products</p>
+<ol style="list-style-type: decimal">
+<li><span class="math inline">\(E[\int_0^T f(W_t,t)dW_t \int_0^T g(W_t,t)dW_t] = E[\int_0^T f(W_t,t)g(W_t,t)dW_t]\)</span></li>
+<li><span class="math inline">\(E[\int_0^T f(W_t,t)dW_t \int_0^T f(W_t,t)dW_t] = E[\int_0^T f(W_t,t)^2 dW_t]\)</span></li>
+</ol>
+</div>
+<div id="itos-lemma" class="section level4" number="6.1.2.3">
+<h4><span class="header-section-number">6.1.2.3</span> Ito’s Lemma</h4>
+<ol style="list-style-type: decimal">
+<li>Identify <span class="math inline">\(F(S_t,t)\)</span></li>
+<li>Identify <span class="math inline">\(a_t\)</span> and <span class="math inline">\(\sigma_t\)</span>
+<ul>
+<li><span class="math inline">\(dS_t = a_t dt + \sigma_t dW_t\)</span></li>
+</ul></li>
+<li>Calculate Partial Derivatives
+<ul>
+<li><span class="math inline">\(\frac{\partial F}{\partial S_t }\)</span> , <span class="math inline">\(\frac{\partial F}{\partial t}\)</span>
+, <span class="math inline">\(\frac{\partial^2 F}{\partial S_t^2}\)</span></li>
+</ul></li>
+<li>Plug and Chug
+<ul>
+<li><span class="math inline">\(dF_t = [a_t \frac{\partial F}{\partial S_t} + \frac{\partial F}{\partial t} + \frac{1}{2}\sigma \frac{\partial^2 F}{\partial S_t^2}]dt + \frac{\partial F}{\partial S_t } \sigma_t dW_t\)</span></li>
+</ul></li>
+</ol>
+</div>
+</div>
+<div id="common-sdes" class="section level3" number="6.1.3">
+<h3><span class="header-section-number">6.1.3</span> Common SDE’s</h3>
+<p><strong>Linear:</strong></p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp; dS_t = a(S_t,t)dt + \sigma (S_t,t) dW_t \\
+&amp;  a(S_t,t)  = \mu \\
+&amp;  \sigma (S_t,t) = \sigma
+\end{aligned}
+\]</span></p>
+<ul>
+<li>This gives the linear SDE: <span class="math inline">\(dS_t = \mu dt + \sigma dW_t\)</span></li>
+<li>linear trend <span class="math inline">\(\mu\)</span> with noise term scaled by <span class="math inline">\(\sigma\)</span></li>
+</ul>
+<p><strong>Geometric Brownian Motion (GBM):</strong>
+<span class="math inline">\(dS_t = \mu S_t dt + \sigma S_t dW_t\)</span></p>
+<ul>
+<li>This is an exponential trend <span class="math inline">\(e^\mu\)</span> with noise scaled by <span class="math inline">\(\sigma\)</span></li>
+<li>Divide both sides by <span class="math inline">\(S_t\)</span> to get an intuition w/ percentages</li>
+<li><span class="math display">\[
+  \underbrace{\frac{dS_t}{S_t}}_{\text{ Actual % Change}} = \overbrace{\mu dt}^{\text{Expected % Change}} + \underbrace{\sigma dW_t}_{\text{Unexpected % Change}}
+  \]</span></li>
+<li>Equivalently written as
+<span class="math inline">\(d \ln(S_t) = (\mu - \frac{1}{2}\sigma^2)dt = \sigma dW_t\)</span></li>
+</ul>
+<p><strong>Square Root Process:</strong> <span class="math inline">\(dS_t = \mu S_t dt + \sigma \sqrt{S_t} dW_t\)</span></p>
+<ul>
+<li>Reduces randomness by taking sqrt of the noise component</li>
+</ul>
+<p><strong>Mean-Reverting Process:</strong>
+<span class="math inline">\(dS_t = \lambda (\mu - S_t) dt + \sigma S_t dW_t\)</span></p>
+<ul>
+<li>$&gt; 0 $: rate of mean reversion</li>
+<li><span class="math inline">\(\mu\)</span> is the level of mean reversion</li>
+<li>if <span class="math inline">\(\mu &lt; S_t\)</span>, drift term is negative so the process drifts to
+<span class="math inline">\(\mu\)</span> <span style="color: red;">[FLAG] review
+drift<span style="color: red;"></li>
+<li>if <span class="math inline">\(\mu &gt; S_t\)</span>, drift term is positive, <span class="math inline">\(S_t\)</span> drifts back up to
+<span class="math inline">\(\mu\)</span></li>
+</ul>
+<p><strong>Ornstein-Uhlenbeck Process:</strong> <span class="math inline">\(dS_t = -\mu S_t dt + \sigma dW_t\)</span></p>
+<ul>
+<li><span class="math inline">\(\mu &gt; 0\)</span> sets the speed of reversion</li>
+<li>Mean reverting process around <span class="math inline">\(S_t = 0\)</span></li>
+</ul>
+<p><strong>Summary</strong></p>
+<table>
+<colgroup>
+<col width="28%" />
+<col width="71%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">SDE Name</th>
+<th align="left">SDE Form</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Linear</td>
+<td align="left"><span class="math inline">\(dS_t = a(S_t,t)dt + \sigma (S_t,t) dW_t\)</span></td>
+</tr>
+<tr class="even">
+<td align="left">GBM</td>
+<td align="left"><span class="math inline">\(dS_t = \mu S_t dt + \sigma S_t dW_t\)</span></td>
+</tr>
+<tr class="odd">
+<td align="left">Square Root</td>
+<td align="left"><span class="math inline">\(dS_t = \mu S_t dt + \sigma \sqrt{S_t} dW_t\)</span></td>
+</tr>
+<tr class="even">
+<td align="left">Mean Reverting</td>
+<td align="left"><span class="math inline">\(dS_t = \lambda (\mu - S_t) dt + \sigma S_t dW_t\)</span></td>
+</tr>
+<tr class="odd">
+<td align="left">Ornstein-Uhlenbeck</td>
+<td align="left"><span class="math inline">\(dS_t = -\mu S_t dt + \sigma dW_t\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="stochastic-variance" class="section level2" number="6.2">
+<h2><span class="header-section-number">6.2</span> Stochastic Variance</h2>
+<p><span class="math inline">\(dS_t = \mu S_t dt + \sigma S_t dW_t \rightarrow d\sigma_t = \lambda(\sigma_0 - \sigma_t)dt + \alpha \sigma_t dW_t\)</span></p>
+<p>2 kinds of jump framework:</p>
+<ol style="list-style-type: decimal">
+<li>Jump-diffusion models: Adds in a jump component to the SDE to our
+typical diffusion model.</li>
+<li>Variange-Gamma: perform a stochastic time change</li>
+</ol>
+<div id="jump-diffusion" class="section level3" number="6.2.1">
+<h3><span class="header-section-number">6.2.1</span> Jump-Diffusion</h3>
+<ul>
+<li><span class="math inline">\(\frac{d S_t}{S_t} = \mu dt + \sigma dW_t\)</span></li>
+<li>Jump occurs with probability <span class="math inline">\(\lambda dt\)</span></li>
+<li>jump occurs of <span class="math inline">\(dN_t = 1\)</span> otherwise <span class="math inline">\(dN_t =0\)</span></li>
+<li>The expected proportion jump size is <span class="math inline">\(K = E(e^{J} -1)\)</span></li>
+<li>J &gt; 0 upward jump, J &lt; 0 downward jump</li>
+<li>Jump-Diffusion Model cn be based on
+<span class="math inline">\(\frac{d S_t}{S_t} = (\mu - \lambda K) dt + \sigma dW_t + (e^J -1) dN_t\)</span></li>
+</ul>
+</div>
+<div id="variance-gamma-vg-process" class="section level3" number="6.2.2">
+<h3><span class="header-section-number">6.2.2</span> Variance-Gamma (VG) Process</h3>
+<ul>
+<li>Performs a stochastic time change. Adjusting time period will adjust
+the volatility, so this is a stochastic variance model as well.</li>
+<li>The stochastic time is <span class="math inline">\(\gamma(t; 1,v)\)</span> which is Gamma distributed</li>
+<li>The process given the stochastic time is
+<span class="math inline">\(b(t, \sigma, \theta) = \theta t + \sigma W_t\)</span></li>
+<li>The unconditional process is defined by:
+<span class="math inline">\(X(t; \sigma, v, \theta) = b(\gamma(t; 1,v), \sigma, \theta) = \theta \gamma(t; 1,v) + \sigma W(\gamma(t; 1,v))\)</span></li>
+<li>If <span class="math inline">\(t^* = \gamma(t; 1,v)\)</span>, then
+<span class="math inline">\(X(t; \sigma, v, \theta) = \theta t^* + \sigma W(t^*)\)</span></li>
+</ul>
+</div>
+</div>
+</div>
+<p style="text-align: center;">
+<a href="brownian-motion-and-wiener-processes.html"><button class="btn btn-default">Previous</button></a>
+<a href="black-scholes-pde-derivation.html"><button class="btn btn-default">Next</button></a>
+</p>
+</div>
+</div>
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+</body>
+</html>

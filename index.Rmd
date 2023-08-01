@@ -1,0 +1,53 @@
+---
+title: "Exam QFI"
+author: "Steven Cheng"
+date: "2023-05-03"
+output:
+  bookdown::html_document2:
+    keep_tex: true
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    toc_collapse: true
+    theme: simplex
+    split_by: chapter
+editor_options:
+  markdown:
+    wrap: 72
+classoption:
+- twocolumn
+# header-includes:
+#   - \usepackage{tikz}
+#   - \ifdefined\HCode
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("kableExtra")
+library("tidyverse")
+  
+```
+
+\newpage
+
+<span style="display: none;">
+$$
+\newcommand{\Lagr}{\mathcal{L}}
+\newcommand{\bP}{\mathbb{P}}
+\newcommand{\bR}{\mathbb{R}}
+\newcommand{\bQ}{\mathbb{Q}}
+\newcommand{\bE}{\mathbb{E}}
+\Lagr \bP \bR \bQ \bE 
+$$ 
+<span style="display: none;">
+
+::: {.hidden}
+$$
+\newcommand{\Lagr}{\mathcal{L}}
+\newcommand{\bP}{\mathbb{P}}
+\newcommand{\bR}{\mathbb{R}}
+\newcommand{\bQ}{\mathbb{Q}}
+\newcommand{\bE}{\mathbb{E}}
+\Lagr \bP \bR \bQ \bE 
+$$ 
+:::

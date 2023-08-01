@@ -1,0 +1,6 @@
+\newcommand{\Lagr}{\mathcal{L}}
+\newcommand{\bP}{\mathbb{P}}
+\newcommand{\bR}{\mathbb{R}}
+\newcommand{\bQ}{\mathbb{Q}}
+\newcommand{\bE}{\mathbb{E}}
+\Lagr \bP \bR \bQ \bE 

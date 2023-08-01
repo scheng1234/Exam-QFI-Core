@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta property="og:title" content="11 Term Structure Models - Continuous Time | Exam QFI" />
+<meta property="og:type" content="book" />
+
+
+
+
+<meta name="author" content="Steven Cheng" />
+
+<meta name="date" content="2023-05-03" />
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<meta name="description" content="11 Term Structure Models - Continuous Time | Exam QFI">
+
+<title>11 Term Structure Models - Continuous Time | Exam QFI</title>
+
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.5/css/simplex.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="libs/navigation-1.1/tabsets.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+/* show arrow before summary tag as in bootstrap
+TODO: remove if boostrap in updated in html_document (rmarkdown#1485) */
+details > summary {
+  display: list-item;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container-fluid main-container">
+
+
+<div class="row">
+<div class="col-sm-12">
+<div id="TOC">
+<ul>
+<li><a href="a-note-about-notations.html#a-note-about-notations" id="toc-a-note-about-notations"><span class="toc-section-number">1</span> A Note About Notations</a></li>
+<li class="has-sub"><a href="FD.html#FD" id="toc-FD"><span class="toc-section-number">2</span> Financial Derivatives</a>
+<ul>
+<li><a href="FD.html#risk-neutral-pricing-summary" id="toc-risk-neutral-pricing-summary"><span class="toc-section-number">2.1</span> Risk Neutral Pricing Summary</a></li>
+<li class="has-sub"><a href="FD.html#Options" id="toc-Options"><span class="toc-section-number">2.2</span> Exotic Options</a>
+<ul>
+<li><a href="FD.html#lookback-options" id="toc-lookback-options"><span class="toc-section-number">2.2.1</span> Lookback Options</a></li>
+<li><a href="FD.html#ladder-options" id="toc-ladder-options"><span class="toc-section-number">2.2.2</span> Ladder Options</a></li>
+<li><a href="FD.html#trigger-or-knock-in-options" id="toc-trigger-or-knock-in-options"><span class="toc-section-number">2.2.3</span> Trigger or Knock-in Options</a></li>
+<li><a href="FD.html#knock-out-options" id="toc-knock-out-options"><span class="toc-section-number">2.2.4</span> Knock-out Options</a></li>
+<li><a href="FD.html#other-exotics" id="toc-other-exotics"><span class="toc-section-number">2.2.5</span> Other Exotics</a></li>
+</ul></li>
+<li class="has-sub"><a href="FD.html#interest-rate-sensitive-securities" id="toc-interest-rate-sensitive-securities"><span class="toc-section-number">2.3</span> Interest Rate Sensitive Securities</a>
+<ul>
+<li><a href="FD.html#interest-rate-derivatives" id="toc-interest-rate-derivatives"><span class="toc-section-number">2.3.1</span> Interest Rate Derivatives</a></li>
+</ul></li>
+</ul></li>
+<li class="has-sub"><a href="math-of-financial-derivatives.html#math-of-financial-derivatives" id="toc-math-of-financial-derivatives"><span class="toc-section-number">3</span> Math of Financial Derivatives</a>
+<ul>
+<li><a href="math-of-financial-derivatives.html#basics" id="toc-basics"><span class="toc-section-number">3.0.1</span> Basics</a></li>
+<li><a href="math-of-financial-derivatives.html#intermediate" id="toc-intermediate"><span class="toc-section-number">3.0.2</span> Intermediate</a></li>
+</ul></li>
+<li class="has-sub"><a href="pricing-methods.html#pricing-methods" id="toc-pricing-methods"><span class="toc-section-number">4</span> Pricing Methods</a>
+<ul>
+<li><a href="pricing-methods.html#convergence" id="toc-convergence"><span class="toc-section-number">4.1</span> Convergence</a></li>
+<li><a href="pricing-methods.html#martingales" id="toc-martingales"><span class="toc-section-number">4.2</span> Martingales</a></li>
+</ul></li>
+<li class="has-sub"><a href="brownian-motion-and-wiener-processes.html#brownian-motion-and-wiener-processes" id="toc-brownian-motion-and-wiener-processes"><span class="toc-section-number">5</span> Brownian Motion and Wiener Processes</a>
+<ul>
+<li><a href="brownian-motion-and-wiener-processes.html#brownian-motion" id="toc-brownian-motion"><span class="toc-section-number">5.1</span> Brownian Motion</a></li>
+<li><a href="brownian-motion-and-wiener-processes.html#wiener-process" id="toc-wiener-process"><span class="toc-section-number">5.2</span> Wiener Process</a></li>
+<li><a href="brownian-motion-and-wiener-processes.html#poisson-process" id="toc-poisson-process"><span class="toc-section-number">5.3</span> Poisson Process</a></li>
+<li><a href="brownian-motion-and-wiener-processes.html#characterizing-rare-and-normal-events" id="toc-characterizing-rare-and-normal-events"><span class="toc-section-number">5.4</span> Characterizing Rare and Normal Events</a></li>
+</ul></li>
+<li class="has-sub"><a href="stochastic-calculus.html#stochastic-calculus" id="toc-stochastic-calculus"><span class="toc-section-number">6</span> Stochastic Calculus</a>
+<ul>
+<li class="has-sub"><a href="stochastic-calculus.html#stochastic-derivative" id="toc-stochastic-derivative"><span class="toc-section-number">6.1</span> Stochastic Derivative</a>
+<ul>
+<li><a href="stochastic-calculus.html#framework" id="toc-framework"><span class="toc-section-number">6.1.1</span> Framework</a></li>
+<li><a href="stochastic-calculus.html#itos" id="toc-itos"><span class="toc-section-number">6.1.2</span> Ito’s</a></li>
+<li><a href="stochastic-calculus.html#common-sdes" id="toc-common-sdes"><span class="toc-section-number">6.1.3</span> Common SDE’s</a></li>
+</ul></li>
+<li class="has-sub"><a href="stochastic-calculus.html#stochastic-variance" id="toc-stochastic-variance"><span class="toc-section-number">6.2</span> Stochastic Variance</a>
+<ul>
+<li><a href="stochastic-calculus.html#jump-diffusion" id="toc-jump-diffusion"><span class="toc-section-number">6.2.1</span> Jump-Diffusion</a></li>
+<li><a href="stochastic-calculus.html#variance-gamma-vg-process" id="toc-variance-gamma-vg-process"><span class="toc-section-number">6.2.2</span> Variance-Gamma (VG) Process</a></li>
+</ul></li>
+</ul></li>
+<li class="has-sub"><a href="black-scholes-pde-derivation.html#black-scholes-pde-derivation" id="toc-black-scholes-pde-derivation"><span class="toc-section-number">7</span> Black-Scholes PDE Derivation</a>
+<ul>
+<li><a href="black-scholes-pde-derivation.html#forming-risk-free-portfolios" id="toc-forming-risk-free-portfolios"><span class="toc-section-number">7.1</span> Forming Risk-Free Portfolios</a></li>
+<li><a href="black-scholes-pde-derivation.html#pde-classification" id="toc-pde-classification"><span class="toc-section-number">7.2</span> PDE Classification</a></li>
+<li class="has-sub"><a href="black-scholes-pde-derivation.html#black-scholes" id="toc-black-scholes"><span class="toc-section-number">7.3</span> Black-Scholes</a>
+<ul>
+<li><a href="black-scholes-pde-derivation.html#geometric-look-at-black-scholes" id="toc-geometric-look-at-black-scholes"><span class="toc-section-number">7.3.1</span> Geometric Look at Black-Scholes</a></li>
+<li><a href="black-scholes-pde-derivation.html#partial-integro-differential-equations-pide" id="toc-partial-integro-differential-equations-pide"><span class="toc-section-number">7.3.2</span> Partial-Integro Differential Equations (PIDE)</a></li>
+<li><a href="black-scholes-pde-derivation.html#complications-of-black-scholes" id="toc-complications-of-black-scholes"><span class="toc-section-number">7.3.3</span> Complications of Black-Scholes</a></li>
+</ul></li>
+</ul></li>
+<li class="has-sub"><a href="equivalent-martingale-measures.html#equivalent-martingale-measures" id="toc-equivalent-martingale-measures"><span class="toc-section-number">8</span> Equivalent Martingale Measures</a>
+<ul>
+<li><a href="equivalent-martingale-measures.html#radon-nikodym-derivative" id="toc-radon-nikodym-derivative"><span class="toc-section-number">8.1</span> Radon-Nikodym Derivative</a></li>
+<li><a href="equivalent-martingale-measures.html#converting-asset-prices-into-martingales" id="toc-converting-asset-prices-into-martingales"><span class="toc-section-number">8.2</span> Converting Asset Prices into Martingales</a></li>
+</ul></li>
+<li class="has-sub"><a href="extension-of-arbitrage-theorem.html#extension-of-arbitrage-theorem" id="toc-extension-of-arbitrage-theorem"><span class="toc-section-number">9</span> Extension of Arbitrage Theorem</a>
+<ul>
+<li><a href="extension-of-arbitrage-theorem.html#forward-measure" id="toc-forward-measure"><span class="toc-section-number">9.1</span> Forward Measure</a></li>
+<li><a href="extension-of-arbitrage-theorem.html#other-measures" id="toc-other-measures"><span class="toc-section-number">9.2</span> Other Measures</a></li>
+</ul></li>
+<li class="has-sub"><a href="modeling-term-structure-and-related-concepts.html#modeling-term-structure-and-related-concepts" id="toc-modeling-term-structure-and-related-concepts"><span class="toc-section-number">10</span> Modeling Term Structure and Related Concepts</a>
+<ul>
+<li><a href="modeling-term-structure-and-related-concepts.html#classical-vs-hjm" id="toc-classical-vs-hjm"><span class="toc-section-number">10.1</span> Classical vs HJM</a></li>
+<li><a href="modeling-term-structure-and-related-concepts.html#fitting-to-initial-term-structure-flag-review-this-section-again-or-combine-because-its-too-short" id="toc-fitting-to-initial-term-structure-flag-review-this-section-again-or-combine-because-its-too-short"><span class="toc-section-number">10.2</span> Fitting to Initial Term Structure <span style="color: red;">[FLAG] Review this section again, or combine because it’s too short? <span style="color: red;"></a></li>
+<li class="has-sub"><a href="modeling-term-structure-and-related-concepts.html#classical-pde-analysis-for-interest-rate-derivatives" id="toc-classical-pde-analysis-for-interest-rate-derivatives"><span class="toc-section-number">10.3</span> Classical PDE Analysis for Interest Rate Derivatives</a>
+<ul>
+<li><a href="modeling-term-structure-and-related-concepts.html#derivation-of-bond-price-pde" id="toc-derivation-of-bond-price-pde"><span class="toc-section-number">10.3.1</span> Derivation of Bond Price PDE</a></li>
+<li><a href="modeling-term-structure-and-related-concepts.html#comparing-to-black-scholes" id="toc-comparing-to-black-scholes"><span class="toc-section-number">10.3.2</span> Comparing to Black-Scholes</a></li>
+</ul></li>
+</ul></li>
+<li class="has-sub"><a href="term-structure-models---continuous-time.html#term-structure-models---continuous-time" id="toc-term-structure-models---continuous-time"><span class="toc-section-number">11</span> Term Structure Models - Continuous Time</a>
+<ul>
+<li class="has-sub"><a href="term-structure-models---continuous-time.html#no-arbitrage-pricing-vasicek-model" id="toc-no-arbitrage-pricing-vasicek-model"><span class="toc-section-number">11.1</span> No-Arbitrage Pricing: Vasicek Model</a>
+<ul>
+<li><a href="term-structure-models---continuous-time.html#vasicek-zero-coupon-bond" id="toc-vasicek-zero-coupon-bond"><span class="toc-section-number">11.1.1</span> Vasicek Zero Coupon Bond</a></li>
+<li><a href="term-structure-models---continuous-time.html#spot-rate-duration" id="toc-spot-rate-duration"><span class="toc-section-number">11.1.2</span> Spot Rate Duration</a></li>
+<li><a href="term-structure-models---continuous-time.html#coupon-bond" id="toc-coupon-bond"><span class="toc-section-number">11.1.3</span> Coupon Bond</a></li>
+<li><a href="term-structure-models---continuous-time.html#estimating-parameters-of-vasicek-model" id="toc-estimating-parameters-of-vasicek-model"><span class="toc-section-number">11.1.4</span> Estimating Parameters of Vasicek Model</a></li>
+<li><a href="term-structure-models---continuous-time.html#pricing-options-on-zero-coupon-bonds" id="toc-pricing-options-on-zero-coupon-bonds"><span class="toc-section-number">11.1.5</span> Pricing Options on Zero-Coupon Bonds</a></li>
+<li><a href="term-structure-models---continuous-time.html#problems" id="toc-problems"><span class="toc-section-number">11.1.6</span> Problems</a></li>
+</ul></li>
+<li><a href="term-structure-models---continuous-time.html#cir-model" id="toc-cir-model"><span class="toc-section-number">11.2</span> CIR Model</a></li>
+<li><a href="term-structure-models---continuous-time.html#replicating-portfolio-and-relative-value-trades" id="toc-replicating-portfolio-and-relative-value-trades"><span class="toc-section-number">11.3</span> Replicating Portfolio and Relative Value Trades</a></li>
+<li><a href="term-structure-models---continuous-time.html#risk-premiums" id="toc-risk-premiums"><span class="toc-section-number">11.4</span> Risk Premiums</a></li>
+</ul></li>
+<li><a href="macroeconomic-model-of-term-structure.html#macroeconomic-model-of-term-structure" id="toc-macroeconomic-model-of-term-structure"><span class="toc-section-number">12</span> Macroeconomic Model of Term Structure</a></li>
+<li class="has-sub"><a href="HoLee.html#HoLee" id="toc-HoLee"><span class="toc-section-number">13</span> Ho-Lee Model</a>
+<ul>
+<li><a href="HoLee.html#approximating-theta_t" id="toc-approximating-theta_t"><span class="toc-section-number">13.1</span> Approximating <span class="math inline">\(\theta_t\)</span></a></li>
+<li><a href="HoLee.html#term-structure-of-volaitility" id="toc-term-structure-of-volaitility"><span class="toc-section-number">13.2</span> Term Structure of Volaitility</a></li>
+<li><a href="HoLee.html#summary" id="toc-summary"><span class="toc-section-number">13.3</span> Summary</a></li>
+</ul></li>
+<li class="has-sub"><a href="theory.html#theory" id="toc-theory"><span class="toc-section-number">14</span> Theory</a>
+<ul>
+<li><a href="theory.html#doob-meyer-theorem" id="toc-doob-meyer-theorem"><span class="toc-section-number">14.1</span> Doob-Meyer Theorem</a></li>
+<li><a href="theory.html#riemann-stieltjes" id="toc-riemann-stieltjes"><span class="toc-section-number">14.2</span> Riemann-Stieltjes</a></li>
+<li class="has-sub"><a href="theory.html#Girsanov" id="toc-Girsanov"><span class="toc-section-number">14.3</span> Girsanov Theorem</a>
+<ul>
+<li><a href="theory.html#preliminary-setup" id="toc-preliminary-setup"><span class="toc-section-number">14.3.1</span> Preliminary Setup</a></li>
+<li><a href="theory.html#theorem" id="toc-theorem"><span class="toc-section-number">14.3.2</span> Theorem</a></li>
+<li><a href="theory.html#notes" id="toc-notes"><span class="toc-section-number">14.3.3</span> Notes</a></li>
+</ul></li>
+</ul></li>
+<li class="has-sub"><a href="examples-consider-moving-this-to-another-markdown-file.html#examples-consider-moving-this-to-another-markdown-file" id="toc-examples-consider-moving-this-to-another-markdown-file"><span class="toc-section-number">15</span> Examples <span style="color: red;">Consider moving this to another markdown file<span style="color: red;"></a>
+<ul>
+<li class="has-sub"><a href="examples-consider-moving-this-to-another-markdown-file.html#brownian-motion-1" id="toc-brownian-motion-1"><span class="toc-section-number">15.1</span> Brownian Motion</a>
+<ul>
+<li><a href="examples-consider-moving-this-to-another-markdown-file.html#distribution-of-w_5---w_2" id="toc-distribution-of-w_5---w_2"><span class="toc-section-number">15.1.1</span> Distribution of <span class="math inline">\(W_5 - W_2\)</span></a></li>
+<li><a href="examples-consider-moving-this-to-another-markdown-file.html#lognormal" id="toc-lognormal"><span class="toc-section-number">15.1.2</span> Lognormal</a></li>
+</ul></li>
+<li><a href="examples-consider-moving-this-to-another-markdown-file.html#forecasting" id="toc-forecasting"><span class="toc-section-number">15.2</span> Forecasting</a></li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="row">
+<div class="col-sm-12">
+<div id="term-structure-models---continuous-time" class="section level1" number="11">
+<h1><span class="header-section-number">11</span> Term Structure Models - Continuous Time</h1>
+<p>Introduction to stochastic interest rate models: <strong>Vasicek</strong></p>
+<p><span class="math display">\[
+dr_t = \gamma(\bar{r} - r_t) dt + \sigma dX_t
+\]</span></p>
+<ul>
+<li><span class="math inline">\(\bar{r}\)</span> is the long term value of the short rate</li>
+<li><span class="math inline">\(\gamma\)</span> is the speed of the mean reversion</li>
+<li><span class="math inline">\(\sigma\)</span> is the volatility of the short rate r(t)</li>
+</ul>
+<p>Solving for <span class="math inline">\(r_t\)</span>, conditional at a time s&lt;t:</p>
+<p><span class="math display">\[
+r(t) = r(s) e ^{\gamma(t-s)} + \bar{r} (1 - e ^{\gamma(t-s)}) + \sigma \int_s^t e ^{\gamma(t-u)} dX(u)
+\]</span></p>
+<p>The stochastic integral is normally distributed thus r(t) is normally distributed with:</p>
+<p><span class="math display">\[
+\text{Expectation: } E[r_t|F_s] = \bar{r} + (r_0 - \bar{r})e ^{-\gamma(t-s)} \\
+\text{Variance: } Var[r_t|F_s] = \frac{\sigma ^2}{2\gamma}[1 - e ^{-2\gamma(t-s)}]
+\]</span></p>
+<p>As <span class="math inline">\(t \rightarrow \infty\)</span>, the stationary distribution of <span class="math inline">\(r_t\)</span> is still normal with:</p>
+<ul>
+<li>Mean: <span class="math inline">\(\bar{r}\)</span></li>
+<li>Variance: <span class="math inline">\(\frac{\sigma ^2}{2\gamma}\)</span></li>
+</ul>
+<div id="no-arbitrage-pricing-vasicek-model" class="section level2" number="11.1">
+<h2><span class="header-section-number">11.1</span> No-Arbitrage Pricing: Vasicek Model</h2>
+<ol style="list-style-type: decimal">
+<li>Setup a portfolio that is long on eunit of a security with price <span class="math inline">\(Z_1(r,t)\)</span> and short <span class="math inline">\(\Delta\)</span> units of another interest rate security with price <span class="math inline">\(Z_2(r,t)\)</span>
+<ul>
+<li>The value of this portfolio at time t: <span class="math inline">\(\Pi(r,t) = Z_1(r,t) - \Delta Z_2(r,t)\)</span></li>
+</ul></li>
+<li>Choose <span class="math inline">\(\Delta\)</span> so that interest rate risk is hedged
+<ul>
+<li><span class="math inline">\(\frac{\partial \Pi(r,t)}{\partial r} = \frac{\partial Z_1(r,t)}{\partial r} - \frac{\partial \Delta Z_2(r,t)}{\partial r}\)</span></li>
+<li><span class="math inline">\(\Delta = \frac{\partial Z_1 / \partial r}{\partial Z_2 / \partial r}\)</span></li>
+</ul></li>
+<li>Apply Ito’s Lemma to solve for the stochastic dynamics of <span class="math inline">\(\Pi(r,t)\)</span></li>
+</ol>
+<p><span class="math display">\[
+\begin{aligned}
+d\Pi_t &amp;= \frac{\partial \Pi}{\partial t} dt +\frac{\partial \Pi}{\partial r} dr+ \frac{1}{2}\frac{ \partial^2 \Pi}{\partial r^2}dr^2 \\
+&amp;= \left(\frac{\partial \Pi}{\partial t} + \frac{\partial \Pi}{\partial r}\gamma(\bar{r} - r_t) + \frac{1}{2}\frac{ \partial^2 \Pi}{\partial r^2}\sigma^2\right)dt + \frac{\partial \Pi}{\partial t}\sigma dX_t
+\end{aligned}
+\]</span></p>
+<p>Under the hedging strategy, <span class="math inline">\(\frac{\partial \Pi}{\partial r} = 0\)</span>, so <span class="math inline">\(d\Pi\)</span> simplifies to:</p>
+<p><span class="math display">\[
+d\Pi_t = \left(\frac{\partial \Pi}{\partial t} + \frac{1}{2}\frac{ \partial^2 \Pi}{\partial r^2}\sigma^2\right)dt
+\]</span></p>
+<ol start="4" style="list-style-type: decimal">
+<li>Impose a no-arbitrage constraint based on the fact that the portfolio must earn the risk-free rate: <span class="math inline">\(d\Pi_t = r_t \Pi dt\)</span> so that:</li>
+</ol>
+<p><span class="math display">\[
+d\Pi_t = \left(\frac{\partial \Pi}{\partial t} + \frac{1}{2}\frac{ \partial^2 \Pi}{\partial r^2}\sigma^2\right)dt = r_t \Pi_t
+\]</span></p>
+<ol start="5" style="list-style-type: decimal">
+<li>Rewrite the no-arbitrage conditions in terms of the two securities <span class="math inline">\(Z_{1,t}\)</span> and <span class="math inline">\(Z_{2,t}\)</span> and utilize the fact that <span class="math inline">\(\Delta = \frac{\partial Z_1 / \partial r}{\partial Z_2 / \partial r}\)</span> :</li>
+</ol>
+<p><span class="math display">\[
+\frac{\partial Z_1}{\partial t} + \frac{1}{2} \frac{\partial^2 Z_1}{\partial r^2}\sigma^2 - r_tZ_1 = \Delta \left(\frac{\partial Z_2}{\partial t} + \frac{1}{2} \frac{\partial^2 Z_2}{\partial r^2}\sigma^2 - r_tZ_2\right) \\
+\frac{\frac{\partial Z_1}{\partial t} + \frac{1}{2} \frac{\partial^2 Z_1}{\partial r^2}\sigma^2 - r_tZ_1}{\partial Z_1 / \partial r} = \frac{\left(\frac{\partial Z_2}{\partial t} + \frac{1}{2} \frac{\partial^2 Z_2}{\partial r^2}\sigma^2 - r_tZ_2\right)}{\partial Z_2 / \partial r}
+\]</span></p>
+<ol start="6" style="list-style-type: decimal">
+<li><span class="math inline">\(-m^*(r,t) = \frac{\frac{\partial Z}{\partial t} + \frac{1}{2} \frac{\partial^2 Z}{\partial r^2}\sigma^2 - r_tZ}{\partial Z / \partial r}\)</span></li>
+</ol>
+<ul>
+<li>The Vasicek model assumes <span class="math inline">\(m^*(r,t)\)</span> has the form <span class="math inline">\(m^*(r,t) = \gamma^*(\bar{r}^* - r)\)</span></li>
+</ul>
+<ol start="7" style="list-style-type: decimal">
+<li>Rearrange to obtain the <strong>fundamental pricing equation</strong> that all interest rate derivatives must satisfy:</li>
+</ol>
+<p><span class="math display">\[
+\frac{\partial Z}{\partial t} + \frac{\partial Z}{\partial r} m^*(r,t) + \frac{1}{2} \frac{\partial^2 Z}{\partial r^2}\sigma^2 = rZ
+\]</span></p>
+<ul>
+<li>This partial differential equation was derived from a no-arbitrage condition</li>
+<li>Solving this equation, subject to a final condition for the value of the security at T, will yield a pricing formula for any interest rate security <span class="math inline">\(Z(r,t;T)\)</span>.</li>
+<li>The final condition of the value of the security at maturity T is what differentiates one interest rate security from another.
+<ul>
+<li>Zero-Coupon Bond: <span class="math inline">\(Z(r,t;T) = 1\)</span></li>
+<li>Interest rate option at strike <span class="math inline">\(r_K\)</span>: <span class="math inline">\(Z(r,t;T) = N \times \max{(r-r_K,0)}\)</span></li>
+</ul></li>
+</ul>
+<div id="vasicek-zero-coupon-bond" class="section level3" number="11.1.1">
+<h3><span class="header-section-number">11.1.1</span> Vasicek Zero Coupon Bond</h3>
+<p>Solution to the fundamental pricing equation under a Vasicek model for a zero-coupon bond is:</p>
+<p><span class="math display">\[
+Z(r,t;T) = e^{A(t;T) - B(t,T) \times r} \\
+A(t;T) = (B(t;T) - (T-t)) \left(\bar{r}^* - \frac{\sigma ^ 2}{2(\gamma^*)^2}\right) - \frac{\sigma^2 B(t;T)^2}{4\gamma^*} \\
+B(t;T) = \frac{1}{\gamma^*}(1-e^{-\gamma^* (T-t)})
+\]</span></p>
+<p>Under the Vasicek model, the spot rate, <span class="math inline">\(r_t(\tau)\)</span> for maturity <span class="math inline">\(\tau\)</span> is:</p>
+<p><span class="math display">\[
+r_t(\tau) = -\frac{\ln(Z(r_t, \tau))}{\tau} = - \frac{A(\tau)}{\tau} + \frac{B(\tau)}{\tau}r_T
+\]</span></p>
+<ul>
+<li>When <span class="math inline">\(r_t\)</span> is low, the Vasicek model implies a rising term structure, likewise, when <span class="math inline">\(r_t\)</span> is high, the model implies decreasing term structure</li>
+<li>As <span class="math inline">\(r_t\)</span> changes, all the points on the term structure will move with perfect correlation which is true for all one-factor interest rate models in general, and is considered a large drawback of one factor models.</li>
+</ul>
+<p><strong>Applying Ito’s Lemma on <span class="math inline">\(r_t(\tau)\)</span>:</strong></p>
+<p><span class="math display">\[
+dr_t(\tau) = \left(\frac{B(\tau)}{\tau} \gamma(\bar{r} - r_t)\right)dt + \frac{B(\tau)}{\tau} \sigma dX_t
+\]</span></p>
+<p>Note that <span class="math inline">\(\frac{B(\tau)}{\tau}\)</span> just acts as a scalar for the mean reversion speed and diffusion coefficient. For a fixed value of <span class="math inline">\(\gamma^*\)</span>, this scalar decreases as maturity increases.</p>
+<ul>
+<li><span class="math inline">\(\frac{B(\tau)}{\tau}\)</span> is in the diffusion coefficient. Longer-term rates are <strong>less</strong> volatile than shorter term rates.</li>
+<li><span class="math inline">\(\frac{B(\tau)}{\tau}\)</span> is the mean reversion speed. Longer-term rates move <strong>slower</strong> than short-ter rates in converging to the long-term rate <span class="math inline">\(\bar{r}\)</span></li>
+<li>For a given time-to-maturity <span class="math inline">\(\tau\)</span>, <span class="math inline">\(B(\tau)\)</span> decreases as <span class="math inline">\(\gamma^*\)</span> increases.</li>
+<li>Ultimately Lower levels of <span class="math inline">\(\gamma^* \rightarrow\)</span> higher <span class="math inline">\(B(\tau) \rightarrow\)</span> higher variation in the long-term spot rates.</li>
+</ul>
+</div>
+<div id="spot-rate-duration" class="section level3" number="11.1.2">
+<h3><span class="header-section-number">11.1.2</span> Spot Rate Duration</h3>
+<p><span class="math display">\[
+D_Z = -\frac{1}{Z} \frac{\partial Z}{\partial r}
+\]</span></p>
+<p>Under the Vasicek model, <span class="math inline">\(\frac{\partial Z}{\partial r}\)</span> is given by:</p>
+<p><span class="math display">\[
+\frac{\partial Z}{\partial r} = -B(\tau) \times Z
+\]</span></p>
+<p>The spot rate duration of a zero-coupon bond with time to maturity <span class="math inline">\(\tau\)</span> is given by:</p>
+<p><span class="math display">\[
+D_Z(\tau) = B(\tau) = \frac{1}{\gamma^*}(1-e^{-\gamma^* \tau})
+\]</span></p>
+<p>Lower <span class="math inline">\(\gamma^*\)</span> = higher spot-rate duration. Remember that <span class="math inline">\(\gamma^*\)</span> is the risk neutral parameter of <span class="math inline">\(\gamma\)</span>, not the real world value of <span class="math inline">\(\gamma\)</span>.</p>
+</div>
+<div id="coupon-bond" class="section level3" number="11.1.3">
+<h3><span class="header-section-number">11.1.3</span> Coupon Bond</h3>
+<p>Since a coupon bond is a weighted average of zero-coupon bond bonds, it follows that the spot rate duration of a coupon bond under the Vasicek model is:</p>
+<p><span class="math display">\[
+D_P = \sum_{i=1}^n w_i D_Z (\tau_i)
+\]</span></p>
+<p>The weights for <span class="math inline">\(w_i\)</span> are given by for <span class="math inline">\(i = 1, \dots,n\)</span> : <span class="math inline">\(w_i = 100 \frac{c}{2} \frac{Z(r,\tau_i)}{P(r,\tau)}\)</span></p>
+<p>The weight for <span class="math inline">\(i=n\)</span>, denoted by <span class="math inline">\(w_n\)</span> is: <span class="math inline">\(w_n = 100 \left(1+\frac{c}{2}\right)\frac{Z(r,\tau_n)}{P(r,\tau)}\)</span></p>
+</div>
+<div id="estimating-parameters-of-vasicek-model" class="section level3" number="11.1.4">
+<h3><span class="header-section-number">11.1.4</span> Estimating Parameters of Vasicek Model</h3>
+<p><span class="math inline">\(\sigma, \bar{r}, \gamma\)</span> can be estimated from historical data.</p>
+<ul>
+<li><span class="math inline">\(\sigma\)</span>: calculate the historical volatility of the short rate <span class="math inline">\(r_t\)</span></li>
+<li><span class="math inline">\(\bar{r}\)</span>: average the short-term rate over the sample historical period</li>
+<li><span class="math inline">\(\gamma\)</span>: the slope from regressing the changes in the interest rate <span class="math inline">\((r_{t+\delta} - r_t)\)</span> on <span class="math inline">\(r_t \times \delta\)</span></li>
+<li>If we ignore the stochastic component of the Vasicek model, the change in <span class="math inline">\(r_t\)</span> is: <span class="math inline">\(dr_t = \gamma \times \bar{r} - \gamma \times r_t \times dt\)</span></li>
+<li><span class="math inline">\(\bar{r}^* and \gamma^*\)</span> are calibrated to a set of zero-coupon bonds observed in the market. We solve for the set <span class="math inline">\((\bar{r}^*, \gamma^*)\)</span> that minimizes the following:</li>
+</ul>
+<p><span class="math display">\[
+J(\bar{r}^*, \gamma^*) = \sum_{i=1}^n (Z^{\text{Vasicek}}(r_0, 0, \bar{r}^* , \gamma^*; T_i) - Z^\text{Data}(0, T_i))^2
+\]</span>
+- <span class="math inline">\(Z^\text{Data}(0, T_i)\)</span>: the market price for a zero-coupon bond price expiring at <span class="math inline">\(T_i\)</span>
+- <span class="math inline">\(Z^{\text{Vasicek}}(r_0, 0, \bar{r}^* , \gamma^*; T_i)\)</span>: the Vasicek model’s zero-coupon bond price.
+- Formula essentially is minimizing the absolute difference between real world and Vasicek model by guessing <span class="math inline">\(\bar{r}^*, \gamma^*\)</span></p>
+</div>
+<div id="pricing-options-on-zero-coupon-bonds" class="section level3" number="11.1.5">
+<h3><span class="header-section-number">11.1.5</span> Pricing Options on Zero-Coupon Bonds</h3>
+<p>An option on a zero-coupon bond with maturity <span class="math inline">\(T_O\)</span> and strike price K has a payoff of:</p>
+<p><span class="math display">\[
+\text{Payoff of } T_O = max(Z(T_O; T_B) - K, 0)
+\]</span></p>
+<ul>
+<li><span class="math inline">\(Z(T_O; T_B)\)</span> is the value at time <span class="math inline">\(T_O\)</span> of the bond with maturity <span class="math inline">\(T_B\)</span> under the Vasicek model, the call option value is:</li>
+</ul>
+<p><span class="math display">\[
+V(r_0,0) = Z(0, r_0;T_B)N(d_1) - KZ(0,r_0; T_O)N(d_2)
+\]</span></p>
+<ul>
+<li><span class="math inline">\(N(x)\)</span> is the cumulative standard normal distribution of <span class="math inline">\(d_1\)</span> and <span class="math inline">\(d_2\)</span> given by:</li>
+</ul>
+<p><span class="math display">\[
+d_1 = \frac{1}{S_Z(T_O)} \log \left(\frac{Z(0, r_0;T_B)}{KZ(0,r_0; T_O)}\right) + \frac{S_Z(T_O)}{2} \\
+d_2 = d_1 - S_Z(T_O) \\
+S_Z(T_O) = B(T_O; T_B)\sqrt{\frac{\sigma^2}{2\gamma^*}(1 - e^{-2 \gamma^* T_O})}
+\]</span></p>
+<ul>
+<li><span class="math inline">\(S_Z(T_O)\)</span> is the standard deviation of the log return between 0 and <span class="math inline">\(T_O\)</span> of the underlying zero coupon bond.</li>
+<li>Usin gthe fact that <span class="math inline">\(Var(r(T_O)) = \frac{\sigma^2}{2\gamma^*}(1 - e^{-2 \gamma^* T_O})\)</span> under the Vasicek model, we an solve for <span class="math inline">\(S_Z(T_O)\)</span> as:</li>
+</ul>
+<p><span class="math display">\[
+\begin{aligned}
+Var[\log \left(\frac{Z(T_O, r_{T_O};T_B)}{Z(0,r_0; T_B)}\right)] &amp;= Var[log(Z(T_O, r_{T_O}; T_B))] \\
+&amp;= Var[A(T_O;T_B) - B(T_O;T_B)r_{T_O}] \\
+&amp;= B(T_O; T_B)^2Var[r_{T_O}] \\
+&amp;= B(T_O;T_B)^2 \frac{\sigma^2}{2\gamma^*} (1-e^{-2 \gamma^* T_O})
+\end{aligned}
+\]</span></p>
+</div>
+<div id="problems" class="section level3" number="11.1.6">
+<h3><span class="header-section-number">11.1.6</span> Problems</h3>
+<ul>
+<li>The model parameters need to be calibrated to market zero-coupon bond prices.
+<ul>
+<li>Even after calibration is complete <span class="math inline">\(Z^\text{Vasicek}(0,T) \neq Z^\text{Mkt}(0,T)\)</span></li>
+</ul></li>
+<li>Example, Pricing option on zero-coupon bond. We run into issues
+<ul>
+<li>Do we use market discount factors, or model discount factors?</li>
+</ul></li>
+<li>Solution: Use no-arbitrage models by having the market and model zer-coupon bond prices be the same
+<ul>
+<li><a href="HoLee.html#HoLee">Ho-Lee Model</a></li>
+<li><a href="#HullWhite">Hull-White MOdel</a></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="cir-model" class="section level2" number="11.2">
+<h2><span class="header-section-number">11.2</span> CIR Model</h2>
+<p><span class="math display">\[
+dr_t = \gamma(\bar{r} - r_t) dt + \sqrt{\alpha r_t} dX_t
+\]</span></p>
+<ul>
+<li>Drawback of Vasicek Model; Interest rates can be negative</li>
+<li>Under the CIR model, the interest rate is positive as long as <span class="math inline">\(\gamma \bar{r} &gt; \frac{1}{2} \alpha\)</span>
+<ul>
+<li>When <span class="math inline">\(r_t\)</span> hits 0, the diffusion coefficient becomes 0</li>
+<li><span class="math inline">\(\gamma \bar{r}\)</span> must be large enough so that it can pull up the interest rate back to the long term rate <span class="math inline">\(\bar{r}\)</span></li>
+</ul></li>
+<li>The distribution of <span class="math inline">\(r_t\)</span> is a noncentral chi-square distribution</li>
+<li>One can also derive analytical formulas for interest rate securities under the CIR model</li>
+</ul>
+</div>
+<div id="replicating-portfolio-and-relative-value-trades" class="section level2" number="11.3">
+<h2><span class="header-section-number">11.3</span> Replicating Portfolio and Relative Value Trades</h2>
+<p>The return of security 1 can be replicated by holding <span class="math inline">\(\Delta\)</span> units of security 2, Investing in a cash position <span class="math inline">\(C_t = Z_1(r_t,t) - \Delta Z_2(r_t,t)\)</span> at the risk free rate. Where the value of the replicating portfolio for <span class="math inline">\(Z_1\)</span> at time t is:</p>
+<p><span class="math display">\[
+P_t = \Delta Z_{2,t} + C_t
+\]</span></p>
+<p>By construction, <span class="math inline">\(P_t\)</span> and <span class="math inline">\(Z_{1,t}\)</span> have the same value.</p>
+<p>The value of <span class="math inline">\(\Delta = \frac{\partial Z_1 / \partial r}{ \partial Z_2 / \partial r}\)</span> at the next timestep t + dt will change. To rebalance, adjust the portfolio position in security 2 to the new <span class="math inline">\(\Delta_{t+dt}\)</span>. The new position in cash in our replicating portfolio at t+dt is:</p>
+<p><span class="math display">\[
+C_{t+dt} = C_t + C_t r_t dt - (\Delta_{t + dt} - \Delta_t) Z_{2,t + dt}
+\]</span></p>
+<p>After rebalancing the new value of the replicating portfolio is.</p>
+<p><span class="math display">\[
+P_{t+dt} = \Delta_{t+dt} Z_{2,t+dt} + C_{t+dt}
+\]</span></p>
+<p>One can setup a <strong>relative value trade</strong> to exploit a potential arbitrage opportunity when prices of interest rates securities don’t align with prices predicted by an interest rate model. To setup a relative value trade:</p>
+<ol style="list-style-type: decimal">
+<li>Sell short a STRIP</li>
+<li>Construct a replicating portfolio of the strip using the hedge ratio from the Vasicek model.
+<ul>
+<li>Go long <span class="math inline">\(\Delta\)</span> units of the strip with a longer maturity.</li>
+<li>Invest a cash position at the risk free rate.</li>
+<li>Generally you want to pick the longer maturity at a time where the Vasicek model had low pricing error.</li>
+</ul></li>
+<li>Dynamically rebalance this trading strategy overtime.</li>
+<li>Assuming our estimated model is correct, we should be perfectly tracking the value of the initial STRIP that we are short.</li>
+</ol>
+</div>
+<div id="risk-premiums" class="section level2" number="11.4">
+<h2><span class="header-section-number">11.4</span> Risk Premiums</h2>
+<p>Start with Vasicek Model Dynamics</p>
+<p><span class="math display">\[
+dr_t = \gamma(\bar{r} - r_t) dt + \sigma dX_t
+\]</span></p>
+<p>Let Z(r,t) be teh price at time t of a zero-coupon bond and apply Ito’s Lemma, the dynamics of Z(r,t) are given by:</p>
+<p><span class="math display">\[
+dZ = [\frac{\partial Z}{\partial t} + \frac{1}{2}\frac{\partial ^2 Z}{\partial r^2} \gamma (\bar{r} - r)]dt + \frac{\partial Z}{r} \sigma dX_t \\
+E[dZ] = [\frac{\partial Z}{\partial t} + \frac{1}{2}\frac{\partial ^2 Z}{\partial r^2} \gamma (\bar{r} - r)]dt
+\]</span></p>
+<p>from the Fundamental Pricing Equation:</p>
+<p><span class="math display">\[
+\frac{\partial Z}{\partial t} + \frac{1}{2}\frac{\partial ^2 Z}{\partial r^2} \sigma^2 = rZ - \frac{\partial Z}{\partial r} \gamma^* (\bar{r}^* - r)
+\]</span></p>
+<p>Substitute in for <span class="math inline">\(\frac{\partial Z}{\partial t} + \frac{1}{2}\frac{\partial ^2 Z}{\partial r^2} \sigma^2\)</span> and utilize the fact that <span class="math inline">\(\frac{\partial Z}{\partial r} = -B(r,T)Z\)</span></p>
+<p><span class="math display">\[
+E[dZ] = rZdt - B(t;T) Z(\gamma(\bar{r} - r) - \gamma^* (\bar{r}^* -r))dt
+\]</span></p>
+<p>Rearranging terms, we obtain the annualized <strong>risk premium formula</strong> for a zero-coupon bond under the Vasicek model (aka expected excess return):</p>
+<p><span class="math display">\[
+\text{Risk Premium} = E[\frac{dZ}{Z}]/dt - r = -B(t;T)(\gamma(\bar{r} - r) - \gamma^* (\bar{r}^* -r))dt
+\]</span></p>
+<p><strong>Market Price of interest rate risk</strong></p>
+<p><span class="math display">\[
+\lambda(r,t) = \frac{1}{\sigma} (\gamma(\bar{r} - r) - \gamma^* (\bar{r}^* -r)) \\
+\lambda_0 = \frac{1}{\sigma} (\gamma\bar{r} - \gamma^*\bar{r}^*) , \lambda_1 = \frac{1}{\sigma} (\gamma^* - \gamma) \\
+\text{rewrite: } \lambda(r,t) = \lambda_0 + \lambda_1 r
+\]</span></p>
+<p>The stochastic dynamics of dZ/Z can be written as <span class="math inline">\(\frac{dZ}{Z} = \mu_Z dt + \sigma_Z dX\)</span> where:</p>
+<p><span class="math display">\[
+\sigma_Z = \frac{1}{Z} \frac{\partial Z}{\partial r} \sigma = -B(t;T)\sigma \\
+\mu_Z = \frac{1}{Z}[\frac{\partial Z}{\partial t} + \frac{1}{2} \frac{\partial^2 Z}{ \partial r^2}\sigma^2 + \frac{\partial Z}{ \partial r} \gamma (\bar{r} - r)]
+\]</span></p>
+<p>By multiplying the numerator and denominator of the risk premium by <span class="math inline">\(\sigma\)</span>, then plugging in <span class="math inline">\(\sigma_Z\)</span> we can see that the risk premium is:</p>
+<p><span class="math display">\[
+\text{Risk Premium} = \sigma_Z \times \lambda(r,t)
+\]</span></p>
+<p><strong>Geeneral Interest Rate Model</strong></p>
+<p>Consider a general interest rate model with dynamics:</p>
+<p><span class="math display">\[
+\begin{matrix}
+\text{General Interest Rate Model} &amp; dr_t = m(r_t,t)dt + s(r_t,t)dX_t \\
+\text{Risk premium on: }Z(t,r) &amp; E[\frac{dZ}{Z}]/dt - r = \sigma_Z \times \lambda(r,t) \\
+\text{Volatility of the log-return onf the security} &amp; \sigma_Z = \frac{1}{Z}\frac{\partial Z}{\partial r} s(r,t) \\
+\text{Market price of risk:} &amp; \lambda(r,t) = \frac{1}{s(r,t)}(m(r,t)-m^*(r,t))
+\end{matrix}
+\]</span></p>
+<p>Risk Neutral Dynamics are primarily used for pricing interest rate securities and are not realistic scenarios.</p>
+<p>Risk Natural Dynamics, AKA real world scenarios are realistic. It uses true risk parameters and is often used for risk analysis.</p>
+</div>
+</div>
+<p style="text-align: center;">
+<a href="modeling-term-structure-and-related-concepts.html"><button class="btn btn-default">Previous</button></a>
+<a href="macroeconomic-model-of-term-structure.html"><button class="btn btn-default">Next</button></a>
+</p>
+</div>
+</div>
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+</body>
+</html>

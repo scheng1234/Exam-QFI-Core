@@ -1,0 +1,784 @@
+# Modeling Term Structure and Related Concepts
+
+**Bond Yields and Bond Prices**
+
+$B(t,T) = e^{-R(t,T)(T-t)}, t<T$
+
+Solving for R(t,T) gives: $R(t,T) = \frac{-\log B(t,T)}{T-t}$
+
+**Curve Definitions**
+
+- Yield Curve: The spectrum of yields $R(t,T), T \in (t,T_{\max})$
+- Discount Curve - The spectrum of default-free zero-coupon bond prices $B(t,T), t \in (t, T_{\max})$
+- Credit Spread Curve: Given two yield curves:
+  + $R(t,T), T \in (t,T_{\max})$ that correspond to default-free bonds (risk free bond yield)
+  + $\bar{R}_t^T(t,T), T \in (t,T_{\max})$ that correspond to bonds with a given default probability (risky bond yield)
+  + The spectrum of spreads, $s(t,T) = \bar{R}_t^T(t,T) - R(t,T) , T \in (t, T_{\max})$ is called the credit spread curve.
+  
+**Constant Spot Rates**
+
+Assume that the spot rate $r_t$ is constant r, and also that we can lend and borrow at that rate. Then the price of a default-free zero-coupon bond paying \$1 at time T is: $B(t,T) = e^{-r(T-t)}$
+
+**Bond Pricing Equation**
+
+$$
+B(t,T) = E^{\bQ}[e^{-\int_t^T r_s ds}] \\
+R(t,T) = \frac{-\log B(t,T)}{T-t} = \frac{E^{\bQ}[e^{-\int_t^T r_s ds}]}{T-t} \\
+F(t,T,U) = \frac{\log B(t,T) - \log B(t,U)}{U-T}
+$$
+
+- The bond price depends on the spectrum of future shor rates $t < s < T$
+- The expectation is taken over a risk-neutral measure because the stochastic nature of interest rates add a risk premium for market risk
+
+**Forward Rates**
+
+Three times: t < T < U
+
+Time t is when the rate is contracted. The cash transactions take place at times T and U. For example, if \$1 is loaned at time T, then the money returned at time U will be given by $e^{F(t,T,U)(U-T)}$
+
+The bond pricing equation using the instantaneous forward rate is: $B(t,T) = e^{-\int_t^T F(t,s) ds}$
+
+We can also write the forward rateds in terms of bond prices: $F(t,T,U) = \frac{\log B(t,T) - \log B(t,U)}{U-T}$ where as $T \rightarrow U$, the instantaneous forward rate is obtained: $F(t,T) = \lim_{T\rightarrow U} F(t,T,U)$
+
+Two ways to accumulate from time T to time U: $e^{F(t,T,U)(U-T)} = \frac{B(t,T)}{B(t,U)}$
+
+Taking the natural logs give: $F(t,T,U)(U-T) = \log B(t,T) - \log B(t,U)$
+
+Rearranging yields: $F(t,T,U) = \frac{\log B(t,T) - \log B(t,U)}{U-T}$ 
+
+## Classical vs HJM
+
+**Markov Property**: states that the distribution of a process depends on the latest observation t, but not on the prior history at times s < t. 
+- Markov, predicting stocks based on current price
+- Non-Markov, momentum investing (requiring historical stock price)
+
+
+**Classical Approach**: $B(t,T) = E^{\bQ}[e^{-\int_t^T r_s ds}]$
+
+- Find a spot rate process $r_t$ that calibrates to observed market bond prices $B(t,T)$
+- Two main ways to exploit the equation:
+  + Use the bond prices $B(t,T)$ to obtain an arbitrage-free model for the spot rate $r_t$. Then one can exploit this model to price interest rate derivatives other than bonds
+  + Can also posit a model about the spot rate $r_t$ from historical rates to get a set of prices for interest rate derivatives
+- Suppose that we write down the following equation from $0 \leq i \leq n$
+  + $B(t,T_i) = E^{\bQ}[e^{-\int_t^{T_i} r_s ds}]$
+  + Use the n+1 bond prices to get a spot rate model $dr_t = a(r_t, t) dt + b(r_t, t) dV_t$
+  
+Geometric SDE Spot Rate Model
+
+- $dr_t = \mu r_t dt + \sigma r_t dW_t$
+- $a(r_t, t) = \mu r_t, b(r_t, t) = \sigma r_t$
+- Disadvantages
+  + If $\mu \neq 0$, then the model will diverge as $t \rightarrow \infty$
+  + A constant volatility model may be oversimplified
+  + Parameterization is difficult. There are two unknown parameters $\mu$ and $\sigma$ but n+1 equations.
+  
+Mean Reverting Spot Rate Model
+
+- $dr_t = \lambda (\theta_t - r_t)dt + \sigma \sqrt{r_t} dW_t$
+  + $\lambda$ is how quickly the mean reverts back
+  + $\theta$ sets the level of mean reversion
+- Since $\theta_t$ is a function of t, this increases the number of parameters. If $t_0 < t_1 < \cdots < t_m$, then there are a total of m+3 free parameters
+- Advantages over Geometric SDE for interest-rate modeling
+  + More free parameters which allow for more flexibilty
+  + Under the right conditions, the mean-reverting model will not explode (with probability 1) as $t \rightarrow \infty$
+  + The mean-reverting model above prevents negative interest rates given sufficiently small time steps.
+
+**Heath-Jarrow-Morton Approach (HJM)**: $B(t,T) = e^{-\int_t^T F(t,s) ds}$
+
+- HJM exploits the arbitrage relation between forward rates and bond prices to impose restrictions on the dynamics of the instantaneous forward rates directly.
+- $F(t,s)$ is the instantaneous forward rate at time t of a loan from time s to  s + ds
+- More general and less practical
+- No explicit drift assumption needed
+- Volatilities again will need to be calibrated
+- Shows that in general the spot rate $r_t$ is not Markov
+
+For HJ, we will get a forward rate model:
+
+$$
+dF(t,T) = a(F(t,T),T)dt + b(F(t,T), T)dW_t \\
+\text{where:}  
+\begin{cases}
+a(F(t,T), T) = \sigma(t,T, B(t,T))\frac{\partial \sigma(t,T,B(t,T))}{\partial T} \\
+b(F(t,T),T) = \frac{\partial \sigma(t,T,B(t,T))}{\partial T}
+\end{cases}
+$$
+
+This approach derives an exact no-arbitrage restriction on the drift coefficient for instantaneous forward rate dynamics. This is similar to Black-Scholes, where the drift is replaced with a more complicated term that depends on the volatilities of the bonds under consideration.
+
+HJM Equations for dB and r: to be used to get bond price process and spot rate model r.
+
+$$
+dB(t,T) = r_t B(t,T) dt + \sigma(t,T, B(t,T)) B(t,T) dW^{\bQ}_t \\
+r_t = F(0,t) + \int^t_0 b(s,t) [\int^t_s b(s,u)du]ds + \int^t_0 b(s,t)dW_s 
+$$
+
+We can see from the equation that $r_t$ does not depend on prior history at times s < t[^2]. Because $r_t$ is a complex function of all past forward rate volatilities making in non-Markovian. Current empirical work indicates that spot-rate behavior in reality may fail to be Markovian, so this gives flexibility to market practitioners. Being Non-Markovian is an advantage of HJM.
+
+[^2]: the s in $b(s,u)$ represents $F(t,T)$ which is a prior forward rate. 
+
+**HJM vs Classical**
+
+- Classical approach is used more in practice.
+- HJM may have explosiveness problems for finite time, which is very undesirable.
+- Much more familiarity with spot rate models, so this partially explains the popularity of classical approach.
+
+## Fitting to Initial Term Structure <span style="color: red;">[FLAG] Review this section again, or combine because it's too short? <span style="color: red;">
+
+1. Monte Carlo
+2. Tree Models
+3. Closed-Form Solutions
+
+## Classical PDE Analysis for Interest Rate Derivatives
+
+Consider two bonds with prices denoted $B(t,T_1), B(t,T_2)$ driven by the same Wiener process where $T_1 < T_2$. Suppose that bond prices are postulatd to behave according to he following processes:
+
+$$
+dB^1 = \mu_1(B^1,t)B^1dt + \sigma_1(B^1,t)B^1dW_t \\
+dB^2 = \mu_2(B^2,t)B^2dt + \sigma_2(B^2,t)B^2dW_t
+$$
+
+Notice that both bonds are influenced by the same Wiener process, $W_t$. Additionaly, suppose that the interest rate model is given by:
+
+$$
+dr_t = a(r_t, t) dt + b(r_t, t)dW_t
+$$
+
+Step 1. Create a portfolio of two bonds:
+
+$$
+P = \theta_1 B^1 - \theta_2 B^2 \\
+dP = \theta_1 dB^1 - \theta_2 dB^2 \\ 
+$$
+
+Suppose the portfolio positions are chosen as $\theta_1 = \frac{\sigma_2}{\sigma_2 - \sigma_1}\frac{P}{B^1}, \theta_2 = \frac{\sigma_1}{\sigma_2 - \sigma_1}\frac{P}{B^2}$. Plugging into the equation for $dB^1$ and $dB^2$ to get:
+
+$$
+dP = \theta_1 [\mu_1 B^1 dt + \sigma_1 B^2 dW_t] - \theta_2 [\mu_2 B^2 dt + \sigma_2 B^2dW_t]
+$$
+
+Grouping the drift and innovation terms gives:
+
+$$
+dP = [\theta_1 \mu_1 B^1 - \theta_2 \mu_2 B^2]dt + [\theta_1 \sigma_1 B^1 - \theta_2 \sigma_2 B^1]dW_t
+$$
+
+Given $\theta_1$ and $\theta_2$, we have that $\theta_1 \sigma_1 B^1 - \theta_2 \sigma_2 B^2 =0$. Thus, the change in portfolio value is given by:
+
+$$
+dP = [\theta_1 \mu_1 B^1 - \theta_2 \mu_2 B^2]dt = \frac{\sigma_2 \mu_1 - \sigma_1 \mu_2}{\sigma_2 - \sigma_1} Pdt = r_t Pdt
+$$
+
+The last equality follows by the standard no-arbitrage argument, since we have formed a risk-free portfolio with no innovation term.
+
+$$
+\frac{\sigma_2 \mu_1 - \sigma_1 \mu_2}{\sigma_2 - \sigma_1} = r_t \rightarrow \frac{\mu_1 - r_t}{\sigma_1} = \frac{\mu_2 - r_t}{\sigma_2} \\
+\text{Market Price of Interest Rate Risk:} \frac{\mu_i - r_t}{\sigma_i} = \lambda(r_t,t)
+$$
+
+- The Sharpe ratio of the bonds, given by the Market Price of Interest Rate risk, are equal
+- Risk premia of per unit volatility are the same across bonds
+- Keep in mind, this is based on the assumption that bonds are subject to the same source of risk $W_t$
+- The market price of interest rate risk equation holds regardless of the time to maturity of the bond
+- We can create a portfolio of two bonds with weights set such that the portfolio is riskless. By a no-arbitrage argument, we get that the portfolio must earn the risk-free rate. This led to the conclusion that the Sharpe ratio of all bonds must be equal in a no-arbitrage framework
+
+### Derivation of Bond Price PDE
+
+Recall the interest rate model:
+
+$$
+dr_t = a(r_t, t)dt + b(r_t,t)dW_t
+$$
+Our expression for $dB(t,T)$:
+
+$$
+dB(t,T) = B_r dr_t + B_t dt + \frac{1}{2}B_{rr}(dr_t)^2 \\
+dB(t,T) = B_r[a(r_t,t)dt + b(r_t,t)dW_t] + B_tdt + \frac{1}{2}B_{rr}b(r_t,T)^2dt \\
+dB(t,T) = [B_ra(r_t,t) + B_t + \frac{1}{2}B_{rr}b(r_t,T)^2]dt + B_r b(r_t,t)dW_t
+$$
+
+For simplicity, we write the SDE as:
+
+$$
+dB(t,T) = \mu (B,t) Bdt + \sigma(B,t_ B)dW_t \text{, where:}
+\begin{cases}
+\sigma(B,t)B = B_r b(r_t,t) \\
+\mu (B,t) B = B_ra(r_t,t) + B_t +\frac{1}{2}B_{rr}b(r_t,T)^2
+\end{cases}
+$$
+
+Using the market price of interest rate risk equation gives that:
+
+$$
+\frac{\mu (B,t) - r_t}{\sigma(B,t)} = \frac{\mu (B,t)B - r_tB}{\sigma(B,t)B} = \lambda_t \rightarrow \mu(B,t)B - r_t B = \lambda_t \sigma(B,t)B
+$$
+
+Plugging in for $\mu$ and $\sigma$ equations and rearranging gives us the key bond PDE. It has a simple boundary condition given by $B(T,T) = 1$
+
+$$
+B_r[a(r_t,t) - \lambda_tb(r_t,t)] + B_t + \frac{1}{2}B_{rr}b(r_t,T)^2 - r_tB = 0
+$$
+
+### Comparing to Black-Scholes
+
+| Model      |  Randomness   | PDE |  Boundary Condition  |
+|:----------:|:----------:|:----------:|:----------:|
+| Trad BS Model | $S_t$ |   $\frac{\partial F}{\partial t} + \frac{\sigma^2 S^2}{2}\frac{\partial^2F}{\partial S^2} + rS \frac{\partial F}{\partial S} - rF= 0$  |        $F(S_T,T) = \max[S_T - K,0]$        | 
+|  Bond Pricing  |  $r_t$|   $B_r[a(r_t,t) - \lambda_tb(r_t,t)] + B_t + \frac{1}{2}B_{rr}b(r_t,T)^2 - r_tB = 0$   | $B(T,T) = 1$ |
+
+**Trad BS Model**
+
+- Assumes that the instantaneous risk-free spot rate $r_t$ is constant
+- The randomness is driven by the stock price process $S_t$
+- No need to explicitly model the drift term of the stock price process $S_t$
+- The risk-free portfolio is created by combining lending/borrowing, an options position, and shorting/longing the underlying instrument
+- Option price depended on relevant volatilities only
+
+**Bond Price PDE**
+
+- Does not assume that the instantaneous risk-free spot rate $r_t$ is constant
+- Randomness is driven by the spot rate process $r_t$
+- Thus, the spot rate process $r_t$ is involved in the bond pricing PDE
+- The risk-free portfolio is created by adjusting the weights in two bonds
+- Calibration and estimation is more challenging here, because the bond pricing PDE is more complex needing to estimate two new parameters:
+  + the spot rate drift $a(r_t,t)$
+  + the market price of interest rate risk $\lambda_t$
+- Made the simplifying assumption that all bonds are driven by the same Wiener Process $W_t$. This led us to having a single market price of risk $\lambda_t$
+
+# Term Structure Models - Continuous Time
+
+Introduction to stochastic interest rate models: **Vasicek**
+
+$$
+dr_t = \gamma(\bar{r} - r_t) dt + \sigma dX_t
+$$
+
+- $\bar{r}$ is the long term value of the short rate
+- $\gamma$ is the speed of the mean reversion
+- $\sigma$ is the volatility of the short rate r(t)
+
+Solving for $r_t$, conditional at a time s<t:
+
+$$
+r(t) = r(s) e ^{\gamma(t-s)} + \bar{r} (1 - e ^{\gamma(t-s)}) + \sigma \int_s^t e ^{\gamma(t-u)} dX(u)
+$$
+
+The stochastic integral is normally distributed thus r(t) is normally distributed with:
+
+$$
+\text{Expectation: } E[r_t|F_s] = \bar{r} + (r_0 - \bar{r})e ^{-\gamma(t-s)} \\
+\text{Variance: } Var[r_t|F_s] = \frac{\sigma ^2}{2\gamma}[1 - e ^{-2\gamma(t-s)}]
+$$
+
+As $t \rightarrow \infty$, the stationary distribution of $r_t$ is still normal with:
+
+- Mean: $\bar{r}$
+- Variance: $\frac{\sigma ^2}{2\gamma}$
+
+## No-Arbitrage Pricing: Vasicek Model
+
+1. Setup a portfolio that is long on eunit of a security with price $Z_1(r,t)$ and short $\Delta$ units of another interest rate security with price $Z_2(r,t)$
+    - The value of this portfolio at time t: $\Pi(r,t) = Z_1(r,t) - \Delta Z_2(r,t)$
+2. Choose $\Delta$ so that interest rate risk is hedged
+    - $\frac{\partial \Pi(r,t)}{\partial r} = \frac{\partial Z_1(r,t)}{\partial r} - \frac{\partial \Delta Z_2(r,t)}{\partial r}$
+    - $\Delta = \frac{\partial Z_1 / \partial r}{\partial Z_2 / \partial r}$
+3. Apply Ito's Lemma to solve for the stochastic dynamics of $\Pi(r,t)$
+
+$$
+\begin{aligned}
+d\Pi_t &= \frac{\partial \Pi}{\partial t} dt +\frac{\partial \Pi}{\partial r} dr+ \frac{1}{2}\frac{ \partial^2 \Pi}{\partial r^2}dr^2 \\
+&= \left(\frac{\partial \Pi}{\partial t} + \frac{\partial \Pi}{\partial r}\gamma(\bar{r} - r_t) + \frac{1}{2}\frac{ \partial^2 \Pi}{\partial r^2}\sigma^2\right)dt + \frac{\partial \Pi}{\partial t}\sigma dX_t
+\end{aligned}
+$$
+
+Under the hedging strategy, $\frac{\partial \Pi}{\partial r} = 0$, so $d\Pi$ simplifies to:
+
+$$
+d\Pi_t = \left(\frac{\partial \Pi}{\partial t} + \frac{1}{2}\frac{ \partial^2 \Pi}{\partial r^2}\sigma^2\right)dt
+$$
+
+4. Impose a no-arbitrage constraint based on the fact that the portfolio must earn the risk-free rate: $d\Pi_t = r_t \Pi dt$ so that:
+
+$$
+d\Pi_t = \left(\frac{\partial \Pi}{\partial t} + \frac{1}{2}\frac{ \partial^2 \Pi}{\partial r^2}\sigma^2\right)dt = r_t \Pi_t 
+$$
+
+5. Rewrite the no-arbitrage conditions in terms of the two securities $Z_{1,t}$ and $Z_{2,t}$ and utilize the fact that $\Delta = \frac{\partial Z_1 / \partial r}{\partial Z_2 / \partial r}$ : 
+
+$$
+\frac{\partial Z_1}{\partial t} + \frac{1}{2} \frac{\partial^2 Z_1}{\partial r^2}\sigma^2 - r_tZ_1 = \Delta \left(\frac{\partial Z_2}{\partial t} + \frac{1}{2} \frac{\partial^2 Z_2}{\partial r^2}\sigma^2 - r_tZ_2\right) \\
+\frac{\frac{\partial Z_1}{\partial t} + \frac{1}{2} \frac{\partial^2 Z_1}{\partial r^2}\sigma^2 - r_tZ_1}{\partial Z_1 / \partial r} = \frac{\left(\frac{\partial Z_2}{\partial t} + \frac{1}{2} \frac{\partial^2 Z_2}{\partial r^2}\sigma^2 - r_tZ_2\right)}{\partial Z_2 / \partial r}
+$$
+
+6. $-m^*(r,t) = \frac{\frac{\partial Z}{\partial t} + \frac{1}{2} \frac{\partial^2 Z}{\partial r^2}\sigma^2 - r_tZ}{\partial Z / \partial r}$
+  - The Vasicek model assumes $m^*(r,t)$ has the form $m^*(r,t) = \gamma^*(\bar{r}^* - r)$
+7. Rearrange to obtain the **fundamental pricing equation** that all interest rate derivatives must satisfy:
+
+$$
+\frac{\partial Z}{\partial t} + \frac{\partial Z}{\partial r} m^*(r,t) + \frac{1}{2} \frac{\partial^2 Z}{\partial r^2}\sigma^2 = rZ
+$$
+
+- This partial differential equation was derived from a no-arbitrage condition
+- Solving this equation, subject to a final condition for the value of the security at T, will yield a pricing formula for any interest rate security $Z(r,t;T)$.
+- The final condition of the value of the security at maturity T is what differentiates one interest rate security from another.
+  + Zero-Coupon Bond: $Z(r,t;T) = 1$
+  + Interest rate option at strike $r_K$: $Z(r,t;T) = N \times \max{(r-r_K,0)}$
+
+### Vasicek Zero Coupon Bond
+
+Solution to the fundamental pricing equation under a Vasicek model for a zero-coupon bond is:
+
+$$
+Z(r,t;T) = e^{A(t;T) - B(t,T) \times r} \\
+A(t;T) = (B(t;T) - (T-t)) \left(\bar{r}^* - \frac{\sigma ^ 2}{2(\gamma^*)^2}\right) - \frac{\sigma^2 B(t;T)^2}{4\gamma^*} \\
+B(t;T) = \frac{1}{\gamma^*}(1-e^{-\gamma^* (T-t)})
+$$
+
+Under the Vasicek model, the spot rate, $r_t(\tau)$ for maturity $\tau$ is:
+
+$$
+r_t(\tau) = -\frac{\ln(Z(r_t, \tau))}{\tau} = - \frac{A(\tau)}{\tau} + \frac{B(\tau)}{\tau}r_T
+$$
+
+ - When $r_t$ is low, the Vasicek model implies a rising term structure, likewise, when $r_t$ is high, the model implies decreasing term structure
+ - As $r_t$ changes, all the points on the term structure will move with perfect correlation which is true for all one-factor interest rate models in general, and is considered a large drawback of one factor models.
+ 
+**Applying Ito's Lemma on $r_t(\tau)$:**
+
+$$
+dr_t(\tau) = \left(\frac{B(\tau)}{\tau} \gamma(\bar{r} - r_t)\right)dt + \frac{B(\tau)}{\tau} \sigma dX_t
+$$
+
+Note that $\frac{B(\tau)}{\tau}$ just acts as a scalar for the mean reversion speed and diffusion coefficient. For a fixed value of $\gamma^*$, this scalar decreases as maturity increases.
+
+- $\frac{B(\tau)}{\tau}$ is in the diffusion coefficient. Longer-term rates are **less** volatile than shorter term rates.
+- $\frac{B(\tau)}{\tau}$ is the mean reversion speed. Longer-term rates move **slower** than short-ter rates in converging to the long-term rate $\bar{r}$
+- For a given time-to-maturity $\tau$, $B(\tau)$ decreases as $\gamma^*$ increases.
+- Ultimately Lower levels of $\gamma^* \rightarrow$ higher $B(\tau) \rightarrow$ higher variation in the long-term spot rates.
+
+### Spot Rate Duration
+
+$$
+D_Z = -\frac{1}{Z} \frac{\partial Z}{\partial r}
+$$
+
+Under the Vasicek model, $\frac{\partial Z}{\partial r}$ is given by:
+
+$$
+\frac{\partial Z}{\partial r} = -B(\tau) \times Z
+$$
+
+The spot rate duration of a zero-coupon bond with time to maturity $\tau$ is given by:
+
+$$
+D_Z(\tau) = B(\tau) = \frac{1}{\gamma^*}(1-e^{-\gamma^* \tau})
+$$
+
+Lower $\gamma^*$ = higher spot-rate duration. Remember that $\gamma^*$ is the risk neutral parameter of $\gamma$, not the real world value of $\gamma$.
+
+### Coupon Bond
+
+Since a coupon bond is a weighted average of zero-coupon bond bonds, it follows that the spot rate duration of a coupon bond under the Vasicek model is:
+
+$$
+D_P = \sum_{i=1}^n w_i D_Z (\tau_i)
+$$
+
+The weights for $w_i$ are given by for $i = 1, \dots,n$ : $w_i = 100 \frac{c}{2} \frac{Z(r,\tau_i)}{P(r,\tau)}$
+
+The weight for $i=n$, denoted by $w_n$ is: $w_n = 100 \left(1+\frac{c}{2}\right)\frac{Z(r,\tau_n)}{P(r,\tau)}$
+
+### Estimating Parameters of Vasicek Model
+
+$\sigma, \bar{r}, \gamma$ can be estimated from historical data.
+
+ - $\sigma$: calculate the historical volatility of the short rate $r_t$
+ - $\bar{r}$: average the short-term rate over the sample historical period
+ - $\gamma$: the slope from regressing the changes in the interest rate $(r_{t+\delta} - r_t)$ on $r_t \times \delta$
+  + If we ignore the stochastic component of the Vasicek model, the change in $r_t$ is: $dr_t = \gamma \times \bar{r} - \gamma \times r_t \times dt$
+ - $\bar{r}^* and \gamma^*$ are calibrated to a set of zero-coupon bonds observed in the market. We solve for the set $(\bar{r}^*, \gamma^*)$ that minimizes the following:
+ 
+ $$
+ J(\bar{r}^*, \gamma^*) = \sum_{i=1}^n (Z^{\text{Vasicek}}(r_0, 0, \bar{r}^* , \gamma^*; T_i) - Z^\text{Data}(0, T_i))^2
+ $$
+- $Z^\text{Data}(0, T_i)$: the market price for a zero-coupon bond price expiring at $T_i$
+- $Z^{\text{Vasicek}}(r_0, 0, \bar{r}^* , \gamma^*; T_i)$: the Vasicek model's zero-coupon bond price.
+- Formula essentially is minimizing the absolute difference between real world and Vasicek model by guessing $\bar{r}^*, \gamma^*$
+
+### Pricing Options on Zero-Coupon Bonds
+
+An option on a zero-coupon bond with maturity $T_O$ and strike price K has a payoff of:
+
+$$
+\text{Payoff of } T_O = max(Z(T_O; T_B) - K, 0)
+$$
+
+- $Z(T_O; T_B)$ is the value at time $T_O$ of the bond with maturity $T_B$ under the Vasicek model, the call option value is:
+
+$$
+V(r_0,0) = Z(0, r_0;T_B)N(d_1) - KZ(0,r_0; T_O)N(d_2)
+$$
+
+- $N(x)$ is the cumulative standard normal distribution of $d_1$ and $d_2$ given by:
+
+$$
+d_1 = \frac{1}{S_Z(T_O)} \log \left(\frac{Z(0, r_0;T_B)}{KZ(0,r_0; T_O)}\right) + \frac{S_Z(T_O)}{2} \\
+d_2 = d_1 - S_Z(T_O) \\
+S_Z(T_O) = B(T_O; T_B)\sqrt{\frac{\sigma^2}{2\gamma^*}(1 - e^{-2 \gamma^* T_O})}
+$$
+
+- $S_Z(T_O)$ is the standard deviation of the log return between 0 and $T_O$ of the underlying zero coupon bond.
+- Usin gthe fact that $Var(r(T_O)) = \frac{\sigma^2}{2\gamma^*}(1 - e^{-2 \gamma^* T_O})$ under the Vasicek model, we an solve for $S_Z(T_O)$ as:
+
+$$
+\begin{aligned}
+Var[\log \left(\frac{Z(T_O, r_{T_O};T_B)}{Z(0,r_0; T_B)}\right)] &= Var[log(Z(T_O, r_{T_O}; T_B))] \\
+ &= Var[A(T_O;T_B) - B(T_O;T_B)r_{T_O}] \\
+ &= B(T_O; T_B)^2Var[r_{T_O}] \\
+ &= B(T_O;T_B)^2 \frac{\sigma^2}{2\gamma^*} (1-e^{-2 \gamma^* T_O})
+\end{aligned}
+$$
+
+### Problems
+
+ - The model parameters need to be calibrated to market zero-coupon bond prices.
+    + Even after calibration is complete $Z^\text{Vasicek}(0,T) \neq Z^\text{Mkt}(0,T)$
+ - Example, Pricing option on zero-coupon bond. We run into issues
+    + Do we use market discount factors, or model discount factors?
+ - Solution: Use no-arbitrage models by having the market and model zer-coupon bond prices be the same
+    + [Ho-Lee Model](#HoLee)
+    + [Hull-White MOdel](#HullWhite)
+
+## CIR Model
+
+$$
+dr_t = \gamma(\bar{r} - r_t) dt + \sqrt{\alpha r_t} dX_t
+$$
+
+- Drawback of Vasicek Model; Interest rates can be negative
+- Under the CIR model, the interest rate is positive as long as $\gamma \bar{r} > \frac{1}{2} \alpha$
+  + When $r_t$ hits 0, the diffusion coefficient becomes 0
+  + $\gamma \bar{r}$ must be large enough so that it can pull up the interest rate back to the long term rate $\bar{r}$
+- The distribution of $r_t$ is a noncentral chi-square distribution
+- One can also derive analytical formulas for interest rate securities under the CIR model
+
+## Replicating Portfolio and Relative Value Trades
+
+The return of security 1 can be replicated by holding $\Delta$ units of security 2, Investing in a cash position $C_t = Z_1(r_t,t) - \Delta Z_2(r_t,t)$ at the risk free rate. Where the value of the replicating portfolio for $Z_1$ at time t is:
+
+$$
+P_t = \Delta Z_{2,t} + C_t
+$$
+
+By construction, $P_t$ and $Z_{1,t}$ have the same value.
+
+The value of $\Delta = \frac{\partial Z_1 / \partial r}{ \partial Z_2 / \partial r}$ at the next timestep t + dt will change. To rebalance, adjust the portfolio position in security 2 to the new $\Delta_{t+dt}$. The new position in cash in our replicating portfolio at t+dt is:
+
+$$
+C_{t+dt} = C_t + C_t r_t dt - (\Delta_{t + dt} - \Delta_t) Z_{2,t + dt}
+$$
+
+After rebalancing the new value of the replicating portfolio is.
+
+$$
+P_{t+dt} = \Delta_{t+dt} Z_{2,t+dt} + C_{t+dt}
+$$
+
+One can setup a **relative value trade** to exploit a potential arbitrage opportunity when prices of interest rates securities don't align with prices predicted by an interest rate model. To setup a relative value trade:
+
+1. Sell short a STRIP
+2. Construct a replicating portfolio of the strip using the hedge ratio from the Vasicek model.
+    -   Go long $\Delta$ units of the strip with a longer maturity.
+    -   Invest a cash position at the risk free rate.
+    -   Generally you want to pick the longer maturity at a time where the Vasicek model had low pricing error.
+3. Dynamically rebalance this trading strategy overtime.
+4. Assuming our estimated model is correct, we should be perfectly tracking the value of the initial STRIP that we are short.
+
+## Risk Premiums
+
+Start with Vasicek Model Dynamics
+
+$$
+dr_t = \gamma(\bar{r} - r_t) dt + \sigma dX_t
+$$
+
+Let Z(r,t) be teh price at time t of a zero-coupon bond and apply Ito's Lemma, the dynamics of Z(r,t) are given by:
+
+$$
+dZ = [\frac{\partial Z}{\partial t} + \frac{1}{2}\frac{\partial ^2 Z}{\partial r^2} \gamma (\bar{r} - r)]dt + \frac{\partial Z}{r} \sigma dX_t \\
+E[dZ] = [\frac{\partial Z}{\partial t} + \frac{1}{2}\frac{\partial ^2 Z}{\partial r^2} \gamma (\bar{r} - r)]dt
+$$
+
+from the Fundamental Pricing Equation:
+
+$$
+\frac{\partial Z}{\partial t} + \frac{1}{2}\frac{\partial ^2 Z}{\partial r^2} \sigma^2 = rZ - \frac{\partial Z}{\partial r} \gamma^* (\bar{r}^* - r)
+$$
+
+Substitute in for $\frac{\partial Z}{\partial t} + \frac{1}{2}\frac{\partial ^2 Z}{\partial r^2} \sigma^2$ and utilize the fact that $\frac{\partial Z}{\partial r} = -B(r,T)Z$
+
+$$
+E[dZ] = rZdt - B(t;T) Z(\gamma(\bar{r} - r) - \gamma^* (\bar{r}^* -r))dt
+$$
+
+Rearranging terms, we obtain the annualized **risk premium formula** for a zero-coupon bond under the Vasicek model (aka expected excess return):
+
+$$
+\text{Risk Premium} = E[\frac{dZ}{Z}]/dt - r = -B(t;T)(\gamma(\bar{r} - r) - \gamma^* (\bar{r}^* -r))dt
+$$
+
+**Market Price of interest rate risk**
+
+$$
+\lambda(r,t) = \frac{1}{\sigma} (\gamma(\bar{r} - r) - \gamma^* (\bar{r}^* -r)) \\
+\lambda_0 = \frac{1}{\sigma} (\gamma\bar{r} - \gamma^*\bar{r}^*) , \lambda_1 = \frac{1}{\sigma} (\gamma^* - \gamma) \\
+\text{rewrite: } \lambda(r,t) = \lambda_0 + \lambda_1 r
+$$
+
+The stochastic dynamics of dZ/Z can be written as $\frac{dZ}{Z} = \mu_Z dt + \sigma_Z dX$ where:
+
+$$
+\sigma_Z = \frac{1}{Z} \frac{\partial Z}{\partial r} \sigma = -B(t;T)\sigma \\
+\mu_Z = \frac{1}{Z}[\frac{\partial Z}{\partial t} + \frac{1}{2} \frac{\partial^2 Z}{ \partial r^2}\sigma^2 + \frac{\partial Z}{ \partial r} \gamma (\bar{r} - r)]
+$$
+
+By multiplying the numerator and denominator of the risk premium by $\sigma$, then plugging in $\sigma_Z$ we can see that the risk premium is:
+
+$$
+\text{Risk Premium} = \sigma_Z \times \lambda(r,t)
+$$
+
+**Geeneral Interest Rate Model**
+
+Consider a general interest rate model with dynamics:
+
+$$
+\begin{matrix}
+\text{General Interest Rate Model} & dr_t = m(r_t,t)dt + s(r_t,t)dX_t \\
+\text{Risk premium on: }Z(t,r) & E[\frac{dZ}{Z}]/dt - r = \sigma_Z \times \lambda(r,t) \\
+\text{Volatility of the log-return onf the security} & \sigma_Z = \frac{1}{Z}\frac{\partial Z}{\partial r} s(r,t) \\
+\text{Market price of risk:} & \lambda(r,t) = \frac{1}{s(r,t)}(m(r,t)-m^*(r,t))
+\end{matrix}
+$$
+
+Risk Neutral Dynamics are primarily used for pricing interest rate securities and are not realistic scenarios.
+
+Risk Natural Dynamics, AKA real world scenarios are realistic. It uses true risk parameters and is often used for risk analysis.
+
+# Macroeconomic Model of Term Structure
+
+| Values     |  equation  | dynamics |
+|:----------:|:----------:|:----------:|
+| GDP | $y_t = ln(Y_t)$ |   $dy_t = gdt + \sigma_y dX_{y,t}$  |
+| CPI  |  $q_t = ln(Q_t)$ |   $dq_t = i_t dt + \sigma_q dX_{q,t}$  |
+| expected inflation | $i_t$ | $di_t = \gamma(\bar{i} - i_t)dt + \sigma_i dX_{i,t}$ |
+
+Correlations are: $\rho_{qy} = dX_{y,t}dX_{q,t} ;\rho_{iq} = dX_{i,t}dX_{q,t}; \text{and} \rho_{yi} = dX_{y,t}dX_{i,t}$
+
+Utility Function: The utility a market participant receives from consuming $C_t$ units of the CPI index. $\rho$ is a parameter that reflects people's behavior to consume earlier than later. h is a parameter that describes a persons risk averision. higher h = more risk averse, 0 h is a risk neutral person.
+
+$$
+U(C_t,t)=e^{-\rho t}\frac{C_t^{1-h}}{1-h}
+$$
+
+The market participant has two choices to spend $1.
+
+1. Spend \$1 today and buy $\frac{1}{Q_t}$ units of CPI.
+    -   This increases the consumer utility by $\frac{\partial U(C_t,t)}{\partial C Q_t}$
+2. Invest \$1 to buy $\frac{1}{Z(t,T)}$ units of zero coupon bond.
+    -   Allows the consumer to buy $\frac{1}{Z(t,T) Q_T}$ of CPI, increasing utility at the future time T to $\frac{1}{Z(t,T)}\frac{\partial U(C_T,T)}{\partial C_T Q_T}$
+3. This leads to an equilibrium condition: $\frac{\partial U(C_t,t)}{\partial C Q_t} = \frac{1}{Z(t,T)}\frac{\partial U(C_T,T)}{\partial C_T Q_T}$
+4. Solving for what the theoretical zero coupon bond price should be: $Z(t,T) = E_t [\frac{Q_t \partial( U(C_T,T) / \partial C_T}{Q_T \partial U(C_t, t) / \partial C_t}]$
+5. Plug in the utility function directly to get: $Z(t,T) = E_t [\frac{Q_t C_T^{-h} e^{-\rho T}}{Q_T C_t^{-h} e^{-\rho t}}]$
+6. Assume that $C_t = kY_t$ and plug in the dynamics for Q and Y to then get:
+
+$$
+Z(i,t,T) = e^{A(t;T) - B(t;T)(i+c)} 
+\begin{cases}
+B(t;T) = \frac{1}{\gamma}(1 - e^{-\gamma(T-t)}) \\
+A(t;T) = \left(B(t;T) - (T-t))(\bar{r}^* - \frac{\sigma_i^2}{2\gamma^2}\right) - \frac{\sigma^2_i B(t;T)^2}{4\gamma}
+\end{cases}
+$$
+
+The spot nominal rate is given by the sum of expected inflation, $i_t = E[dq]$, and a constant c: $r_t = i_t + c$
+
+**Additional formulas:**
+
+$$
+\bar{r} = \bar{i} + c \\
+c = \underbrace{(\rho + hg - \frac{1}{2} h^2 \sigma^2_y)}_\text{measure of the real rate of interest} - \underbrace{h \sigma_y \sigma_q \rho_{qy}}_\text{inflation risk premium} - \frac{1}{2} \sigma^2_q \\
+\bar{r}^* = \bar{r} - \frac{1}{\gamma}(h\sigma_i\sigma_y \rho_{yi} + \sigma_i \sigma_y \rho_{iq}) \\
+\text{Dynamics of the spot nominal rate } r_t: \\
+\text{Risk natural:} dr_t = \gamma(\bar{r} - r_t) dt + \sigma_i dX_i \\
+\text{Risk neutral:} dr_t = \gamma(\bar{r}^* - r_t)dt + \sigma_i dX_i \\
+\text{Market price of risk:} \lambda = \frac{\gamma}{\sigma_i}(\bar{r} - \bar{r}^* = h\sigma_y\rho_{yi} + \sigma_y)
+$$
+
+ - $\rho$: Higher means people earn more utility by consuming today. This results in more borrowing which increases the real rate of interest
+ - hg: When the growth rate of the economy g is high, then people want to borrow to consume today, thus increasing the real interest rate.
+ - $\frac{1}{2}h^2 \sigma^2_y$: When volatility of GDP growth is high, there is higher risk there will be less consumption in the future.
+ - $\sigma_y \sigma_q \rho_{qy}$: Covariance of GDP growth (dy) and inflation (dq). When covariance is negative, a short term nominal investment rate $r_t$ will be more risky. Thus the nominal rate must increase to compensate for this risk.
+ - $-h\sigma_i\sigma_y \rho_{yi}$: is an adjustment to the long-term unconditional average nominal rate $\bar{r}$
+ - Since covariance ($\sigma_i\sigma_y \rho_{yi}$) between inflation and GDP is typically negative, this implies that the adjustment for risk is normally positive
+ - $\bar{r}^*$ typically increases when:
+    + The risk aversion h increases
+    + The covariance cov(di,dy) becomes more negative
+    + The mean reversion speed $\gamma$ decreases (is slower)
+
+# Ho-Lee Model {#HoLee}
+
+$$
+dr_t = \theta_t dt + \sigma dX_t
+$$
+
+ - The parameter $\theta_t$ is a deterministic *function* that is chosen to match the market zero-coupon bond term structure.
+ - $r_t$ is normally distributed
+ - No mean-reversion, so future distribution of $r_t$ is unbounded
+ - Rates can be negative
+ 
+$$
+Z(r,0; T) = e^{A(0,T)-T \times r} \\
+A(0,T) = -\int_0^T (T-t) \theta_T dt + \frac{T^3}{6} \sigma^2 \\
+\theta_t = \frac{\partial f(0,t)}{\partial t} + \sigma^2 \times t \\
+\text{}
+$$
+
+Substituting in $\theta_t$ we can solve for A(0,T) analytically:
+
+$$
+A(t;T) = \ln \left( \frac{Z(r_0, 0;T)}{Z(r_0, 0;t)}\right) + (T-t)f(0,t) -\frac{\sigma^2}{2}(T-t)^2t
+$$
+
+## Approximating $\theta_t$
+
+ 1. Given the market STRIP zero-coupon bond prices, derive corresponding spot rates for each tenor T as: 
+ 
+ $$
+ r(0,T) = -\frac{\ln(Z^\text{Mkt}(0,T))}{T}
+ $$
+
+ 2. Interpolate the spot rates in order to obtain a twice differentiable spot rate curve
+ 3. Compute the instantaneou forward curve numerically as:
+ 
+ $$
+ f(0,t) \approx r(0,t) + t \times \frac{r(0, t+ \delta) - r(0,t)}{\delta}
+ $$
+
+4. Approximate the deterministic function $\theta_t$ as:
+
+$$
+\theta_t \approx \frac{f(0, t+ \delta) - f(0,t)}{\delta} + \sigma^2 \times t
+$$
+
+## Term Structure of Volaitility
+
+ - The yield $r_t(\tau)$ on a zero-coupon bond with maturity $\tau$ is: $r_t(\tau) = -\ln (Z(r,t;t + \tau))/\tau$
+ - Plugging in the formula for $Z(r,t; t+\tau)$, $r_t(\tau) = -A(t;t+\tau)/\tau + r_t$
+ - Taking the differentials of both sides results in the annualized volatility, $dr_t(\tau)$, denoted as $\sigma_t (\tau) = stdev(dr_t(\tau)) / \sqrt{dt} = \sigma$
+ - The Ho-Lee model implies a flat term structure of volatility of change in spot rates. However, in the market, the volatility term structure is typically downward sloping
+ 
+ 
+## Summary
+
+**Advantages**
+
+- Simple and has closed form solutions for many interest rate derivatives.
+- A no-arbitrage model that is able to reprice market-zero coupon bond prices exactly
+
+**Disadvantages**
+
+- Non constant short rate $r_t$, as in the interest rates can grow to $\pm \infty$
+- Implies a flat term structure of volatility of changes in bond yields, which is inconsistent with what is observed in the market.
+- One factor model; assumes all points on the yield curve are perfectly correlated with each other.
+
+# Hull-White Model {#HullWhite}
+
+
+$$
+dr_t = (\theta_t - \gamma^* r_t)dt + \sigma dX_t
+$$
+
+ - Short rate $r_t$ reverts to the long-term mean $\bar{r}_t^* = \frac{1}{\gamma^*} \times \theta_t$ with mean-reversion speed $\gamma$
+ - $\theta_t$ will be chosen to fit the market term structure of interest rates
+ - $\sigma$ and $\gamma$ can be calibrated to other market data such as the term structure of spot rate volatilities
+ 
+$$
+Z(r,0,T) = e^{A{0;T} - B(0;T) \times r} \\ 
+B(0;T) = \frac{1}{\gamma^*}(1 - e^{-\gamma^*T} ) \\ 
+A(0,T) = -\int_0^T B(t;T) \theta_t dt + \frac{\sigma^2}{2(\gamma^*)^2} \left(T + \frac{1 - e^{-2\gamma^*T}}{2\gamma^*} - 2B(0;T)\right)
+$$
+
+The $\theta_t$ that matches the term structure of rates at time 0 as:
+
+$$
+\theta_t = \frac{\partial f(0,t)}{\partial t} + \gamma^* f(0,t) + \frac{\sigma^2}{2\gamma^*} \times (1 - e^{-2 \gamma^* t})
+$$
+
+Solving for A(t,T) analytically by plugging in $\theta$ we get:
+
+$$
+A(t;T) = \ln \left(\frac{Z(r_0, 0 ; T)}{Z(r_0, 0 ; t)}\right) + B(t;T) f(0,t) - \frac{\sigma^2}{4 \gamma ^*}B(t;T)^2(1-e^{-2 \gamma^* t})
+$$
+
+## Term Structure of Volatility
+
+The spot rate $r_t(\tau) = -\ln (Z(r,t;t + \tau))/\tau$ is:
+
+$$
+r_t(\tau) = -\frac{A(t;t + \tau)}{\tau} + \frac{1}{\gamma^*}\left(\frac{1 - e^{-\gamma^* \tau}}{\tau}\right) r_t
+$$
+
+By taking the differentials we get that the annualized volatility of $dr_t(\tau)$ is:
+
+$$
+\sigma_t (\tau) = \frac{B(\tau)}{\tau}\sigma
+$$
+
+To calibrate $\sigma$ and $\gamma^*$, one can minimize the difference between the market and model volatilities of the bond yields. The Hull-White model does a decent job in capturing the downward sloping volatiliy term structure observed in the market.
+
+## Summary
+
+**Advantages**
+
+- A no-arbitrage model, like Ho-Lee
+- Has mean reversion, like the Vasicek model, which keeps the variance of the distribution of future interest rates bounded
+- Implies the yields of long-term zero-coupon bonds have lower volatility than yields of short-term zero-coupon bonds, which is consistent with market data
+- Has closed form formulas for many interest rate derivatives
+
+**Disadvantages**
+
+- Interest rates can be negative
+- 0 One factor model; a 2-factor version of this model is more effective at capturing different shapes of volatility term structures and modeling movements along the yield curve
+
+# Options on Zero-Coupon Bonds
+
+The general form of a call option on a zero coupon bond under the Vasicek, Ho-Lee, and Hull-White model is:
+
+$$
+V(r_0,0) = Z(0,r_0;T_B)N(d_1) - KZ(0,r_0;T_O)N(d_2) \\ 
+d_1 = \frac{1}{S_Z(T_O,T_B)} \ln \left( \frac{Z(0,r_0;T_B)}{KZ(0,r_0;T_O)}\right) + \frac{S_Z(T_O,T_B)}{2} \\
+d_2 = d_1 - S_Z(T_O,T_B)
+$$
+
+ - $T_O$ = time option expires
+ - $T_B$ = maturity of underlying zero-coupon bond
+ - K = strike price of the option
+ - $S_Z(T_O,T_B)$ changes depending on the model used.This is the volatility term
+ - $T_O$ represents the expiration of the option, but $T_B$ represents when the option matures, typically after $T_O$ ends
+ 
+**Vasicek & Hull-White**
+
+$$
+S_Z(T_O,T_B) = \sqrt{B(T_O,T_B)^2 \frac{\sigma^2}{2\gamma^*}(1-e^{-2\gamma^*T_O})}
+$$
+
+**Ho-Lee**
+
+$$
+S_Z(T_O,T_B) = \sqrt{\sigma^2 T_O(T_B - T_O)^2}
+$$
+
+The higher the mean reversion speed ($\gamma^*$), the lower the volatility($S_Z(T_O,T_B)$), and hence the option price will be. This is because a higher mean reversion reduces both $B(T_O;T_B)$ and the dispersion of interest rates at time $T_O$
+
+
+
+

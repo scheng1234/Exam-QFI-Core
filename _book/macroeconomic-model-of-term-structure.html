@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta property="og:title" content="12 Macroeconomic Model of Term Structure | Exam QFI" />
+<meta property="og:type" content="book" />
+
+
+
+
+<meta name="author" content="Steven Cheng" />
+
+<meta name="date" content="2023-05-03" />
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<meta name="description" content="12 Macroeconomic Model of Term Structure | Exam QFI">
+
+<title>12 Macroeconomic Model of Term Structure | Exam QFI</title>
+
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.5/css/simplex.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="libs/navigation-1.1/tabsets.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+/* show arrow before summary tag as in bootstrap
+TODO: remove if boostrap in updated in html_document (rmarkdown#1485) */
+details > summary {
+  display: list-item;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container-fluid main-container">
+
+
+<div class="row">
+<div class="col-sm-12">
+<div id="TOC">
+<ul>
+<li><a href="a-note-about-notations.html#a-note-about-notations" id="toc-a-note-about-notations"><span class="toc-section-number">1</span> A Note About Notations</a></li>
+<li class="has-sub"><a href="FD.html#FD" id="toc-FD"><span class="toc-section-number">2</span> Financial Derivatives</a>
+<ul>
+<li><a href="FD.html#risk-neutral-pricing-summary" id="toc-risk-neutral-pricing-summary"><span class="toc-section-number">2.1</span> Risk Neutral Pricing Summary</a></li>
+<li class="has-sub"><a href="FD.html#Options" id="toc-Options"><span class="toc-section-number">2.2</span> Exotic Options</a>
+<ul>
+<li><a href="FD.html#lookback-options" id="toc-lookback-options"><span class="toc-section-number">2.2.1</span> Lookback Options</a></li>
+<li><a href="FD.html#ladder-options" id="toc-ladder-options"><span class="toc-section-number">2.2.2</span> Ladder Options</a></li>
+<li><a href="FD.html#trigger-or-knock-in-options" id="toc-trigger-or-knock-in-options"><span class="toc-section-number">2.2.3</span> Trigger or Knock-in Options</a></li>
+<li><a href="FD.html#knock-out-options" id="toc-knock-out-options"><span class="toc-section-number">2.2.4</span> Knock-out Options</a></li>
+<li><a href="FD.html#other-exotics" id="toc-other-exotics"><span class="toc-section-number">2.2.5</span> Other Exotics</a></li>
+</ul></li>
+<li class="has-sub"><a href="FD.html#interest-rate-sensitive-securities" id="toc-interest-rate-sensitive-securities"><span class="toc-section-number">2.3</span> Interest Rate Sensitive Securities</a>
+<ul>
+<li><a href="FD.html#interest-rate-derivatives" id="toc-interest-rate-derivatives"><span class="toc-section-number">2.3.1</span> Interest Rate Derivatives</a></li>
+</ul></li>
+</ul></li>
+<li class="has-sub"><a href="math-of-financial-derivatives.html#math-of-financial-derivatives" id="toc-math-of-financial-derivatives"><span class="toc-section-number">3</span> Math of Financial Derivatives</a>
+<ul>
+<li><a href="math-of-financial-derivatives.html#basics" id="toc-basics"><span class="toc-section-number">3.0.1</span> Basics</a></li>
+<li><a href="math-of-financial-derivatives.html#intermediate" id="toc-intermediate"><span class="toc-section-number">3.0.2</span> Intermediate</a></li>
+</ul></li>
+<li class="has-sub"><a href="pricing-methods.html#pricing-methods" id="toc-pricing-methods"><span class="toc-section-number">4</span> Pricing Methods</a>
+<ul>
+<li><a href="pricing-methods.html#convergence" id="toc-convergence"><span class="toc-section-number">4.1</span> Convergence</a></li>
+<li><a href="pricing-methods.html#martingales" id="toc-martingales"><span class="toc-section-number">4.2</span> Martingales</a></li>
+</ul></li>
+<li class="has-sub"><a href="brownian-motion-and-wiener-processes.html#brownian-motion-and-wiener-processes" id="toc-brownian-motion-and-wiener-processes"><span class="toc-section-number">5</span> Brownian Motion and Wiener Processes</a>
+<ul>
+<li><a href="brownian-motion-and-wiener-processes.html#brownian-motion" id="toc-brownian-motion"><span class="toc-section-number">5.1</span> Brownian Motion</a></li>
+<li><a href="brownian-motion-and-wiener-processes.html#wiener-process" id="toc-wiener-process"><span class="toc-section-number">5.2</span> Wiener Process</a></li>
+<li><a href="brownian-motion-and-wiener-processes.html#poisson-process" id="toc-poisson-process"><span class="toc-section-number">5.3</span> Poisson Process</a></li>
+<li><a href="brownian-motion-and-wiener-processes.html#characterizing-rare-and-normal-events" id="toc-characterizing-rare-and-normal-events"><span class="toc-section-number">5.4</span> Characterizing Rare and Normal Events</a></li>
+</ul></li>
+<li class="has-sub"><a href="stochastic-calculus.html#stochastic-calculus" id="toc-stochastic-calculus"><span class="toc-section-number">6</span> Stochastic Calculus</a>
+<ul>
+<li class="has-sub"><a href="stochastic-calculus.html#stochastic-derivative" id="toc-stochastic-derivative"><span class="toc-section-number">6.1</span> Stochastic Derivative</a>
+<ul>
+<li><a href="stochastic-calculus.html#framework" id="toc-framework"><span class="toc-section-number">6.1.1</span> Framework</a></li>
+<li><a href="stochastic-calculus.html#itos" id="toc-itos"><span class="toc-section-number">6.1.2</span> Ito’s</a></li>
+<li><a href="stochastic-calculus.html#common-sdes" id="toc-common-sdes"><span class="toc-section-number">6.1.3</span> Common SDE’s</a></li>
+</ul></li>
+<li class="has-sub"><a href="stochastic-calculus.html#stochastic-variance" id="toc-stochastic-variance"><span class="toc-section-number">6.2</span> Stochastic Variance</a>
+<ul>
+<li><a href="stochastic-calculus.html#jump-diffusion" id="toc-jump-diffusion"><span class="toc-section-number">6.2.1</span> Jump-Diffusion</a></li>
+<li><a href="stochastic-calculus.html#variance-gamma-vg-process" id="toc-variance-gamma-vg-process"><span class="toc-section-number">6.2.2</span> Variance-Gamma (VG) Process</a></li>
+</ul></li>
+</ul></li>
+<li class="has-sub"><a href="black-scholes-pde-derivation.html#black-scholes-pde-derivation" id="toc-black-scholes-pde-derivation"><span class="toc-section-number">7</span> Black-Scholes PDE Derivation</a>
+<ul>
+<li><a href="black-scholes-pde-derivation.html#forming-risk-free-portfolios" id="toc-forming-risk-free-portfolios"><span class="toc-section-number">7.1</span> Forming Risk-Free Portfolios</a></li>
+<li><a href="black-scholes-pde-derivation.html#pde-classification" id="toc-pde-classification"><span class="toc-section-number">7.2</span> PDE Classification</a></li>
+<li class="has-sub"><a href="black-scholes-pde-derivation.html#black-scholes" id="toc-black-scholes"><span class="toc-section-number">7.3</span> Black-Scholes</a>
+<ul>
+<li><a href="black-scholes-pde-derivation.html#geometric-look-at-black-scholes" id="toc-geometric-look-at-black-scholes"><span class="toc-section-number">7.3.1</span> Geometric Look at Black-Scholes</a></li>
+<li><a href="black-scholes-pde-derivation.html#partial-integro-differential-equations-pide" id="toc-partial-integro-differential-equations-pide"><span class="toc-section-number">7.3.2</span> Partial-Integro Differential Equations (PIDE)</a></li>
+<li><a href="black-scholes-pde-derivation.html#complications-of-black-scholes" id="toc-complications-of-black-scholes"><span class="toc-section-number">7.3.3</span> Complications of Black-Scholes</a></li>
+</ul></li>
+</ul></li>
+<li class="has-sub"><a href="equivalent-martingale-measures.html#equivalent-martingale-measures" id="toc-equivalent-martingale-measures"><span class="toc-section-number">8</span> Equivalent Martingale Measures</a>
+<ul>
+<li><a href="equivalent-martingale-measures.html#radon-nikodym-derivative" id="toc-radon-nikodym-derivative"><span class="toc-section-number">8.1</span> Radon-Nikodym Derivative</a></li>
+<li><a href="equivalent-martingale-measures.html#converting-asset-prices-into-martingales" id="toc-converting-asset-prices-into-martingales"><span class="toc-section-number">8.2</span> Converting Asset Prices into Martingales</a></li>
+</ul></li>
+<li class="has-sub"><a href="extension-of-arbitrage-theorem.html#extension-of-arbitrage-theorem" id="toc-extension-of-arbitrage-theorem"><span class="toc-section-number">9</span> Extension of Arbitrage Theorem</a>
+<ul>
+<li><a href="extension-of-arbitrage-theorem.html#forward-measure" id="toc-forward-measure"><span class="toc-section-number">9.1</span> Forward Measure</a></li>
+<li><a href="extension-of-arbitrage-theorem.html#other-measures" id="toc-other-measures"><span class="toc-section-number">9.2</span> Other Measures</a></li>
+</ul></li>
+<li class="has-sub"><a href="modeling-term-structure-and-related-concepts.html#modeling-term-structure-and-related-concepts" id="toc-modeling-term-structure-and-related-concepts"><span class="toc-section-number">10</span> Modeling Term Structure and Related Concepts</a>
+<ul>
+<li><a href="modeling-term-structure-and-related-concepts.html#classical-vs-hjm" id="toc-classical-vs-hjm"><span class="toc-section-number">10.1</span> Classical vs HJM</a></li>
+<li><a href="modeling-term-structure-and-related-concepts.html#fitting-to-initial-term-structure-flag-review-this-section-again-or-combine-because-its-too-short" id="toc-fitting-to-initial-term-structure-flag-review-this-section-again-or-combine-because-its-too-short"><span class="toc-section-number">10.2</span> Fitting to Initial Term Structure <span style="color: red;">[FLAG] Review this section again, or combine because it’s too short? <span style="color: red;"></a></li>
+<li class="has-sub"><a href="modeling-term-structure-and-related-concepts.html#classical-pde-analysis-for-interest-rate-derivatives" id="toc-classical-pde-analysis-for-interest-rate-derivatives"><span class="toc-section-number">10.3</span> Classical PDE Analysis for Interest Rate Derivatives</a>
+<ul>
+<li><a href="modeling-term-structure-and-related-concepts.html#derivation-of-bond-price-pde" id="toc-derivation-of-bond-price-pde"><span class="toc-section-number">10.3.1</span> Derivation of Bond Price PDE</a></li>
+<li><a href="modeling-term-structure-and-related-concepts.html#comparing-to-black-scholes" id="toc-comparing-to-black-scholes"><span class="toc-section-number">10.3.2</span> Comparing to Black-Scholes</a></li>
+</ul></li>
+</ul></li>
+<li class="has-sub"><a href="term-structure-models---continuous-time.html#term-structure-models---continuous-time" id="toc-term-structure-models---continuous-time"><span class="toc-section-number">11</span> Term Structure Models - Continuous Time</a>
+<ul>
+<li class="has-sub"><a href="term-structure-models---continuous-time.html#no-arbitrage-pricing-vasicek-model" id="toc-no-arbitrage-pricing-vasicek-model"><span class="toc-section-number">11.1</span> No-Arbitrage Pricing: Vasicek Model</a>
+<ul>
+<li><a href="term-structure-models---continuous-time.html#vasicek-zero-coupon-bond" id="toc-vasicek-zero-coupon-bond"><span class="toc-section-number">11.1.1</span> Vasicek Zero Coupon Bond</a></li>
+<li><a href="term-structure-models---continuous-time.html#spot-rate-duration" id="toc-spot-rate-duration"><span class="toc-section-number">11.1.2</span> Spot Rate Duration</a></li>
+<li><a href="term-structure-models---continuous-time.html#coupon-bond" id="toc-coupon-bond"><span class="toc-section-number">11.1.3</span> Coupon Bond</a></li>
+<li><a href="term-structure-models---continuous-time.html#estimating-parameters-of-vasicek-model" id="toc-estimating-parameters-of-vasicek-model"><span class="toc-section-number">11.1.4</span> Estimating Parameters of Vasicek Model</a></li>
+<li><a href="term-structure-models---continuous-time.html#pricing-options-on-zero-coupon-bonds" id="toc-pricing-options-on-zero-coupon-bonds"><span class="toc-section-number">11.1.5</span> Pricing Options on Zero-Coupon Bonds</a></li>
+<li><a href="term-structure-models---continuous-time.html#problems" id="toc-problems"><span class="toc-section-number">11.1.6</span> Problems</a></li>
+</ul></li>
+<li><a href="term-structure-models---continuous-time.html#cir-model" id="toc-cir-model"><span class="toc-section-number">11.2</span> CIR Model</a></li>
+<li><a href="term-structure-models---continuous-time.html#replicating-portfolio-and-relative-value-trades" id="toc-replicating-portfolio-and-relative-value-trades"><span class="toc-section-number">11.3</span> Replicating Portfolio and Relative Value Trades</a></li>
+<li><a href="term-structure-models---continuous-time.html#risk-premiums" id="toc-risk-premiums"><span class="toc-section-number">11.4</span> Risk Premiums</a></li>
+</ul></li>
+<li><a href="macroeconomic-model-of-term-structure.html#macroeconomic-model-of-term-structure" id="toc-macroeconomic-model-of-term-structure"><span class="toc-section-number">12</span> Macroeconomic Model of Term Structure</a></li>
+<li class="has-sub"><a href="HoLee.html#HoLee" id="toc-HoLee"><span class="toc-section-number">13</span> Ho-Lee Model</a>
+<ul>
+<li><a href="HoLee.html#approximating-theta_t" id="toc-approximating-theta_t"><span class="toc-section-number">13.1</span> Approximating <span class="math inline">\(\theta_t\)</span></a></li>
+<li><a href="HoLee.html#term-structure-of-volaitility" id="toc-term-structure-of-volaitility"><span class="toc-section-number">13.2</span> Term Structure of Volaitility</a></li>
+<li><a href="HoLee.html#summary" id="toc-summary"><span class="toc-section-number">13.3</span> Summary</a></li>
+</ul></li>
+<li class="has-sub"><a href="theory.html#theory" id="toc-theory"><span class="toc-section-number">14</span> Theory</a>
+<ul>
+<li><a href="theory.html#doob-meyer-theorem" id="toc-doob-meyer-theorem"><span class="toc-section-number">14.1</span> Doob-Meyer Theorem</a></li>
+<li><a href="theory.html#riemann-stieltjes" id="toc-riemann-stieltjes"><span class="toc-section-number">14.2</span> Riemann-Stieltjes</a></li>
+<li class="has-sub"><a href="theory.html#Girsanov" id="toc-Girsanov"><span class="toc-section-number">14.3</span> Girsanov Theorem</a>
+<ul>
+<li><a href="theory.html#preliminary-setup" id="toc-preliminary-setup"><span class="toc-section-number">14.3.1</span> Preliminary Setup</a></li>
+<li><a href="theory.html#theorem" id="toc-theorem"><span class="toc-section-number">14.3.2</span> Theorem</a></li>
+<li><a href="theory.html#notes" id="toc-notes"><span class="toc-section-number">14.3.3</span> Notes</a></li>
+</ul></li>
+</ul></li>
+<li class="has-sub"><a href="examples-consider-moving-this-to-another-markdown-file.html#examples-consider-moving-this-to-another-markdown-file" id="toc-examples-consider-moving-this-to-another-markdown-file"><span class="toc-section-number">15</span> Examples <span style="color: red;">Consider moving this to another markdown file<span style="color: red;"></a>
+<ul>
+<li class="has-sub"><a href="examples-consider-moving-this-to-another-markdown-file.html#brownian-motion-1" id="toc-brownian-motion-1"><span class="toc-section-number">15.1</span> Brownian Motion</a>
+<ul>
+<li><a href="examples-consider-moving-this-to-another-markdown-file.html#distribution-of-w_5---w_2" id="toc-distribution-of-w_5---w_2"><span class="toc-section-number">15.1.1</span> Distribution of <span class="math inline">\(W_5 - W_2\)</span></a></li>
+<li><a href="examples-consider-moving-this-to-another-markdown-file.html#lognormal" id="toc-lognormal"><span class="toc-section-number">15.1.2</span> Lognormal</a></li>
+</ul></li>
+<li><a href="examples-consider-moving-this-to-another-markdown-file.html#forecasting" id="toc-forecasting"><span class="toc-section-number">15.2</span> Forecasting</a></li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="row">
+<div class="col-sm-12">
+<div id="macroeconomic-model-of-term-structure" class="section level1" number="12">
+<h1><span class="header-section-number">12</span> Macroeconomic Model of Term Structure</h1>
+<table>
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">Values</th>
+<th align="center">equation</th>
+<th align="center">dynamics</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">GDP</td>
+<td align="center"><span class="math inline">\(y_t = ln(Y_t)\)</span></td>
+<td align="center"><span class="math inline">\(dy_t = gdt + \sigma_y dX_{y,t}\)</span></td>
+</tr>
+<tr class="even">
+<td align="center">CPI</td>
+<td align="center"><span class="math inline">\(q_t = ln(Q_t)\)</span></td>
+<td align="center"><span class="math inline">\(dq_t = i_t dt + \sigma_q dX_{q,t}\)</span></td>
+</tr>
+<tr class="odd">
+<td align="center">expected inflation</td>
+<td align="center"><span class="math inline">\(i_t\)</span></td>
+<td align="center"><span class="math inline">\(di_t = \gamma(\bar{i} - i_t)dt + \sigma_i dX_{i,t}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Correlations are: <span class="math inline">\(\rho_{qy} = dX_{y,t}dX_{q,t} ;\rho_{iq} = dX_{i,t}dX_{q,t}; \text{and} \rho_{yi} = dX_{y,t}dX_{i,t}\)</span></p>
+<p>Utility Function: The utility a market participant receives from consuming <span class="math inline">\(C_t\)</span> units of the CPI index. <span class="math inline">\(\rho\)</span> is a parameter that reflects people’s behavior to consume earlier than later. h is a parameter that describes a persons risk averision. higher h = more risk averse, 0 h is a risk neutral person.</p>
+<p><span class="math display">\[
+U(C_t,t)=e^{-\rho t}\frac{C_t^{1-h}}{1-h}
+\]</span></p>
+<p>The market participant has two choices to spend $1.</p>
+<ol style="list-style-type: decimal">
+<li>Spend $1 today and buy <span class="math inline">\(\frac{1}{Q_t}\)</span> units of CPI.
+<ul>
+<li>This increases the consumer utility by <span class="math inline">\(\frac{\partial U(C_t,t)}{\partial C Q_t}\)</span></li>
+</ul></li>
+<li>Invest $1 to buy <span class="math inline">\(\frac{1}{Z(t,T)}\)</span> units of zero coupon bond.
+<ul>
+<li>Allows the consumer to buy <span class="math inline">\(\frac{1}{Z(t,T) Q_T}\)</span> of CPI, increasing utility at the future time T to <span class="math inline">\(\frac{1}{Z(t,T)}\frac{\partial U(C_T,T)}{\partial C_T Q_T}\)</span></li>
+</ul></li>
+<li>This leads to an equilibrium condition: <span class="math inline">\(\frac{\partial U(C_t,t)}{\partial C Q_t} = \frac{1}{Z(t,T)}\frac{\partial U(C_T,T)}{\partial C_T Q_T}\)</span></li>
+<li>Solving for what the theoretical zero coupon bond price should be: <span class="math inline">\(Z(t,T) = E_t [\frac{Q_t \partial( U(C_T,T) / \partial C_T}{Q_T \partial U(C_t, t) / \partial C_t}]\)</span></li>
+<li>Plug in the utility function directly to get: <span class="math inline">\(Z(t,T) = E_t [\frac{Q_t C_T^{-h} e^{-\rho T}}{Q_T C_t^{-h} e^{-\rho t}}]\)</span></li>
+<li>Assume that <span class="math inline">\(C_t = kY_t\)</span> and plug in the dynamics for Q and Y to then get:</li>
+</ol>
+<p><span class="math display">\[
+Z(i,t,T) = e^{A(t;T) - B(t;T)(i+c)}
+\begin{cases}
+B(t;T) = \frac{1}{\gamma}(1 - e^{-\gamma(T-t)}) \\
+A(t;T) = \left(B(t;T) - (T-t))(\bar{r}^* - \frac{\sigma_i^2}{2\gamma^2}\right) - \frac{\sigma^2_i B(t;T)^2}{4\gamma}
+\end{cases}
+\]</span></p>
+<p>The spot nominal rate is given by the sum of expected inflation, <span class="math inline">\(i_t = E[dq]\)</span>, and a constant c: <span class="math inline">\(r_t = i_t + c\)</span></p>
+<p><strong>Additional formulas:</strong></p>
+<p><span class="math display">\[
+\bar{r} = \bar{i} + c \\
+c = \underbrace{(\rho + hg - \frac{1}{2} h^2 \sigma^2_y)}_\text{measure of the real rate of interest} - \underbrace{h \sigma_y \sigma_q \rho_{qy}}_\text{inflation risk premium} - \frac{1}{2} \sigma^2_q \\
+\bar{r}^* = \bar{r} - \frac{1}{\gamma}(h\sigma_i\sigma_y \rho_{yi} + \sigma_i \sigma_y \rho_{iq}) \\
+\text{Dynamics of the spot nominal rate } r_t: \\
+\text{Risk natural:} dr_t = \gamma(\bar{r} - r_t) dt + \sigma_i dX_i \\
+\text{Risk neutral:} dr_t = \gamma(\bar{r}^* - r_t)dt + \sigma_i dX_i \\
+\text{Market price of risk:} \lambda = \frac{\gamma}{\sigma_i}(\bar{r} - \bar{r}^* = h\sigma_y\rho_{yi} + \sigma_y)
+\]</span></p>
+<ul>
+<li><span class="math inline">\(\rho\)</span>: Higher means people earn more utility by consuming today. This results in more borrowing which increases the real rate of interest</li>
+<li>hg: When the growth rate of the economy g is high, then people want to borrow to consume today, thus increasing the real interest rate.</li>
+<li><span class="math inline">\(\frac{1}{2}h^2 \sigma^2_y\)</span>: When volatility of GDP growth is high, there is higher risk there will be less consumption in the future.</li>
+<li><span class="math inline">\(\sigma_y \sigma_q \rho_{qy}\)</span>: Covariance of GDP growth (dy) and inflation (dq). When covariance is negative, a short term nominal investment rate <span class="math inline">\(r_t\)</span> will be more risky. Thus the nominal rate must increase to compensate for this risk.</li>
+<li><span class="math inline">\(-h\sigma_i\sigma_y \rho_{yi}\)</span>: is an adjustment to the long-term unconditional average nominal rate <span class="math inline">\(\bar{r}\)</span></li>
+<li>Since covariance (<span class="math inline">\(\sigma_i\sigma_y \rho_{yi}\)</span>) between inflation and GDP is typically negative, this implies that the adjustment for risk is normally positive</li>
+<li><span class="math inline">\(\bar{r}^*\)</span> typically increases when:
+<ul>
+<li>The risk aversion h increases</li>
+<li>The covariance cov(di,dy) becomes more negative</li>
+<li>The mean reversion speed <span class="math inline">\(\gamma\)</span> decreases (is slower)</li>
+</ul></li>
+</ul>
+</div>
+<p style="text-align: center;">
+<a href="term-structure-models---continuous-time.html"><button class="btn btn-default">Previous</button></a>
+<a href="HoLee.html"><button class="btn btn-default">Next</button></a>
+</p>
+</div>
+</div>
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+</body>
+</html>

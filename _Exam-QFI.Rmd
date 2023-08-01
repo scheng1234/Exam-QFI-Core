@@ -1,0 +1,2160 @@
+---
+title: "Exam QFI"
+author: "Steven Cheng"
+date: "2023-05-03"
+output:
+  html_document:
+    theme: simplex
+    toc: true
+    toc_float: true
+    toc_depth: 3
+editor_options:
+  markdown:
+    wrap: 72
+classoption:
+- twocolumn
+# header-includes:
+#   - \usepackage{tikz}
+#   - \ifdefined\HCode
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("kableExtra")
+library("tidyverse")
+  
+```
+
+\newpage
+
+<span style="display: none;"> $$
+\newcommand{\Lagr}{\mathcal{L}}
+\newcommand{\bP}{\mathbb{P}}
+\newcommand{\bR}{\mathbb{R}}
+\newcommand{\bQ}{\mathbb{Q}}
+\newcommand{\bE}{\mathbb{E}}
+\Lagr \bP \bR \bQ \bE 
+$$ <span style="display: none;">
+
+
+# A Note About Notations
+
+
+<span style="color: red;">Consider moving this as a
+footnote<span style="color: red;">
+
+In the book:
+
+-   $dF_t$ represents the total change in the derivative price
+    $F(S_t, t)$.
+-   $F_t$ represents the partial derivative of $F(S_t, t)$ with respect
+    to t.
+-   In the notes, I attempt to make things more clear by denoting the
+    the first order derivative with respect to t written as $F'_t$ and
+    second order as $F''_t$
+    
+-   $B(t,T)$: price at time t<T of a discount bond maturing at time T
+-   $r-t$: instantaneous spot rate on riskless borrowing
+-   $R(t,T)$: yield of the discount bond $B(t,T)$
+-   $F(t,T,U)$: forward rate at time t over the period T to U
+-   $F(t,s)$: instantaneous forward rate contracted at time t over the interval s to s+ds
+-   $(t-T)$: Often times represents the time to maturity and in some forumalas substituded to be $\tau$
+
+# Financial Derivatives {#FD}
+
+**Financial Derivatives** are securities that derive their value from
+cash markets. In Ingersoll's definition, a financial contract is a
+derivative security.
+
+**Cash and Carry Markets**: Gold, silver, T-bonds. The idea is to borrow
+cash, buy asset, and hold until expiration.
+
+**Forward Contract**: obligation to buy/sell an asset at a specified
+price at a future date. if cash price is higher at expiration then
+forward, and long position make a profit.
+
+```{r, echo = FALSE}
+ForwardContracts <- cbind(c( "Mark to Market", "Settlement", "Margin System", "Trading", "Types", "Flexibility", "Liquidity", "Counterparty Risk"),
+                          c( "Yes", "Daily", "Yes", "Exchanges", "Standardized" , "Less", "More", "Less"),
+                          c("No", "Upon Maturity", "No", "OTC", "Custom", "More", "Less", "More")
+                          )
+
+kableExtra::kbl(ForwardContracts, col.names = c("Characteristic", "Futures", "Forwards"), format = "html") %>% kable_minimal("hover")
+
+
+```
+
+**Repurchase Agreement (REPO)**: A transaction in which one party sells
+a security in return for cash, with an agreement to repurchase the
+security at an agreed upon price at a future date.
+
+[**Options**](#Options):
+
+-   European: The right to buy $S_t$ at strike k. This right may be
+    excercised at time T. Where $S_T <K$ is out the money and $S_T > K$
+    is in the money. $$C_T = \max(S_T -K)$$
+
+**Swaps**: Exchange of one set of cashflows for another. Swaps are
+simultaneous and can involve curruncies, interst rates, etc. Swaps can
+be priced through forwards. Cancelable swaps allow the right to cancel
+swap contracts.
+
+**Arbitrage** : Taking simultaneous positions so that it guarantees a
+riskless profit higher than the risk-free rate. Let $d_{ij}$ be the
+number of units of account paid by one unit of security i in state j.
+Rows represent asset, columns represent state (interest, conflict,
+recession, etc...)
+
+
+::: columns
+::: {.column width="20%"}
+:::
+
+::: {.column width="30%"}
+$$
+\text{Asset Values} = S_T = 
+\begin{bmatrix} 
+S_1(t) \\
+S_2(t) \\
+\vdots \\
+S_n(t)
+\end{bmatrix}
+$$
+:::
+
+::: {.column width="30%"}
+$$
+D_t = \begin{bmatrix}
+d_{11} & d_{12} & \cdots & d_{1k} \\
+d_{21} & d_{22} & & d_{2k} \\
+\vdots & & \ddots & \vdots\\
+d_{i1} & d_{i2} & \cdots & d_{ik}
+\end{bmatrix}
+$$
+:::
+
+::: {.column width="20%"}
+:::
+:::
+
+$$
+\text{example of a 2 state portfolio with cash, security, and call}\\ \begin{bmatrix}
+(1+r\Delta) & (1+r\Delta) \\
+S_1(t + \Delta) & S_2(t + \Delta) \\
+C_1(t + \Delta) & C_2(t + \Delta) 
+\end{bmatrix}
+$$
+
+No arbitrage possibility exists iff:
+
+$$
+\begin{bmatrix}
+1 \\ S(t) \\ C(t)
+\end{bmatrix} 
+=
+\begin{bmatrix}
+(1+r\Delta) & (1+r\Delta) \\
+S_1(t + \Delta) & S_2(t + \Delta) \\
+C_1(t + \Delta) & C_2(t + \Delta) 
+\end{bmatrix} 
+\begin{bmatrix}
+\psi_1 \\ \psi_2
+\end{bmatrix} 
+$$
+
+$\psi_n$ represents the risk neutral probability discounted at the risk
+free rate and:
+
+$$ \sum_i^n \psi_i = v = \frac{1}{1+r} \rightarrow \sum_i^n \psi_i \cdot (1+r) = \sum_i^n  \bQ_i  = 1 $$
+
+|       **Binomial Tree Pricing**: A method of valuing options. Steps to determine option value is to first determine the value at expiration, then work backwards each step until the current price is obtained.
+
+$$
+C_T = \frac{1}{1+r}[Q_{up} C_{t+\Delta}^{up} + Q_{down} C_{t+\Delta}^{down}]
+$$
+
+```{tikz, BinomialTree, fig.ext = 'png', cache=TRUE, echo = FALSE, fig.dim = c(5, 4), fig.align="center"}
+  \begin{tikzpicture}[>=stealth,sloped]
+    \matrix (tree) [%
+      matrix of nodes,
+      minimum size=1cm,
+      column sep=3.5cm,
+      row sep=1cm,
+    ]
+    {
+            &     & {$C^{uu}$} \\
+            & {$C^u$} &   \\
+      {$C_T$} &     & {$C^{ud/du}$} \\
+            & {$C^d$} &   \\
+            &     & {$C^{dd}$} \\
+    };
+    \draw[->] (tree-3-1) -- (tree-2-2) node [midway,above] {$P$};
+    \draw[->] (tree-3-1) -- (tree-4-2) node [midway,below] {$(1-p)$};
+    \draw[->] (tree-2-2) -- (tree-1-3) node [midway,above] {$P^2$};
+    \draw[->] (tree-2-2) -- (tree-3-3) node [midway,below] {$(1-p)p$};
+    \draw[->] (tree-4-2) -- (tree-3-3) node [midway,above] {$(1-p)p$};
+    \draw[->] (tree-4-2) -- (tree-5-3) node [midway,below] {$(1-p)^2$};
+  \end{tikzpicture}
+```
+
+If we assume dividends are paid as a % of $S_{t+\Delta}$. Then by
+arbitrage: $$
+\begin{bmatrix}
+1 \\ S(t) \\ C(t)
+\end{bmatrix} =
+\begin{bmatrix}
+B^u_{t+\Delta} & B^d_{t+\Delta} \\
+S^u_{t+\Delta} + d_tS^u_{t+\Delta} & S^d_{t+\Delta} + d_tS^d_{t+\Delta} \\
+C^u_{t+\Delta} & C^d_{t+\Delta} 
+\end{bmatrix} 
+\begin{bmatrix}
+\psi_1 \\ \psi_2
+\end{bmatrix}\\
+E^Q[\frac{S_{t+\Delta}}{S}] = \frac{1+r\Delta}{1+d\Delta} \approx 1+(r-d)\Delta \\
+E^Q[\frac{C_{t+\Delta}}{C}] = 1+r\Delta
+$$ Under risk-neutral expectations. S grows below the risk free rate at
+r-d while the call option is expected to return r. For foreign
+currencies, replace d with the foreign savings interest rate rf.
+
+## Risk Neutral Pricing Summary
+
+-   Obtain a model to track dynamics of underlying
+-   Calculate how derivative asset price relates to the price of the
+    underlying asset ast expiration or other boundaries
+-   Obtain risk adjusted probabilities
+-   Calculate expected payoffs of derivative at expiration using risk
+    adjusted probabilities
+-   Discount this expectation using the risk-free return.
+
+## Exotic Options {#Options}
+
+
+### Lookback Options
+
+Floating lookback call option payoff: $\max{(S_T - S_{min}, 0)}$
+
+Fixed lookback call option payoff: $\max{(S_{max}-kK,0)}$
+
+### Ladder Options
+
+Has several thresholds, such that if the underlying price reaches these
+thresholds, the return of the option is locked in.
+
+### Trigger or Knock-in Options
+
+A down-and-in option gives its holder a European option if the spot
+price falls below a barrier during the life of the option. If the
+barrier is not reached, the option expires with some rebate as a payoff.
+The up-and-in option is similar but with the spot price going above the
+barrier price.
+
+### Knock-out Options
+
+Kncok-out options are European options that expire immediately if the
+underlying asset price falls below a barrier during the life of the
+option The option pays a rebate if the barrier is reached. Also called
+down and out. There are also up-and-out variations.
+
+### Other Exotics
+
+1.  *Basket options*, which are derivatives where the underlying asset
+    is a basket of various financial instruments. Such basket dampen the
+    volatility of the individual securities. Basket options become more
+    afforable in the case of emerging market derivatives.
+2.  *Multi-asset options* have payoffs depending on the underlying price
+    of more than one asset
+
+| Example Payoff          | $F(S_{1T}, S_{2T}, T)$                             |
+|:------------------------|:---------------------------------------------------|
+| Multi-Asset Option      | $\max{[0, \max{(S_{1T},S_{2T})-K}]}$               |
+| Spread Call             | $\max{[0, (S_{1T}-S_{2T})-K]}$                     |
+| Portfolio Call          | $\max{[0, (\theta_1S_{1T}+\theta_2S_{2T})-K]}$[^1] |
+| dual strike call option | $\max{[0, S_{1T}-K, S_{2T}-K]}$                    |
+
+[^1]: $\theta_2 , \theta_2$ represents the weight of each asset in the
+    portfolio.
+
+3.  *Average or Asian options* have payoffs depending on the average
+    price of the underlying asset over the lifetime of the option.
+
+## Interest Rate Sensitive Securities
+
+-   So far we've discussed tools for securities that:
+-   Don't pay dividends
+-   Have risk-free interest rates
+-   Underlying volatility is constant.
+-   Derivatives in financial markets are more complicated.
+-   Only applies to European Options.
+
+### Interest Rate Derivatives
+
+**Interest Rate Forwards and Futures**:
+
+-   $L_{t_i}$ (Libor rates, average of loan quotes from selected banks in London) represents the annualized simple interest
+    rate on a loan that begins at time $t_i$ and ends $t_{i+1}$
+-   For a forward: The buyer of a forward will receive a loan with sum
+    $N$ at time $t_i$
+-   The loan is then paid back at time $t_{i+1}$ with amount
+    $N(1+F_t \delta)$
+-   $F_t$ is the interest rate and $\delta$ is the days adjustment
+    factor, equal to the number of days between $t_i$, and $t_{i+1}$ over 365
+
+**Forward Rate Agreements (FRA)**: As discussed in an earlier section,
+these instruments provide a more convenient way to hedge interest rate
+risk.
+
+-   The buyer of an FRA either receives or pays $N[F_t - L_{t_i}]\delta$
+    in-arrears at time $t_{i+1}$. (i.e. contract is established at time 0, Value of FRA contract determined at time 1, and then payment happens at time 2)
+-   The buyer receives when $L_{t_{i}} < F_t$
+-   The buyer pays when $L_{t_{i}} > F_t$
+-   For a Standard FRA, the settlement date happens at the set date, which means that the payoff amount must be discounted back to time 1. $\text{Receipt} = \frac{N(F_t - L_{t_1})\delta}{1+L_{t_1}\delta}$
+
+**Caps and Floors**:
+
+-   Caps hedge against rising interest rates
+-   Floors do the same but for decreasing rates.
+-   The buyer of a caplet will receive $N \max{[\delta (L_{t_i}-R_{cap}),0]}$ where $R_{cap}$ is the cap rate
+-   Can be thought of as a put on bond prices or call on interest rate.
+
+
+```{r, echo=FALSE}
+caps_floors <- cbind(c( "Caplet", "Floorlet"),
+                          c( "$N \\max{(\\delta(L_{t_i} - R_{\text{cap}}),0)}$", "$N \\max{(R_{\text{floor}} - \\delta(L_{t_i}),0)}$" ),
+                          c("Increase", "Decrease")
+                          )
+
+kableExtra::kbl(caps_floors, col.names = c("Instrument", "Payoff", "Gain When Interest Rates"), format = "html") %>% kable_minimal("hover")
+```
+
+**Interest Rate Swaps**:
+
+-   As discussed in a prior chapter, the interest rate swap functions as a more complex FRA.
+-   Involves an exchange of cash flows generated by a fixed pre-set swap rate $\kappa$ against cash flows generated by floating Libor rates $L_{t_i}$
+-   The swap rate $\kappa$ is set so that the time $t$ price of the swap contract is 0
+-   Can be thought of as a sequence of FRAs
+
+**Bond Options**
+
+-   A call option written on a bond gives its holder the right, but not the obligation, to buy a bond with price $B_t$ at strike price K
+
+**Swaptions**
+
+-   Options on swap contracts
+-   The buyer of a swaption will have the right but not the obligation to get a swap contract at some future time
+
+
+
+# Math of Financial Derivatives
+
+### Basics
+
+$$
+1 + 1 + \frac{1}{2!} + \frac{1}{3!} \dots = e \\
+e^{x+y} = e^x \cdot e^y\\
+\frac{d}{dx} e^{kx} = ke^{kx} 
+$$
+
+**Function of Bounded Variation**
+
+$$
+V_0 = \max{\sum^n_{i=1}|f(t_i) - f(t_{i-1})|} < \infty
+$$
+
+**Definition of a derivative**
+
+$$ 
+f'_x = \lim_{\Delta \rightarrow 0} \frac{f(x+\Delta) - f(x)}{\Delta} \\
+f_x'' = \frac{f_x'(x+\Delta) - f_x'(x)}{\Delta} \approx \frac{f(x+\Delta) - 2f(x) + f(x-\Delta)}{\Delta^2}
+$$
+
+**First order approximations of functions**
+
+$$ 
+f(x+\Delta) \approx f(x) + f'_x(\Delta)
+$$
+
+**Chain Rule**
+
+$$
+y_t = f(g(t)) \text{   and   } x_t = g(t) \\
+\frac{dy}{dt} = \frac{df(g(t))}{dg(t)} \cdot\frac{dg(t)}{dt} 
+$$
+
+**Probability Basics**
+
+-   $\omega = \text{particular state of the world}$
+-   $\Omega = \text{all possible states of the world}$
+-   $I = \text{set of all possible events}$
+-   $P(A) \geq 0$ for any $A \in I$
+-   $\int_{A \in I} dP(A) = 1$
+-   distribution function: $G(x) = P(X \leq x)$
+
+**Moments**
+
+-   Expectation first moment: $E(X) = \int_{-\infty}^{\infty} xf(x)dx$
+-   Second moment is variance
+-   Third moment is skew
+-   Fourth moment is kurtosis
+
+**Normal Distribution**
+
+$$
+X \sim N(\mu, \sigma^2)
+$$
+
+-   PDF:
+    $f(x) = \frac{1}{\sigma \sqrt{2\pi}}e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}$
+-   $E(X) = \mu$
+-   $V(X) = \sigma^2$
+-   skew = $E((X - E(X))^3) = 0$
+-   kurtosis = $E[\left(\frac{x-\mu}{\sigma}\right)^4]$
+
+### Intermediate
+
+**Riemann Integral**
+
+Given max $|t_i - t_{i+1}| \rightarrow 0$, the Riemann integral will be
+defined by the limit
+
+$$
+\sum_{i=1}^n f\left(\frac{t_i + t_{i-1}}{2}\right)(t_i + t_{i-1}) \rightarrow \int_0^T f(s)ds
+$$
+
+**Integration by Parts**
+
+$$
+d(f(t) \cdot h(t)) = f'(t)h(t) + f(t)h'(t) \Rightarrow f(T)h(T) -f(0)h(0) - \int_0^Tf(t)h'(t)dt
+$$
+
+**Partial vs Total Differentials**
+
+Let $C_t = F(S_t,t)$
+
+$$
+\frac{\partial F(S_t,t)}{\partial S_t} = F_s : \text{Partial Derivative} \\
+df = F_sdS_t + F_tdt : \text{Total Differential}
+$$
+
+**1D Taylor Series**
+
+Let f(x) be an infinitely differentiable function of $x \in \bR$.
+Expanding around point $x_0$
+
+$$
+f(x) = f(x_0) + f'_(x_0)(x-x_0) + \frac{1}{2}f''_x(x_0)(x-x_0)^2 + \dots = \sum_{n=0}^\infty \frac{f^n_x(x_0)}{n!}(x-x_0)^n
+$$
+
+**Ordinary Differential Equations**
+
+$$
+dB_t = -r_tB_tdt \Rightarrow B_t = e^{\int_0^tr_udu}
+$$
+
+**Conditional Expectation**
+
+-   $I_{t_0} \subseteq I_{t_1} \subseteq \dots \subseteq I_{t_k}$
+-   A family $I_t$ satisfying the above property is called filtration.
+-   $I_t$ contains the information that we condition on
+-   $P(|X-X_0| \leq \frac{dx}{2} \approx f(x_0)dx$
+-   $E(S_t | I_u) = \int_{-\infty}^\infty S_t f(S_t | I_u) dS_t, u < t$
+-   Linearity property: $E[S_t + F(t)] = E[S_t] + E[F(t)]$
+
+**Moments**
+
+-   Let $Y_t \sim N(\mu t, \sigma^2 t)$
+-   Recall the definition of a moment generating function
+    $M(\lambda) = E(e^{\lambda Y_t})$
+-   Given the definition of $Y_t$ the moment generating function of
+    $Y_t$ can be explicitly calculated:
+    $M(\lambda) = e^{\lambda \mu t + \frac{1}{2}\sigma^2 t\lambda^2}$
+-   Assume that $S_t = S_0 e^{Y_t}$. This assumes $S_t$ is lognormally
+    distributed
+-   Then the following conditional expectation follows from the moment
+    generating function $M(1)$ over the time period $t - u$
+
+$$
+E[S_t | S_u, u < t] = S_u e^{\mu (t-u) + \frac{1}{2} \sigma^2 (t-u)}
+$$
+
+The following are key moments for a lognormal random variable L:
+
+$$
+E(L) = e^{\mu + \frac{1}{2} \sigma ^ 2} \\
+V(L) = [e^{\sigma^2} - 1] e^{2\mu + \sigma^2} \\
+E(L^n) = e^{n \mu + \frac{n^2 \sigma^2}{2}}
+$$
+
+# Pricing Methods
+
+1.  Arbitrage on financial assets which are martingales. Known as the
+    method of equivalent martingales.
+2.  Construct a risk-free portfolio to obtain a partial-differential
+    equation (PDE) that is implied by the lack of arbitrage
+    opportunities.
+    -   Gold Example:
+        -   Portfolio 1: Borrow money, buy gold, hold until expiration.
+            Pay back money at time T
+        -   Portfolio 2: Buy forward contract (cash exchanged at T to
+            receive gold).
+        -   $F(S_t,t) = \underbrace{S_te^{r_t(T-t)}}_{\text{loan repayment}} + \underbrace{c(T-t)}_{\text{storage costs}}$
+    -   Delta Hedging Example:
+        -   Construct a risk free portfolio by combining loans, a long
+            call, and short $\Delta$ shares. (requires continuous delta
+            hedging)
+        -   $\frac{\partial F(S_t,t)}{\partial S_t} = F(s) = \Delta$
+
+**Binomial Models**
+
+-   $Pr(\Delta F(t) = a \sqrt{\Delta} = p)$
+-   Assume F(t) is the real time price, and that over a small time
+    interval there is either an uptick or downtick.
+-   $E[\Delta F(t) = ap\sqrt{\Delta} - a(1-p)\sqrt{\Delta} ]$
+-   $V[\Delta F(t)] = 4a^2\Delta p(1-p)$
+
+**Poisson Distribution**
+
+-   Unpredictable occurrence at times t = 1,2,3.
+-   Jumps are assumed to be independent and of the same size.
+-   In a given small interval, the probability of observing more than 1
+    jump is negligible.
+-   Denote $N_t$ as number of jumps up to time t.
+-   Let $\Delta$ be a small time interval.
+-   $\lambda$ = positive constant called intensity
+-   $\Delta N_t = 1$ if there is a jump, otherwise it's 0
+-   $P(\Delta N_t =1) \approx \lambda N, P(\Delta N_t = 0) \approx 1-\lambda N, P(\Delta N_t = n) = \frac{e^{-\lambda\Delta}(\lambda \Delta)^N}{n!}$
+
+**Markov Processes**
+
+A discrete time process ${X_1, \dots ,X_t}$ with joint probability
+distribution function $F(x_1,\dots, x_t)$ is said to be a Markov Process
+iff:
+
+$$
+Pr(X_{t+s} \leq X_{t+s} | X_1, \dots, X_t) = Pr(X_{t+s} \leq X_{t+s} |  X_t)
+$$
+
+Where s \> 0, $P(. | I_t)$ is the probability conditional on the
+information set $I_t$. Basically saying that the probability of the next
+state is only conditional on the state prior to the event.
+
+## Convergence
+
+**Almost Sure Convergence**
+
+A random variable $X_n$ converges to X almost surely if, for arbitrary
+$\delta > 0$
+
+$$
+P(|\lim_{n \rightarrow \infty} X_n - X| > \delta ) = 0
+$$
+
+**Mean Square Convergence**
+
+Let $X_0, X_1, X_2 \dots ,X_n$ be a sequence of random variables. Then
+$X_n$ is said to converge to X in mean square if:
+
+$$
+\lim_{n \rightarrow \infty} E[(X_n - X)^2] =0
+$$
+
+**Weak Convergence**
+
+$X_n$ = a random variable indexed by in with probability $P_n \cdot X_n$
+converges to X weakly if $\lim_{n \rightarrow \infty} P_n = P$. Where P
+is the probability distribution of X if:
+
+$$
+E^{P_n}[F(X_n)] \rightarrow E^{P}[F(X)]
+$$
+
+## Martingales
+
+If the value of $S_t$ is included in the information set $I_t$ at t \>
+0, then it is said that $\lbrace S_t, t \in [0,t]\rbrace$ is *adapted*
+to $\lbrace I_t, t \in [0,\infty]\rbrace$. We can say that
+$E_t[S_t] = E(S_t|I_t)$ forecasts $S_t$ given information at $I_t$.
+
+A process $\lbrace S_t, t \in [0,\infty]\rbrace$ is a martingale w.r.t
+the family of information sets $I_t$ and w.r.t probability P if for all
+t \> 0, the following 3 properties are satisfied
+
+1.  $S_t$ is known given $I_t$ ($S_t$ is $I_t$ adapted).
+2.  $E^P|S_t| < \infty$ : probabilities are finite.
+3.  $E^P[S_t] = S_t$ for all t \< T
+
+Martingales satisfies the important property that it is not expected to
+grow or shrink over time (the expectation = current value)
+$E_t[S_{t+u} - S_t] = 0$
+
+-   A **submartingale** is expected to grow over time or stay the same
+    level.
+    -   $E^P[X_{t+s} | I_t] \geq X_t$
+-   A **supermartingale** is expected to shrink over time or stay the
+    same level.
+    -   $E^P[X_{t+s} | I_t] \leq X_t$
+
+To convert to a martingale:
+
+-   Change to a different probability measure.
+-   Apply scaling factor (multiplicative/additive)
+
+<!-- Suppose at time t one has information $I_t$. For a random variable $X_t$ -->
+
+<!-- such that s \> 0 satisfies the equality: -->
+
+<!-- -   $E^P[X_{t+s} | I_t] = X_t$ - This is a martingale with respect to -->
+
+<!--     probability measure P -->
+
+<!-- -   $E^P[X_{t+s} | I_t] \geq X_t$ - This is a submartingale with respect -->
+
+<!--     to probability measure P -->
+
+# Brownian Motion and Wiener Processes
+
+**Understanding Variance**
+
+-   $V(X) \approx E(X^2)$ : Assume the interval is small enough where
+    the expected movement is negligible.
+-   $V(X) \ approx \sum_k p_k k^2 \propto h \text{ where } p_k = \Pr(X=k)$
+-   k = size term and $p_k$ = probability
+-   The probability times the size squared will be linear to h which
+    leads to the following 3 cases:
+    -   Probability proportional to h, size independent of h
+    -   Probability independent of h, size propotional to $\sqrt{h}$
+    -   Something more complicated and in between
+
+**Brownian Bridge**
+
+::: columns
+::::: {.column width="\"50"}
+$$
+\text{For }i \in \lbrace1,2 \dots,n \rbrace \text{ define:} \\
+X_i(t) = \begin{cases}
+1 & \text{if } \in_i < t\\
+0 & \text{otherwise}
+\end{cases}\\
+\text{Then let } S_n(t) = \frac{1}{\sqrt{n}}\sum^n_{i=1}(X_i(t)-t)
+$$
+:::::
+
+::::: {.column width="50%"}
+$\in_i$ assumed to have uniform distribution on (0,1)
+
+In the limit as $n \rightarrow \infty$, this is called the Brownian
+Bridge
+:::::
+:::
+
+## Brownian Motion
+
+Brownian motion is approximated by Taylor Series Approximation. Suppose
+that x is a martingale process.
+
+$$
+f(x_0 - \Delta x) - f(x_0) = f'_x(\Delta x) + \frac{1}{2}f''_x(\Delta x) ^2 + \cdots
+$$
+
+Usually we ignore higher order terms and just look at first order
+approximation for deterministic calculus. However we cannot ignore
+higher order terms for stochastic calculus. Getting rid of second order
+term in stochastic calculus means that we assume the underlying random
+variable has:
+
+$$
+\matrix{
+V(\Delta x) = E[(\Delta x)^2] - E[(\Delta x)]^2 = E[(\Delta x)^2] = 0 & \text{Wrong for stochastic setting}
+}
+$$
+
+**Definition of Brownian Motion**
+
+A random process $B_t, t \in [0,T]$ is a brownian motion if:
+
+1.  $B_0 = 0$
+2.  $B_t$ has stationary, independent increments
+3.  $B_t$ is continuous in t.
+4.  $B_t - B_s \sim N(0,|t-s|)$
+
+## Wiener Process
+
+**Definition of a Wiener Process**
+
+A Weiner process, $W_t$, relative to a family of information sets
+${I_t}$, is a stochastic process such that:
+
+1.  $W_t$ is a square integrable martingale
+2.  $W_0 = 0$
+3.  $E[(W_t - W_s)^2] = t-s, s\leq t$
+4.  The trajectories of $W_t$ are continuous over t.
+
+**Properties of Wiener Process**
+
+1.  $W_t$ has uncorrelated increments )note every martingale has
+    unrelated increments).
+2.  $W_t$ has 0 mean. (Since it starts at 0, all increments are expected
+    to have 0 movement).
+3.  $W_t$ has variance t
+4.  The process is continuous; in infinitesimal intervals, the movements
+    of $W_t$ are infinitesimal.
+
+**Brownian Motion vs Wiener Process**
+
+-   Any Wiener process $W_t$ relative to a family $I_t$ is a Brownian
+    motion process
+-   THis is the Levy theorem, and it states that there is no difference
+    between a Wiener process and Brownian motion
+
+**Stock Fluctuations From Unpredictable Information**
+
+-   Assume there is no drift and that when news comes out the stock
+    price moves by $\sigma_t dW_t$
+
+$$
+E_t[\int_t^{t+T}\sigma_u dW_u] = 0
+$$
+
+## Poisson Process
+
+$$
+dN_t = \cases{
+ 1 & with probability $\lambda$ dt \\
+ 0 & with probability $1-\lambda$ dt
+}
+$$
+
+-   The size of poisson outcome does not depend on the size of the time
+    interval dt.
+-   The probability of each outcome does depend on the size of the time
+    interval dt
+-   $N_t$ is not a martingale since $E(dN_t) = \lambda dt \neq 0$
+
+Can convert to a martingale transforming $\mu_t = N_t - \lambda t$,
+$E[M_t] = 0$, As $dt \rightarrow 0$, the probability of a Poisson jump
+goes to 0.
+
+Wiener Integral : $\int_{t_0}^T f(W_t)dW_t$ \* Very irregular snce there
+are uncountably many changes as $t \rightarrow 0$ \* Unbounded variation
+\* Riemann-Stieltjes definition does not apply
+
+Poisson Integral : $\int_{t_0}^T f(M_t)dM_t$ \* As \$ t \rightarrow 0\$,
+chance of jump goes to 0 \* Bounded variation \* Riemann_Stieltjes
+definition applies.
+
+## Characterizing Rare and Normal Events
+
+Assume $\Delta W_k$ can only take on a finite number of possible values.
+
+$$
+\sigma_k \Delta W_k = \begin{cases}
+w_1 & \text{probability } p_1 \\
+w_2 & p_2 \\
+\vdots \\
+w_n & p_n
+\end{cases}
+$$ $$
+E[(\sigma_k \Delta w_k)^2] = \sigma^2_k h
+$$
+
+$$
+V[\sigma_k \Delta w_k] = \sigma^2_kh = \sum^m_{i=1} p_i w_i^2 \rightarrow p_i w_i^2 = c_ih
+$$ Assume we can specify $w_i$ and $p_i$ in the following forms:
+<span style="color: red;">[FLAG] what is w?<span style="color: red;">
+
+$$
+w_i(h)  = \bar w_i h^{r_i} \\
+p_i(h) = \bar p_i h^{q_i} \\ 
+$$
+
+$$
+\text{Then: } p_i w_i^2 = c_i h - \underbrace{p_i w_i^2}_{c_i} h^{q_i}h^{2r_i} = q_i + 2r_i = 1 \text{ where } \begin{matrix} 0 \leq r_i \leq \frac{1}{2} \\ 0 \leq q_i  \leq 1 \end{matrix}
+$$
+
+**Summary Table for Characterizing Rare and Normal Events**
+
+| Event  |     $r_i$     | $q_i$ |  Limiting Size  | Limiting Prob  | Time Independence |
+|:----------:|:----------:|:----------:|:----------:|:----------:|:----------:|
+| Normal | $\frac{1}{2}$ |   0   |        0        | $\bar p_i > 0$ |    probability    |
+|  Rare  |       0       |   1   | $\bar w_i \> 0$ |       0        |       size        |
+
+# Stochastic Calculus
+
+## Stochastic Derivative
+
+Modify definition of the derivative slightly to include extra term:
+
+$$
+\lim_{x \rightarrow 0} \frac{f(x + \Delta x) - f(x)}{\Delta x} \approx f'_x + \frac{1}{2}f''_x\Delta x
+$$
+
+### Framework
+
+-   $S_k = S(kh)$
+-   Divide an interval length T into n intervals of length h:
+
+$$
+ \sigma_k \Delta W_k = \underbrace{[S_k - S_{k-1}]}_\text{innovation} - \underbrace{E_{k-1}[S_k - S_{k-1}]}_\text{expected movement}
+$$
+
+-   Key property $E[\Delta W_k] = 0$ for all k.
+-   $E_{k-1}[\Delta W_k] = W_{k-1}$
+-   Define the martingale $W_k = \sum_{i=1}^k \Delta W_i$
+
+#### Analyzing Innovation Term
+
+Define (note that $V^k$ represents variance):
+
+$$
+V^k = E_0[(\Delta W_k)^2] \\
+V = E_0[\sum_{k=1}^n \Delta W_k]^2 = \sum_{k=1}^n E_0[( \Delta W_k)^2] = \sum_{k=1}^nV^k \\
+V_\text{max} = \max[V^k, k=1,2,\dots,n]
+$$
+
+Let there be n intervals of length h and T = nh. Let
+$\Delta W_k = W((k+1)h) - W(kh)$.
+
+**Assumptions**
+
+-   $0 < V < \infty$ : variation is non-zero and finite
+-   $0 < \frac{V^k}{V^\max} \leq 1$ : no subinterval dominates the
+    randomness.
+
+As long as the assumptions are met, then the variance of $\Delta W_k$ is
+proportional to h.
+
+$$
+E_[(\Delta W_k)^2] = h
+$$
+
+giving us the approximation: $\Delta W_k \approx \sqrt{h}$. If we had
+tried to apply this to a traditional deterministic method we get:
+
+$$
+\lim_{h \rightarrow 0^+} \frac{\Delta W_k}{h} \approx \lim_{h \rightarrow 0^+} \frac{\sqrt{h}}{h} = {\frac{1}{\sqrt{h}} \rightarrow \infty} \text{ (Impossible!)}
+$$
+
+rearranging:
+
+$$
+\sigma_k \Delta W_k = [S_k - S_{k-1}] - E_{k-1}[S_k - S_{k-1}] \\ 
+\downarrow \\
+dS_t = \underbrace{a (S_t,t)dt}_\text{drift} + \underbrace{b(S_t, t) dW_t}_\text{diffusion}
+$$ **Takeaway**
+
+$dW_t$ is irregular and its derivative does not exist in the traditional
+sense.
+
+$$
+\matrix{E[(\Delta W_k])^2]=h & E[\Delta W_k] = 0 & V[\Delta W_k] = h}
+$$ The distribution of $W_{t+h} - W$ conditioned on the information set
+$I_t$ is normally distributed with mean 0 and variance h.
+
+### Ito's
+
+#### Ito Integral <span style="color: red;">[FLAG] need to review from book?<span style="color: red;">
+
+$$
+\int_0^t \sigma(S_u,u)dW_u
+$$
+
+1.  $\lim_{sup_i |t_{i r} - t_i| \rightarrow 0} \sum^{n-1}_{i=0} g(X_{t_{i+1}})[F(X_{t_{i+1}}) - F(X_{t_i})] = \int_0^T g(X_T)dF(X_t)$
+2.  $\lim_{n \rightarrow \infty} \sum^{n-1}_{k=1} \sigma (S_{k-1}, k)[w_k - w_{k-1}] = \int_0^T \sigma(S_u,u)dW_u$
+3.  Used for constructing stochastic integrals involving Wiener Process.
+    $$
+    \lim_{n \rightarrow \infty} E [\sum^{n-1}_{k=1} \sigma (S_{k-1}, k)[w_k - w_{k-1}] -  \int_0^T \sigma(S_u,u)dW_u]^2 =0
+    $$
+
+**Ito Definition**
+
+Consider the finite interval approximation of the stochastic
+differential equation.
+
+$$
+S_k - S_{k-1}  = a (S_{k-1}, k)h + \sigma (S_{k-1}, k)[w_k - w_{k-1}]
+$$
+
+when $[w_k - w_{k-1}]$ is a standard Wiener process with 0 mean and
+variance h.
+
+-   $\sigma (S_t,t)$ is non-anticipative (independent of the future)
+-   $\sigma (S_t,t)$ is non-explosive
+    $E[\int_0^T \sigma(S_t,t)^2 dt] < 0$
+
+Then the Ito Integral is the mean square limit
+
+$$
+\int_0^T \sigma (S_t,t) dW_t = \sum^n_{k=1} \sigma (S_k,k)[w_k - w_{k-1}]
+$$
+
+Additional notes:
+
+-   The Ito Integral here is $\int_0^T \sigma (S_t,t) dW_t$
+-   Ito is a random variable and a martingale
+-   Ito Integral is a mean-square limit
+
+**Stochastic vs Deterministic Integrals**
+
+-   The notion of a limit involves random variables
+-   Ito integral defined for non-anticipative functions only
+-   Deterministic calculus uses actual paths followed by functions,
+    stochastic integrals use stochastic equivalence.
+
+#### Ito's Isometry
+
+For any $X_t(w)$ which is square integrable, the following holds
+
+$$
+E[(\int_0^t X_u(w)dW_u(w))^2] = E[\int_0^t X_u(w)]^2 du
+$$
+
+-   *Existence*: If f is continuous and non-anticipating, Then the Ito
+    Integral exists
+-   *Martingale*: $E[\int_0^T f(W_t,t)dW_t] = 0$
+-   *Additive*
+
+Products
+
+1.  $E[\int_0^T f(W_t,t)dW_t \int_0^T g(W_t,t)dW_t] = E[\int_0^T f(W_t,t)g(W_t,t)dW_t]$
+2.  $E[\int_0^T f(W_t,t)dW_t \int_0^T f(W_t,t)dW_t] = E[\int_0^T f(W_t,t)^2 dW_t]$
+
+#### Ito's Lemma
+
+1.  Identify $F(S_t,t)$
+2.  Identify $a_t$ and $\sigma_t$
+    -   $dS_t = a_t dt + \sigma_t dW_t$
+3.  Calculate Partial Derivatives
+    -   $\frac{\partial F}{\partial S_t }$ , $\frac{\partial F}{\partial t}$
+    , $\frac{\partial^2 F}{\partial S_t^2}$
+4.  Plug and Chug
+    -   $dF_t = [a_t \frac{\partial F}{\partial S_t} + \frac{\partial F}{\partial t} + \frac{1}{2}\sigma \frac{\partial^2 F}{\partial S_t^2}]dt + \frac{\partial F}{\partial S_t } \sigma_t dW_t$
+
+### Common SDE's
+
+**Linear:**
+
+$$
+\begin{aligned}
+& dS_t = a(S_t,t)dt + \sigma (S_t,t) dW_t \\
+&  a(S_t,t)  = \mu \\
+&  \sigma (S_t,t) = \sigma
+\end{aligned}
+$$
+
+-   This gives the linear SDE: $dS_t = \mu dt + \sigma dW_t$
+-   linear trend $\mu$ with noise term scaled by $\sigma$
+
+**Geometric Brownian Motion (GBM):**
+$dS_t = \mu S_t dt + \sigma S_t dW_t$
+
+-   This is an exponential trend $e^\mu$ with noise scaled by $\sigma$
+-   Divide both sides by $S_t$ to get an intuition w/ percentages
+-   $$
+      \underbrace{\frac{dS_t}{S_t}}_{\text{ Actual % Change}} = \overbrace{\mu dt}^{\text{Expected % Change}} + \underbrace{\sigma dW_t}_{\text{Unexpected % Change}}
+      $$
+-   Equivalently written as
+    $d \ln(S_t) = (\mu - \frac{1}{2}\sigma^2)dt = \sigma dW_t$
+
+**Square Root Process:** $dS_t = \mu S_t dt + \sigma \sqrt{S_t} dW_t$
+
+-   Reduces randomness by taking sqrt of the noise component
+
+**Mean-Reverting Process:**
+$dS_t = \lambda (\mu - S_t) dt + \sigma S_t dW_t$
+
+-   \$\lambda \> 0 \$: rate of mean reversion
+-   $\mu$ is the level of mean reversion
+-   if $\mu < S_t$, drift term is negative so the process drifts to
+    $\mu$ <span style="color: red;">[FLAG] review
+    drift<span style="color: red;">
+-   if $\mu > S_t$, drift term is positive, $S_t$ drifts back up to
+    $\mu$
+
+**Ornstein-Uhlenbeck Process:** $dS_t = -\mu S_t dt + \sigma dW_t$
+
+-   $\mu > 0$ sets the speed of reversion
+-   Mean reverting process around $S_t = 0$
+
+**Summary**
+
+| SDE Name           | SDE Form                                          |
+|:-------------------|:--------------------------------------------------|
+| Linear             | $dS_t = a(S_t,t)dt + \sigma (S_t,t) dW_t$         |
+| GBM                | $dS_t = \mu S_t dt + \sigma S_t dW_t$             |
+| Square Root        | $dS_t = \mu S_t dt + \sigma \sqrt{S_t} dW_t$      |
+| Mean Reverting     | $dS_t = \lambda (\mu - S_t) dt + \sigma S_t dW_t$ |
+| Ornstein-Uhlenbeck | $dS_t = -\mu S_t dt + \sigma dW_t$                |
+
+## Stochastic Variance
+
+$dS_t = \mu S_t dt + \sigma S_t dW_t \rightarrow d\sigma_t = \lambda(\sigma_0 - \sigma_t)dt + \alpha \sigma_t dW_t$
+
+2 kinds of jump framework:
+
+1.  Jump-diffusion models: Adds in a jump component to the SDE to our
+    typical diffusion model.
+2.  Variange-Gamma: perform a stochastic time change
+
+### Jump-Diffusion
+
+-   $\frac{d S_t}{S_t} = \mu dt + \sigma dW_t$
+-   Jump occurs with probability $\lambda dt$
+-   jump occurs of $dN_t = 1$ otherwise $dN_t =0$
+-   The expected proportion jump size is $K = E(e^{J} -1)$
+-   J \> 0 upward jump, J \< 0 downward jump
+-   Jump-Diffusion Model cn be based on
+    $\frac{d S_t}{S_t} = (\mu - \lambda K) dt + \sigma dW_t + (e^J -1) dN_t$
+
+### Variance-Gamma (VG) Process
+
+-   Performs a stochastic time change. Adjusting time period will adjust
+    the volatility, so this is a stochastic variance model as well.
+-   The stochastic time is $\gamma(t; 1,v)$ which is Gamma distributed
+-   The process given the stochastic time is
+    $b(t, \sigma, \theta) = \theta t + \sigma W_t$
+-   The unconditional process is defined by:
+    $X(t; \sigma, v, \theta) = b(\gamma(t; 1,v), \sigma, \theta) = \theta \gamma(t; 1,v) + \sigma W(\gamma(t; 1,v))$
+-   If $t^* = \gamma(t; 1,v)$, then
+    $X(t; \sigma, v, \theta) = \theta t^* + \sigma W(t^*)$
+
+# Black-Scholes PDE Derivation
+
+## Forming Risk-Free Portfolios
+
+Suppose $\theta_1 \& \theta_2$ are the quantities of the derivative
+instrument and the underlying security purchased, respective $P_t$ is
+the risk free portfolio.
+
+$$
+\begin{aligned}
+& dS'_t = a_tdt + \sigma_t dW_t \\
+& dF'_t = F'_s a_t + 0.5F''_s \sigma^2_t + F_t]dt + F'_s \sigma_t dW_t
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+P_t &= \theta_1 dF_t + \theta_2 dS_t \\
+&= \theta_1 ([F'_s a_t + 0.5F''_s \sigma^2_t + F'_t]dt + F'_s \sigma_t dW_t) + \theta_2(a_tdt + \sigma_t dW_t)
+\end{aligned}
+$$
+
+By setting $\theta_1 = 1$ and $\theta_2 = -F'_s$ (equivalent to delta
+hedge) Then $dP_t = F'_t dt + 0.5 F''_s \sigma^2_t dt$. Because there is
+no random noise then we must have that
+$dP_t = rP_t dt = F'_t dt + 0.5 F''_s \sigma^2_t dt$. (r = risk free
+rate)
+
+Note that: $P_t = F(S_t,t) -F'_sS_t$
+
+Combining, we get the **Black-Scholes PDE**
+
+$$
+r(F - F'_sS_t)dt = F'_t dt + 0.5 F''_S \sigma^2_t dt \\
+\rightarrow -rF + rF'_sS_t + F'_t + 0.5F''_s \sigma^2(t) = 0
+$$
+
+Note that $\sigma_t = \sigma S_t$
+
+## PDE Classification
+
+**Linear and non-linear:** this deals with how partial derivatives are
+aggregated
+
+-   Linear: $F'_s + 0.2F'_t = 4$
+-   non-linear $F'^2_s + F'^3_t = 4$
+
+**Order:** this deals with the highest power of partial derivative
+involved
+
+-   First Order: $F'_s + 0.2 F'_t = 4$
+-   Second Order: $F''_s + 0.2F''_t = 4, F'_{st} + F_t = 1$
+
+$a_0 + a_1F'_t + a_2F'_s + a_3 F''_s + a_4 F''_t + a_5 F'_{st} = 0$
+
+-   Elliptic PDE: $a^2_5 -4a_3a_4 < 0$
+-   Parabolic PDE: $a^2_5 -4a_3a_4 = 0$
+-   Hyperbolic PDE: $a^2_5 -4a_3a_4 > 0$
+
+## Black-Scholes
+
+1.  Assume that $dS_t = a(S_t,t)dt + \sigma (S_t,t)dW_t$
+2.  Under Black-Scholes, we assume that
+    -   $a(S_t,t) = \mu S_t$
+    -   $\sigma(S_t,t) = \sigma S_t$
+3.  The PDE and boundary conditions are given by:
+    -   $-rF + rF'_s S_t + F'_t + 0.5 \sigma^2 F''_s s^2_t = 0$
+    -   $F(T) = \max(S_T-K, 0)$ (Assumes we're looking at a call option)
+4.  Solution to Black-Scholes given boundary conditions.
+    -   $F(S_t,t) = S_t N(d_1) - Ke^{-r(T-t)}N(d_2)$
+    -   $d_1 = \frac{ \ln{\frac{s_t}{k}}+ (r + 0.5 \sigma^2)(T-t)}{\sigma \sqrt{T-t}}$
+    -   $d_2 = d_1 - \sigma \sqrt{T-t}$
+
+Recall that $N(d_i), i = 1,2$ are the two integrals of the standard
+normal density:
+$N(d_i) = \int_{-\infty}^{d_i} \frac{1}{\sqrt{2 \pi}} e^{-\frac{1}{2}x^2}dx$.
+
+Solutions can be verified by taking all the partial derivatives in the
+Black-Scholes PDE and show that the sum equals 0. Verify that the
+boundary conditions work.
+
+**Assumptions of Black-Scholes**
+
+1.  The underlying asset is a stock
+2.  The stock does not pay dividends
+3.  The derivative asset is a European-style call option (i.e. cannot be
+    exercised before the expiration date)
+4.  The risk-free rate r is constant
+5.  there are no indivisibilities or transaction costs such as
+    commissions and bid-ask spreads.
+
+### Geometric Look at Black-Scholes
+
+-   Fix r, K, $\sigma$ and T. Assume no dividends
+-   A call price surface will be defined as a three-dimensional graph
+    $C_t = F(S_t, T-t)$ where the value of the call is determined by
+    varying the strike and time to expiration.
+
+### Partial-Integro Differential Equations (PIDE)
+
+<span style="color: red;">I don't believe the exam will test extensively
+on PIDE's. Hopefully just knowing what they are is enough and we won't
+have to use them. I have no idea where the (r-q) term comes from in the
+equation below either.<span style="color: red;">
+
+Consider the Black-Scholes PDE:
+
+$$
+\frac{\partial F}{\partial t} + \underbrace{\frac{\sigma^2 S^2}{2}\frac{\partial^2F}{\partial S^2}}_{\text{Diffusion Term}} + (r-q)S \frac{\partial F}{\partial S} = rF(S,t)
+$$
+
+Pricing European options under the variance-gamma model involves first
+conditioning on the random-time g and then simplifying using a
+Black-Scholes type formula to solve for the conditional option value.
+
+The levy measure for the variance gamma process given by: 
+$$
+\begin{matrix}
+\underbrace{dv(y)}_{\text{levy measure under Q}} = k(y)dy & \text{Define } k(y) & 
+\begin{cases} 
+\text{if } y> 0 ,  k(y) = \frac{e^{-\lambda_p} \rho^y}{vy^{1+Y}} \\
+\text{if } y< 0 ,  k(y) = \frac{e^{-\lambda_n} \rho^y}{v|y|^{1+Y}} \\
+\lambda_p = \sqrt{\frac{\theta^2}{\sigma^4} + \frac{2}{\sigma^2 v}} - \frac{\theta}{\sigma^2} \\
+\lambda_n = \sqrt{\frac{\theta^2}{\sigma^4} + \frac{2}{\sigma^2 v}} + \frac{\theta}{\sigma^2}
+\end{cases}
+\end{matrix}
+$$
+
+Behavior of Jumps Given Y.
+
+| Threshold | Behavior Below                    | Behavior Above                  |
+|:-----------------------|:-----------------------|:-----------------------|
+| Y = 1     | Finite Variation                  | Infinite Variation              |
+| Y = 0     | Finite Arrival Rate               | Infinite Arrival Rate           |
+| Y = -1    | Activity concentrated away from 0 | Activity concentrated towards 0 |
+
+The PIDE for Variance Gamma is:
+
+$$
+\int_{-\infty}^\infty [F(S_{t-} e^y, t) - F(S_{t-},t) - \frac{\partial V(S_{t-, t})}{\partial S} S_t (e^y - 1)]k(y) dy+ \frac{\partial V (S_t,t)}{\partial t} + (r-q) S_t \frac{\partial V (S_t,t)}{\partial S} - rF(S_t,t) = 0
+$$
+
+The first term of the PIDE is the complications due to the stochastic
+time component. Back terms are similar to Black-Scholes. We can think of
+$k(y)$ as the function that gives the behavior of the jumps as
+illustrated in the table. Rewriting Black-Scholes as a PIDE (steps
+involved here are tedious but involves substituting the second
+derivative of F and S using chain rule, substituting $\sigma^2$ with the
+levy density, applying an Taylor Expansion, dropping off 3rd order terms
+from expansion, and simplifying):
+
+$$
+\underbrace{\int_{|y|\leq \epsilon} F(Se^y, t) - F(S_{t},t) - (e^y - 1)\frac{\partial F(S, t)}{\partial S} ]k(y) dy}_{\text{diffusion term}} + \frac{\partial F}{\partial t} + (r-q) S \frac{\partial F}{\partial S}= rF(S_t,t) 
+$$ 
+
+1. The diffisuion term is replaced by an integral in a narrow range
+2. The PIDE is better for fitting smiles (related to implied vol which
+is expected to be constant under the regular Black-Scholes PDE. PIDE's
+allow the integral part of the diff eq. to add additional complexity in
+the volatility component):
+
+### Complications of Black-Scholes
+
+1. Has to meet the assumptions discussed previously. No early-exercise possibility, and also the risk free interest rate is assumed to be constant.
+2. Many interest sensitive securities have early exercise provisions
+3. Assets with term structures or random expiration dates (such as with American Options or Barrier Derivatives)
+4. Bonds converge in price to the face value as time approaches expiration, so the assumption of constant volatility is unrealistic.
+5. Mark-to-market securities will also introduce complications since these cash flows will be discounted by stochastic discount factors.
+6. Additional modifications necessary for bonds that pay coupons.
+7. Girsanov correspondence is not obvious.
+8. Does not take into account multiple underlying assets.
+
+
+# Equivalent Martingale Measures
+
+The idea is that we want to transform the probability measure $d \bP$ so
+that the mean of a random process $z_t$ changes. The transformation
+allows us to treat assets with positive "risk premium" to be treated as
+if they were risk free.
+
+**Method 1:** subtracting means: $\bar{z} =z - E[z]$
+
+**Method 2:** using equivalent measures: Transform $\bP$ to $\bQ$ so
+$d \bQ = \xi(z_t) d \bP(z_t)$. See [Girsanov Theorem](#Girsanov)
+
+**Probability as a measure**
+
+-   Use measures to quantify the probability that a random variable
+    falls within a small interval around z
+-   $\int_{-\infty}^{\infty} d \bP (z_t)=1$
+-   $E(z_t) - \int_{-\infty}^\infty z_t d\bP(z_t)$
+-   $V(z_t) = E[z_t - E(z_t)]^2 = \int_{-\infty}^\infty[z_t-E(z_t)]^2d\bP z_t$
+
+Consider a normally distributed random variable $z_t$ with fixed t and
+normal density function $d\bP(z_t)$:
+
+$$
+z_t \sim N(0,1) \\
+d\bP = \frac{1}{\sqrt{2\pi}}e^{-\frac{1}{2}(z_t)^2} dz_t
+$$ Next, we define the function
+$\xi (z_t) = e^{z_t\mu - \frac{1}{2}\mu^2}$ that when we multiply
+$\xi(z_t) d\bP(z_t)$ we obtain a new probability:
+
+$$
+[d\bP(z_t)][\xi(z_t)] = \frac{1}{\sqrt{2\pi}}e^{-\frac{1}{2}(z_t)^2 + \mu z_t - \frac{1}{2} \mu ^2}  dz_t \\
+d\bQ(z_t) = \frac{1}{\sqrt{2\pi}}e^{-\frac{1}{2}(z_t - \mu)^2} dz_t \\
+$$ 
+
+Clearly $d\bQ(z_t)$ is a new probability measure defined as:
+
+$$
+d\bQ(z_t) = \xi(z_t) d\bP(z_t)
+$$
+
+## Radon-Nikodym Derivative
+
+-   $\frac{d \bQ (z_t)}{d \bP(z_t)} = \xi(z_t)$
+-   The function $\xi$ allows us to transform between $\bP$ and $\bQ$
+-   If both $\bP$ and $\bQ$ have the same intervals of $dz_t$ with non
+    zero probability, then the Radon-Nikodym Derivative exists
+
+## Converting Asset Prices into Martingales
+
+-   Assume that under $\bP, Y_t \sim N(\rho t, \sigma^2 t)$
+-   Under the true probability distribution
+    $\bP, E^\bP[e^{-rt} S_t | S_u, u < t]$ is likely not true since, in
+    general, there is a risk premium
+-   Switch to the risk-neutral probability $\bQ$, and then
+    $E^\bQ[e^{-rt} S_t | S_u, u < t] = e^{-ru} S_u$
+
+From a SDE viewpoint:
+
+-   Let $F_t = S_0e^{Y_t}$ where $dY_t = \mu dt + \sigma dW_t$
+-   $dF_t = [\mu \frac{\partial F}{\partial Y_t} + \frac{1}{2} \sigma^2_t \frac{\partial ^2 F}{\partial Y_t^2}]dt + \frac{\partial F}{\partial Y_t} \sigma_t dW_t$
+-   All of the partial derivatives shown simply equal $F_t$
+-   $dF_t = [\mu + \frac{1}{2} \sigma^2_t]F_t dt + \sigma_t F_t dW_t$
+-   Using Ito's Lemma gives that the true probability $\bP$ has a drift
+    coefficient of $(\mu + \frac{1}{2})S_t$
+-   The true probability SDE uses the Wiener process $W_t$
+-   Setting $\mu = r - \frac{1}{2} \sigma^2$ gives the PDE
+    $dS_t = rS_t dt + \sigma S_t dW_t$
+-   Note that the drift parameter is now r, and the Wiener process
+    $\bar W$ has distribution $\bQ$
+
+
+# Extension of Arbitrage Theorem
+
+1. **Savings Account**: the rate over $[t_1;t_2]$ is a constant $R_{t_1}$ and known at time $t_1$. The rate over the interval $[t_2;t_3]$, denoted by $R^u_{t_1}$ or $R^d_{t_2}$, is random and will not be known until $t_2$
+2. **Forward Rate Agreement**: An FRA contract set at time $t_1$ where the payoff is determined by the rate at time $t_2$ and settled at $t_3$
+3. **Short-Term Bond**: Short-term bond assumed to mature at time $t_3$
+4. **Long Term Bond**: Long-term bond is assumed to mature at time T 
+5. **Interest Rate Derivative**: The specific type of derivative is left general, and the payoff at $t_3$ will be denoted by $C_{t_3}$
+
+Applying the same ideas as the early introduction to [arbitrage pricing](#FD), $\psi$ represents the discounted state probability and the below is only true if and only if there are no-arbitrage possibilities.
+
+
+$$
+\begin{bmatrix}
+1 \\ 0 \\ B^s_{t_1} \\ B_{t_1} \\ C_{t_1}
+\end{bmatrix} 
+=
+\begin{bmatrix}
+R_{t_1}R^u_{t_2} & R_{t_1}R^u_{t_2} & R_{t_1}R^d_{t_2} & R_{t_1}R^d_{t_2} \\
+F_{t_1}-L^u_{t_2} & F_{t_1}-L^u_{t_2} & F_{t_1}-L^du_{t_2} & F_{t_1}-L^d_{t_2} \\
+1 & 1 & 1 & 1 \\
+B^{uu}_{t_3} & B^{ud}_{t_3} & B^{du}_{t_3} & B^{dd}_{t_3} \\
+C^{uu}_{t_3} & C^{ud}_{t_3} & C^{du}_{t_3} & C^{dd}_{t_3}
+\end{bmatrix} 
+\begin{bmatrix}
+\psi^{uu} \\ \psi^{ud} \\ \psi^{du} \\ \psi^{du}
+\end{bmatrix} 
+$$
+
+
+## Forward Measure
+
+We can define under the Risk-Neutral Measure $\bQ$ the price of the arbitrage-free FRA rate:
+
+$$
+F_{t_1} = \frac{1}{E^{\bQ}\left[\frac{1}{(1+r_{t_1})(1+r_{t_2})}\right]}E^{\bQ} \frac{L_{t_2}}{(1+r_{t_1})(1+r_{t_2})}
+$$
+
+However doing so leads to some undersireable properties such as:
+
+-   $F_t$ not being an unbiased estimator of $L_{t_2}$: $F_{t_1} \neq E^\bQ[L_{t_2}]$
+-   The spot-rate terms inside the expectation take with respect to $\bQ$ cannot be factored out
+-   The pricing formula for the FRA is nonlinear under $\bQ$
+
+From the Revised Arbitrage Theorem, $B^s_{t_1} = \psi^{uu} + \psi^{ud} + \psi^{du} + \psi^{du}$. Repeating the same steps to that we did to get the risk neutral measure $\bQ$. 
+
+$$
+1 = \sum_{i,j}^{ud} \frac{\psi^{i,j}}{B^s_{t_1}} =  \sum_{i,j}^{ud} \pi^{ij}\rightarrow \pi^{ij} \\ \text{new forward measure: } \pi^{ij} \frac{\psi^{i,j}}{B^s_{t_1}}
+$$
+
+Under the new forward measure:
+
+$$
+F_t = E^\pi[L_T]
+$$
+
+## Other Measures
+
+* Numeraire - a unit of commerce in which prices are measured
+* 3 additional measures:
+  + Share measure - numeraire is the underlying price $S_t$
+  + Spot measure - numeraire is the "rolling over bank account" $B^*_t$
+  + Swap measure - numeraire is the present value of a basis point (PVBP)
+
+# Modeling Term Structure and Related Concepts
+
+**Bond Yields and Bond Prices**
+
+$B(t,T) = e^{-R(t,T)(T-t)}, t<T$
+
+Solving for R(t,T) gives: $R(t,T) = \frac{-\log B(t,T)}{T-t}$
+
+**Curve Definitions**
+
+- Yield Curve: The spectrum of yields $R(t,T), T \in (t,T_{\max})$
+- Discount Curve - The spectrum of default-free zero-coupon bond prices $B(t,T), t \in (t, T_{\max})$
+- Credit Spread Curve: Given two yield curves:
+  + $R(t,T), T \in (t,T_{\max})$ that correspond to default-free bonds (risk free bond yield)
+  + $\bar{R}_t^T(t,T), T \in (t,T_{\max})$ that correspond to bonds with a given default probability (risky bond yield)
+  + The spectrum of spreads, $s(t,T) = \bar{R}_t^T(t,T) - R(t,T) , T \in (t, T_{\max})$ is called the credit spread curve.
+  
+**Constant Spot Rates**
+
+Assume that the spot rate $r_t$ is constant r, and also that we can lend and borrow at that rate. Then the price of a default-free zero-coupon bond paying \$1 at time T is: $B(t,T) = e^{-r(T-t)}$
+
+**Bond Pricing Equation**
+
+$$
+B(t,T) = E^{\bQ}[e^{-\int_t^T r_s ds}] \\
+R(t,T) = \frac{-\log B(t,T)}{T-t} = \frac{E^{\bQ}[e^{-\int_t^T r_s ds}]}{T-t} \\
+F(t,T,U) = \frac{\log B(t,T) - \log B(t,U)}{U-T}
+$$
+
+- The bond price depends on the spectrum of future shor rates $t < s < T$
+- The expectation is taken over a risk-neutral measure because the stochastic nature of interest rates add a risk premium for market risk
+
+**Forward Rates**
+
+Three times: t < T < U
+
+Time t is when the rate is contracted. The cash transactions take place at times T and U. For example, if \$1 is loaned at time T, then the money returned at time U will be given by $e^{F(t,T,U)(U-T)}$
+
+The bond pricing equation using the instantaneous forward rate is: $B(t,T) = e^{-\int_t^T F(t,s) ds}$
+
+We can also write the forward rateds in terms of bond prices: $F(t,T,U) = \frac{\log B(t,T) - \log B(t,U)}{U-T}$ where as $T \rightarrow U$, the instantaneous forward rate is obtained: $F(t,T) = \lim_{T\rightarrow U} F(t,T,U)$
+
+Two ways to accumulate from time T to time U: $e^{F(t,T,U)(U-T)} = \frac{B(t,T)}{B(t,U)}$
+
+Taking the natural logs give: $F(t,T,U)(U-T) = \log B(t,T) - \log B(t,U)$
+
+Rearranging yields: $F(t,T,U) = \frac{\log B(t,T) - \log B(t,U)}{U-T}$ 
+
+## Classical vs HJM
+
+**Markov Property**: states that the distribution of a process depends on the latest observation t, but not on the prior history at times s < t. 
+- Markov, predicting stocks based on current price
+- Non-Markov, momentum investing (requiring historical stock price)
+
+
+**Classical Approach**: $B(t,T) = E^{\bQ}[e^{-\int_t^T r_s ds}]$
+
+- Find a spot rate process $r_t$ that calibrates to observed market bond prices $B(t,T)$
+- Two main ways to exploit the equation:
+  + Use the bond prices $B(t,T)$ to obtain an arbitrage-free model for the spot rate $r_t$. Then one can exploit this model to price interest rate derivatives other than bonds
+  + Can also posit a model about the spot rate $r_t$ from historical rates to get a set of prices for interest rate derivatives
+- Suppose that we write down the following equation from $0 \leq i \leq n$
+  + $B(t,T_i) = E^{\bQ}[e^{-\int_t^{T_i} r_s ds}]$
+  + Use the n+1 bond prices to get a spot rate model $dr_t = a(r_t, t) dt + b(r_t, t) dV_t$
+  
+Geometric SDE Spot Rate Model
+
+- $dr_t = \mu r_t dt + \sigma r_t dW_t$
+- $a(r_t, t) = \mu r_t, b(r_t, t) = \sigma r_t$
+- Disadvantages
+  + If $\mu \neq 0$, then the model will diverge as $t \rightarrow \infty$
+  + A constant volatility model may be oversimplified
+  + Parameterization is difficult. There are two unknown parameters $\mu$ and $\sigma$ but n+1 equations.
+  
+Mean Reverting Spot Rate Model
+
+- $dr_t = \lambda (\theta_t - r_t)dt + \sigma \sqrt{r_t} dW_t$
+  + $\lambda$ is how quickly the mean reverts back
+  + $\theta$ sets the level of mean reversion
+- Since $\theta_t$ is a function of t, this increases the number of parameters. If $t_0 < t_1 < \cdots < t_m$, then there are a total of m+3 free parameters
+- Advantages over Geometric SDE for interest-rate modeling
+  + More free parameters which allow for more flexibilty
+  + Under the right conditions, the mean-reverting model will not explode (with probability 1) as $t \rightarrow \infty$
+  + The mean-reverting model above prevents negative interest rates given sufficiently small time steps.
+
+**Heath-Jarrow-Morton Approach (HJM)**: $B(t,T) = e^{-\int_t^T F(t,s) ds}$
+
+- HJM exploits the arbitrage relation between forward rates and bond prices to impose restrictions on the dynamics of the instantaneous forward rates directly.
+- $F(t,s)$ is the instantaneous forward rate at time t of a loan from time s to  s + ds
+- More general and less practical
+- No explicit drift assumption needed
+- Volatilities again will need to be calibrated
+- Shows that in general the spot rate $r_t$ is not Markov
+
+For HJ, we will get a forward rate model:
+
+$$
+dF(t,T) = a(F(t,T),T)dt + b(F(t,T), T)dW_t \\
+\text{where:}  
+\begin{cases}
+a(F(t,T), T) = \sigma(t,T, B(t,T))\frac{\partial \sigma(t,T,B(t,T))}{\partial T} \\
+b(F(t,T),T) = \frac{\partial \sigma(t,T,B(t,T))}{\partial T}
+\end{cases}
+$$
+
+This approach derives an exact no-arbitrage restriction on the drift coefficient for instantaneous forward rate dynamics. This is similar to Black-Scholes, where the drift is replaced with a more complicated term that depends on the volatilities of the bonds under consideration.
+
+HJM Equations for dB and r: to be used to get bond price process and spot rate model r.
+
+$$
+dB(t,T) = r_t B(t,T) dt + \sigma(t,T, B(t,T)) B(t,T) dW^{\bQ}_t \\
+r_t = F(0,t) + \int^t_0 b(s,t) [\int^t_s b(s,u)du]ds + \int^t_0 b(s,t)dW_s 
+$$
+
+We can see from the equation that $r_t$ does not depend on prior history at times s < t[^2]. Because $r_t$ is a complex function of all past forward rate volatilities making in non-Markovian. Current empirical work indicates that spot-rate behavior in reality may fail to be Markovian, so this gives flexibility to market practitioners. Being Non-Markovian is an advantage of HJM.
+
+[^2]: the s in $b(s,u)$ represents $F(t,T)$ which is a prior forward rate. 
+
+**HJM vs Classical**
+
+- Classical approach is used more in practice.
+- HJM may have explosiveness problems for finite time, which is very undesirable.
+- Much more familiarity with spot rate models, so this partially explains the popularity of classical approach.
+
+## Fitting to Initial Term Structure <span style="color: red;">[FLAG] Review this section again, or combine because it's too short? <span style="color: red;">
+
+1. Monte Carlo
+2. Tree Models
+3. Closed-Form Solutions
+
+## Classical PDE Analysis for Interest Rate Derivatives
+
+Consider two bonds with prices denoted $B(t,T_1), B(t,T_2)$ driven by the same Wiener process where $T_1 < T_2$. Suppose that bond prices are postulatd to behave according to he following processes:
+
+$$
+dB^1 = \mu_1(B^1,t)B^1dt + \sigma_1(B^1,t)B^1dW_t \\
+dB^2 = \mu_2(B^2,t)B^2dt + \sigma_2(B^2,t)B^2dW_t
+$$
+
+Notice that both bonds are influenced by the same Wiener process, $W_t$. Additionaly, suppose that the interest rate model is given by:
+
+$$
+dr_t = a(r_t, t) dt + b(r_t, t)dW_t
+$$
+
+Step 1. Create a portfolio of two bonds:
+
+$$
+P = \theta_1 B^1 - \theta_2 B^2 \\
+dP = \theta_1 dB^1 - \theta_2 dB^2 \\ 
+$$
+
+Suppose the portfolio positions are chosen as $\theta_1 = \frac{\sigma_2}{\sigma_2 - \sigma_1}\frac{P}{B^1}, \theta_2 = \frac{\sigma_1}{\sigma_2 - \sigma_1}\frac{P}{B^2}$. Plugging into the equation for $dB^1$ and $dB^2$ to get:
+
+$$
+dP = \theta_1 [\mu_1 B^1 dt + \sigma_1 B^2 dW_t] - \theta_2 [\mu_2 B^2 dt + \sigma_2 B^2dW_t]
+$$
+
+Grouping the drift and innovation terms gives:
+
+$$
+dP = [\theta_1 \mu_1 B^1 - \theta_2 \mu_2 B^2]dt + [\theta_1 \sigma_1 B^1 - \theta_2 \sigma_2 B^1]dW_t
+$$
+
+Given $\theta_1$ and $\theta_2$, we have that $\theta_1 \sigma_1 B^1 - \theta_2 \sigma_2 B^2 =0$. Thus, the change in portfolio value is given by:
+
+$$
+dP = [\theta_1 \mu_1 B^1 - \theta_2 \mu_2 B^2]dt = \frac{\sigma_2 \mu_1 - \sigma_1 \mu_2}{\sigma_2 - \sigma_1} Pdt = r_t Pdt
+$$
+
+The last equality follows by the standard no-arbitrage argument, since we have formed a risk-free portfolio with no innovation term.
+
+$$
+\frac{\sigma_2 \mu_1 - \sigma_1 \mu_2}{\sigma_2 - \sigma_1} = r_t \rightarrow \frac{\mu_1 - r_t}{\sigma_1} = \frac{\mu_2 - r_t}{\sigma_2} \\
+\text{Market Price of Interest Rate Risk:} \frac{\mu_i - r_t}{\sigma_i} = \lambda(r_t,t)
+$$
+
+- The Sharpe ratio of the bonds, given by the Market Price of Interest Rate risk, are equal
+- Risk premia of per unit volatility are the same across bonds
+- Keep in mind, this is based on the assumption that bonds are subject to the same source of risk $W_t$
+- The market price of interest rate risk equation holds regardless of the time to maturity of the bond
+- We can create a portfolio of two bonds with weights set such that the portfolio is riskless. By a no-arbitrage argument, we get that the portfolio must earn the risk-free rate. This led to the conclusion that the Sharpe ratio of all bonds must be equal in a no-arbitrage framework
+
+### Derivation of Bond Price PDE
+
+Recall the interest rate model:
+
+$$
+dr_t = a(r_t, t)dt + b(r_t,t)dW_t
+$$
+Our expression for $dB(t,T)$:
+
+$$
+dB(t,T) = B_r dr_t + B_t dt + \frac{1}{2}B_{rr}(dr_t)^2 \\
+dB(t,T) = B_r[a(r_t,t)dt + b(r_t,t)dW_t] + B_tdt + \frac{1}{2}B_{rr}b(r_t,T)^2dt \\
+dB(t,T) = [B_ra(r_t,t) + B_t + \frac{1}{2}B_{rr}b(r_t,T)^2]dt + B_r b(r_t,t)dW_t
+$$
+
+For simplicity, we write the SDE as:
+
+$$
+dB(t,T) = \mu (B,t) Bdt + \sigma(B,t_ B)dW_t \text{, where:}
+\begin{cases}
+\sigma(B,t)B = B_r b(r_t,t) \\
+\mu (B,t) B = B_ra(r_t,t) + B_t +\frac{1}{2}B_{rr}b(r_t,T)^2
+\end{cases}
+$$
+
+Using the market price of interest rate risk equation gives that:
+
+$$
+\frac{\mu (B,t) - r_t}{\sigma(B,t)} = \frac{\mu (B,t)B - r_tB}{\sigma(B,t)B} = \lambda_t \rightarrow \mu(B,t)B - r_t B = \lambda_t \sigma(B,t)B
+$$
+
+Plugging in for $\mu$ and $\sigma$ equations and rearranging gives us the key bond PDE. It has a simple boundary condition given by $B(T,T) = 1$
+
+$$
+B_r[a(r_t,t) - \lambda_tb(r_t,t)] + B_t + \frac{1}{2}B_{rr}b(r_t,T)^2 - r_tB = 0
+$$
+
+### Comparing to Black-Scholes
+
+| Model      |  Randomness   | PDE |  Boundary Condition  |
+|:----------:|:----------:|:----------:|:----------:|
+| Trad BS Model | $S_t$ |   $\frac{\partial F}{\partial t} + \frac{\sigma^2 S^2}{2}\frac{\partial^2F}{\partial S^2} + rS \frac{\partial F}{\partial S} - rF= 0$  |        $F(S_T,T) = \max[S_T - K,0]$        | 
+|  Bond Pricing  |  $r_t$|   $B_r[a(r_t,t) - \lambda_tb(r_t,t)] + B_t + \frac{1}{2}B_{rr}b(r_t,T)^2 - r_tB = 0$   | $B(T,T) = 1$ |
+
+**Trad BS Model**
+
+- Assumes that the instantaneous risk-free spot rate $r_t$ is constant
+- The randomness is driven by the stock price process $S_t$
+- No need to explicitly model the drift term of the stock price process $S_t$
+- The risk-free portfolio is created by combining lending/borrowing, an options position, and shorting/longing the underlying instrument
+- Option price depended on relevant volatilities only
+
+**Bond Price PDE**
+
+- Does not assume that the instantaneous risk-free spot rate $r_t$ is constant
+- Randomness is driven by the spot rate process $r_t$
+- Thus, the spot rate process $r_t$ is involved in the bond pricing PDE
+- The risk-free portfolio is created by adjusting the weights in two bonds
+- Calibration and estimation is more challenging here, because the bond pricing PDE is more complex needing to estimate two new parameters:
+  + the spot rate drift $a(r_t,t)$
+  + the market price of interest rate risk $\lambda_t$
+- Made the simplifying assumption that all bonds are driven by the same Wiener Process $W_t$. This led us to having a single market price of risk $\lambda_t$
+
+# Term Structure Models - Continuous Time
+
+Introduction to stochastic interest rate models: **Vasicek**
+
+$$
+dr_t = \gamma(\bar{r} - r_t) dt + \sigma dX_t
+$$
+
+- $\bar{r}$ is the long term value of the short rate
+- $\gamma$ is the speed of the mean reversion
+- $\sigma$ is the volatility of the short rate r(t)
+
+Solving for $r_t$, conditional at a time s<t:
+
+$$
+r(t) = r(s) e ^{\gamma(t-s)} + \bar{r} (1 - e ^{\gamma(t-s)}) + \sigma \int_s^t e ^{\gamma(t-u)} dX(u)
+$$
+
+The stochastic integral is normally distributed thus r(t) is normally distributed with:
+
+$$
+\text{Expectation: } E[r_t|F_s] = \bar{r} + (r_0 - \bar{r})e ^{-\gamma(t-s)} \\
+\text{Variance: } Var[r_t|F_s] = \frac{\sigma ^2}{2\gamma}[1 - e ^{-2\gamma(t-s)}]
+$$
+
+As $t \rightarrow \infty$, the stationary distribution of $r_t$ is still normal with:
+
+- Mean: $\bar{r}$
+- Variance: $\frac{\sigma ^2}{2\gamma}$
+
+## No-Arbitrage Pricing: Vasicek Model
+
+1. Setup a portfolio that is long on eunit of a security with price $Z_1(r,t)$ and short $\Delta$ units of another interest rate security with price $Z_2(r,t)$
+    - The value of this portfolio at time t: $\Pi(r,t) = Z_1(r,t) - \Delta Z_2(r,t)$
+2. Choose $\Delta$ so that interest rate risk is hedged
+    - $\frac{\partial \Pi(r,t)}{\partial r} = \frac{\partial Z_1(r,t)}{\partial r} - \frac{\partial \Delta Z_2(r,t)}{\partial r}$
+    - $\Delta = \frac{\partial Z_1 / \partial r}{\partial Z_2 / \partial r}$
+3. Apply Ito's Lemma to solve for the stochastic dynamics of $\Pi(r,t)$
+
+$$
+\begin{aligned}
+d\Pi_t &= \frac{\partial \Pi}{\partial t} dt +\frac{\partial \Pi}{\partial r} dr+ \frac{1}{2}\frac{ \partial^2 \Pi}{\partial r^2}dr^2 \\
+&= \left(\frac{\partial \Pi}{\partial t} + \frac{\partial \Pi}{\partial r}\gamma(\bar{r} - r_t) + \frac{1}{2}\frac{ \partial^2 \Pi}{\partial r^2}\sigma^2\right)dt + \frac{\partial \Pi}{\partial t}\sigma dX_t
+\end{aligned}
+$$
+
+Under the hedging strategy, $\frac{\partial \Pi}{\partial r} = 0$, so $d\Pi$ simplifies to:
+
+$$
+d\Pi_t = \left(\frac{\partial \Pi}{\partial t} + \frac{1}{2}\frac{ \partial^2 \Pi}{\partial r^2}\sigma^2\right)dt
+$$
+
+4. Impose a no-arbitrage constraint based on the fact that the portfolio must earn the risk-free rate: $d\Pi_t = r_t \Pi dt$ so that:
+
+$$
+d\Pi_t = \left(\frac{\partial \Pi}{\partial t} + \frac{1}{2}\frac{ \partial^2 \Pi}{\partial r^2}\sigma^2\right)dt = r_t \Pi_t 
+$$
+
+5. Rewrite the no-arbitrage conditions in terms of the two securities $Z_{1,t}$ and $Z_{2,t}$ and utilize the fact that $\Delta = \frac{\partial Z_1 / \partial r}{\partial Z_2 / \partial r}$ : 
+
+$$
+\frac{\partial Z_1}{\partial t} + \frac{1}{2} \frac{\partial^2 Z_1}{\partial r^2}\sigma^2 - r_tZ_1 = \Delta \left(\frac{\partial Z_2}{\partial t} + \frac{1}{2} \frac{\partial^2 Z_2}{\partial r^2}\sigma^2 - r_tZ_2\right) \\
+\frac{\frac{\partial Z_1}{\partial t} + \frac{1}{2} \frac{\partial^2 Z_1}{\partial r^2}\sigma^2 - r_tZ_1}{\partial Z_1 / \partial r} = \frac{\left(\frac{\partial Z_2}{\partial t} + \frac{1}{2} \frac{\partial^2 Z_2}{\partial r^2}\sigma^2 - r_tZ_2\right)}{\partial Z_2 / \partial r}
+$$
+
+6. $-m^*(r,t) = \frac{\frac{\partial Z}{\partial t} + \frac{1}{2} \frac{\partial^2 Z}{\partial r^2}\sigma^2 - r_tZ}{\partial Z / \partial r}$
+  - The Vasicek model assumes $m^*(r,t)$ has the form $m^*(r,t) = \gamma^*(\bar{r}^* - r)$
+7. Rearrange to obtain the **fundamental pricing equation** that all interest rate derivatives must satisfy:
+
+$$
+\frac{\partial Z}{\partial t} + \frac{\partial Z}{\partial r} m^*(r,t) + \frac{1}{2} \frac{\partial^2 Z}{\partial r^2}\sigma^2 = rZ
+$$
+
+- This partial differential equation was derived from a no-arbitrage condition
+- Solving this equation, subject to a final condition for the value of the security at T, will yield a pricing formula for any interest rate security $Z(r,t;T)$.
+- The final condition of the value of the security at maturity T is what differentiates one interest rate security from another.
+  + Zero-Coupon Bond: $Z(r,t;T) = 1$
+  + Interest rate option at strike $r_K$: $Z(r,t;T) = N \times \max{(r-r_K,0)}$
+
+### Vasicek Zero Coupon Bond
+
+Solution to the fundamental pricing equation under a Vasicek model for a zero-coupon bond is:
+
+$$
+Z(r,t;T) = e^{A(t;T) - B(t,T) \times r} \\
+A(t;T) = (B(t;T) - (T-t)) \left(\bar{r}^* - \frac{\sigma ^ 2}{2(\gamma^*)^2}\right) - \frac{\sigma^2 B(t;T)^2}{4\gamma^*} \\
+B(t;T) = \frac{1}{\gamma^*}(1-e^{-\gamma^* (T-t)})
+$$
+
+Under the Vasicek model, the spot rate, $r_t(\tau)$ for maturity $\tau$ is:
+
+$$
+r_t(\tau) = -\frac{\ln(Z(r_t, \tau))}{\tau} = - \frac{A(\tau)}{\tau} + \frac{B(\tau)}{\tau}r_T
+$$
+
+ - When $r_t$ is low, the Vasicek model implies a rising term structure, likewise, when $r_t$ is high, the model implies decreasing term structure
+ - As $r_t$ changes, all the points on the term structure will move with perfect correlation which is true for all one-factor interest rate models in general, and is considered a large drawback of one factor models.
+ 
+**Applying Ito's Lemma on $r_t(\tau)$:**
+
+$$
+dr_t(\tau) = \left(\frac{B(\tau)}{\tau} \gamma(\bar{r} - r_t)\right)dt + \frac{B(\tau)}{\tau} \sigma dX_t
+$$
+
+Note that $\frac{B(\tau)}{\tau}$ just acts as a scalar for the mean reversion speed and diffusion coefficient. For a fixed value of $\gamma^*$, this scalar decreases as maturity increases.
+
+- $\frac{B(\tau)}{\tau}$ is in the diffusion coefficient. Longer-term rates are **less** volatile than shorter term rates.
+- $\frac{B(\tau)}{\tau}$ is the mean reversion speed. Longer-term rates move **slower** than short-ter rates in converging to the long-term rate $\bar{r}$
+- For a given time-to-maturity $\tau$, $B(\tau)$ decreases as $\gamma^*$ increases.
+- Ultimately Lower levels of $\gamma^* \rightarrow$ higher $B(\tau) \rightarrow$ higher variation in the long-term spot rates.
+
+### Spot Rate Duration
+
+$$
+D_Z = -\frac{1}{Z} \frac{\partial Z}{\partial r}
+$$
+
+Under the Vasicek model, $\frac{\partial Z}{\partial r}$ is given by:
+
+$$
+\frac{\partial Z}{\partial r} = -B(\tau) \times Z
+$$
+
+The spot rate duration of a zero-coupon bond with time to maturity $\tau$ is given by:
+
+$$
+D_Z(\tau) = B(\tau) = \frac{1}{\gamma^*}(1-e^{-\gamma^* \tau})
+$$
+
+Lower $\gamma^*$ = higher spot-rate duration. Remember that $\gamma^*$ is the risk neutral parameter of $\gamma$, not the real world value of $\gamma$.
+
+### Coupon Bond
+
+Since a coupon bond is a weighted average of zero-coupon bond bonds, it follows that the spot rate duration of a coupon bond under the Vasicek model is:
+
+$$
+D_P = \sum_{i=1}^n w_i D_Z (\tau_i)
+$$
+
+The weights for $w_i$ are given by for $i = 1, \dots,n$ : $w_i = 100 \frac{c}{2} \frac{Z(r,\tau_i)}{P(r,\tau)}$
+
+The weight for $i=n$, denoted by $w_n$ is: $w_n = 100 \left(1+\frac{c}{2}\right)\frac{Z(r,\tau_n)}{P(r,\tau)}$
+
+### Estimating Parameters of Vasicek Model
+
+$\sigma, \bar{r}, \gamma$ can be estimated from historical data.
+
+ - $\sigma$: calculate the historical volatility of the short rate $r_t$
+ - $\bar{r}$: average the short-term rate over the sample historical period
+ - $\gamma$: the slope from regressing the changes in the interest rate $(r_{t+\delta} - r_t)$ on $r_t \times \delta$
+  + If we ignore the stochastic component of the Vasicek model, the change in $r_t$ is: $dr_t = \gamma \times \bar{r} - \gamma \times r_t \times dt$
+ - $\bar{r}^* and \gamma^*$ are calibrated to a set of zero-coupon bonds observed in the market. We solve for the set $(\bar{r}^*, \gamma^*)$ that minimizes the following:
+ 
+ $$
+ J(\bar{r}^*, \gamma^*) = \sum_{i=1}^n (Z^{\text{Vasicek}}(r_0, 0, \bar{r}^* , \gamma^*; T_i) - Z^\text{Data}(0, T_i))^2
+ $$
+- $Z^\text{Data}(0, T_i)$: the market price for a zero-coupon bond price expiring at $T_i$
+- $Z^{\text{Vasicek}}(r_0, 0, \bar{r}^* , \gamma^*; T_i)$: the Vasicek model's zero-coupon bond price.
+- Formula essentially is minimizing the absolute difference between real world and Vasicek model by guessing $\bar{r}^*, \gamma^*$
+
+### Pricing Options on Zero-Coupon Bonds
+
+An option on a zero-coupon bond with maturity $T_O$ and strike price K has a payoff of:
+
+$$
+\text{Payoff of } T_O = max(Z(T_O; T_B) - K, 0)
+$$
+
+- $Z(T_O; T_B)$ is the value at time $T_O$ of the bond with maturity $T_B$ under the Vasicek model, the call option value is:
+
+$$
+V(r_0,0) = Z(0, r_0;T_B)N(d_1) - KZ(0,r_0; T_O)N(d_2)
+$$
+
+- $N(x)$ is the cumulative standard normal distribution of $d_1$ and $d_2$ given by:
+
+$$
+d_1 = \frac{1}{S_Z(T_O)} \log \left(\frac{Z(0, r_0;T_B)}{KZ(0,r_0; T_O)}\right) + \frac{S_Z(T_O)}{2} \\
+d_2 = d_1 - S_Z(T_O) \\
+S_Z(T_O) = B(T_O; T_B)\sqrt{\frac{\sigma^2}{2\gamma^*}(1 - e^{-2 \gamma^* T_O})}
+$$
+
+- $S_Z(T_O)$ is the standard deviation of the log return between 0 and $T_O$ of the underlying zero coupon bond.
+- Usin gthe fact that $Var(r(T_O)) = \frac{\sigma^2}{2\gamma^*}(1 - e^{-2 \gamma^* T_O})$ under the Vasicek model, we an solve for $S_Z(T_O)$ as:
+
+$$
+\begin{aligned}
+Var[\log \left(\frac{Z(T_O, r_{T_O};T_B)}{Z(0,r_0; T_B)}\right)] &= Var[log(Z(T_O, r_{T_O}; T_B))] \\
+ &= Var[A(T_O;T_B) - B(T_O;T_B)r_{T_O}] \\
+ &= B(T_O; T_B)^2Var[r_{T_O}] \\
+ &= B(T_O;T_B)^2 \frac{\sigma^2}{2\gamma^*} (1-e^{-2 \gamma^* T_O})
+\end{aligned}
+$$
+
+### Problems
+
+ - The model parameters need to be calibrated to market zero-coupon bond prices.
+    + Even after calibration is complete $Z^\text{Vasicek}(0,T) \neq Z^\text{Mkt}(0,T)$
+ - Example, Pricing option on zero-coupon bond. We run into issues
+    + Do we use market discount factors, or model discount factors?
+ - Solution: Use no-arbitrage models by having the market and model zer-coupon bond prices be the same
+    + [Ho-Lee Model](#HoLee)
+    + [Hull-White MOdel](#HullWhite)
+
+## CIR Model
+
+$$
+dr_t = \gamma(\bar{r} - r_t) dt + \sqrt{\alpha r_t} dX_t
+$$
+
+- Drawback of Vasicek Model; Interest rates can be negative
+- Under the CIR model, the interest rate is positive as long as $\gamma \bar{r} > \frac{1}{2} \alpha$
+  + When $r_t$ hits 0, the diffusion coefficient becomes 0
+  + $\gamma \bar{r}$ must be large enough so that it can pull up the interest rate back to the long term rate $\bar{r}$
+- The distribution of $r_t$ is a noncentral chi-square distribution
+- One can also derive analytical formulas for interest rate securities under the CIR model
+
+## Replicating Portfolio and Relative Value Trades
+
+The return of security 1 can be replicated by holding $\Delta$ units of security 2, Investing in a cash position $C_t = Z_1(r_t,t) - \Delta Z_2(r_t,t)$ at the risk free rate. Where the value of the replicating portfolio for $Z_1$ at time t is:
+
+$$
+P_t = \Delta Z_{2,t} + C_t
+$$
+
+By construction, $P_t$ and $Z_{1,t}$ have the same value.
+
+The value of $\Delta = \frac{\partial Z_1 / \partial r}{ \partial Z_2 / \partial r}$ at the next timestep t + dt will change. To rebalance, adjust the portfolio position in security 2 to the new $\Delta_{t+dt}$. The new position in cash in our replicating portfolio at t+dt is:
+
+$$
+C_{t+dt} = C_t + C_t r_t dt - (\Delta_{t + dt} - \Delta_t) Z_{2,t + dt}
+$$
+
+After rebalancing the new value of the replicating portfolio is.
+
+$$
+P_{t+dt} = \Delta_{t+dt} Z_{2,t+dt} + C_{t+dt}
+$$
+
+One can setup a **relative value trade** to exploit a potential arbitrage opportunity when prices of interest rates securities don't align with prices predicted by an interest rate model. To setup a relative value trade:
+
+1. Sell short a STRIP
+2. Construct a replicating portfolio of the strip using the hedge ratio from the Vasicek model.
+    -   Go long $\Delta$ units of the strip with a longer maturity.
+    -   Invest a cash position at the risk free rate.
+    -   Generally you want to pick the longer maturity at a time where the Vasicek model had low pricing error.
+3. Dynamically rebalance this trading strategy overtime.
+4. Assuming our estimated model is correct, we should be perfectly tracking the value of the initial STRIP that we are short.
+
+## Risk Premiums
+
+Start with Vasicek Model Dynamics
+
+$$
+dr_t = \gamma(\bar{r} - r_t) dt + \sigma dX_t
+$$
+
+Let Z(r,t) be teh price at time t of a zero-coupon bond and apply Ito's Lemma, the dynamics of Z(r,t) are given by:
+
+$$
+dZ = [\frac{\partial Z}{\partial t} + \frac{1}{2}\frac{\partial ^2 Z}{\partial r^2} \gamma (\bar{r} - r)]dt + \frac{\partial Z}{r} \sigma dX_t \\
+E[dZ] = [\frac{\partial Z}{\partial t} + \frac{1}{2}\frac{\partial ^2 Z}{\partial r^2} \gamma (\bar{r} - r)]dt
+$$
+
+from the Fundamental Pricing Equation:
+
+$$
+\frac{\partial Z}{\partial t} + \frac{1}{2}\frac{\partial ^2 Z}{\partial r^2} \sigma^2 = rZ - \frac{\partial Z}{\partial r} \gamma^* (\bar{r}^* - r)
+$$
+
+Substitute in for $\frac{\partial Z}{\partial t} + \frac{1}{2}\frac{\partial ^2 Z}{\partial r^2} \sigma^2$ and utilize the fact that $\frac{\partial Z}{\partial r} = -B(r,T)Z$
+
+$$
+E[dZ] = rZdt - B(t;T) Z(\gamma(\bar{r} - r) - \gamma^* (\bar{r}^* -r))dt
+$$
+
+Rearranging terms, we obtain the annualized **risk premium formula** for a zero-coupon bond under the Vasicek model (aka expected excess return):
+
+$$
+\text{Risk Premium} = E[\frac{dZ}{Z}]/dt - r = -B(t;T)(\gamma(\bar{r} - r) - \gamma^* (\bar{r}^* -r))dt
+$$
+
+**Market Price of interest rate risk**
+
+$$
+\lambda(r,t) = \frac{1}{\sigma} (\gamma(\bar{r} - r) - \gamma^* (\bar{r}^* -r)) \\
+\lambda_0 = \frac{1}{\sigma} (\gamma\bar{r} - \gamma^*\bar{r}^*) , \lambda_1 = \frac{1}{\sigma} (\gamma^* - \gamma) \\
+\text{rewrite: } \lambda(r,t) = \lambda_0 + \lambda_1 r
+$$
+
+The stochastic dynamics of dZ/Z can be written as $\frac{dZ}{Z} = \mu_Z dt + \sigma_Z dX$ where:
+
+$$
+\sigma_Z = \frac{1}{Z} \frac{\partial Z}{\partial r} \sigma = -B(t;T)\sigma \\
+\mu_Z = \frac{1}{Z}[\frac{\partial Z}{\partial t} + \frac{1}{2} \frac{\partial^2 Z}{ \partial r^2}\sigma^2 + \frac{\partial Z}{ \partial r} \gamma (\bar{r} - r)]
+$$
+
+By multiplying the numerator and denominator of the risk premium by $\sigma$, then plugging in $\sigma_Z$ we can see that the risk premium is:
+
+$$
+\text{Risk Premium} = \sigma_Z \times \lambda(r,t)
+$$
+
+**Geeneral Interest Rate Model**
+
+Consider a general interest rate model with dynamics:
+
+$$
+\begin{matrix}
+\text{General Interest Rate Model} & dr_t = m(r_t,t)dt + s(r_t,t)dX_t \\
+\text{Risk premium on: }Z(t,r) & E[\frac{dZ}{Z}]/dt - r = \sigma_Z \times \lambda(r,t) \\
+\text{Volatility of the log-return onf the security} & \sigma_Z = \frac{1}{Z}\frac{\partial Z}{\partial r} s(r,t) \\
+\text{Market price of risk:} & \lambda(r,t) = \frac{1}{s(r,t)}(m(r,t)-m^*(r,t))
+\end{matrix}
+$$
+
+Risk Neutral Dynamics are primarily used for pricing interest rate securities and are not realistic scenarios.
+
+Risk Natural Dynamics, AKA real world scenarios are realistic. It uses true risk parameters and is often used for risk analysis.
+
+# Macroeconomic Model of Term Structure
+
+| Values     |  equation  | dynamics |
+|:----------:|:----------:|:----------:|
+| GDP | $y_t = ln(Y_t)$ |   $dy_t = gdt + \sigma_y dX_{y,t}$  |
+| CPI  |  $q_t = ln(Q_t)$ |   $dq_t = i_t dt + \sigma_q dX_{q,t}$  |
+| expected inflation | $i_t$ | $di_t = \gamma(\bar{i} - i_t)dt + \sigma_i dX_{i,t}$ |
+
+Correlations are: $\rho_{qy} = dX_{y,t}dX_{q,t} ;\rho_{iq} = dX_{i,t}dX_{q,t}; \text{and} \rho_{yi} = dX_{y,t}dX_{i,t}$
+
+Utility Function: The utility a market participant receives from consuming $C_t$ units of the CPI index. $\rho$ is a parameter that reflects people's behavior to consume earlier than later. h is a parameter that describes a persons risk averision. higher h = more risk averse, 0 h is a risk neutral person.
+
+$$
+U(C_t,t)=e^{-\rho t}\frac{C_t^{1-h}}{1-h}
+$$
+
+The market participant has two choices to spend $1.
+
+1. Spend \$1 today and buy $\frac{1}{Q_t}$ units of CPI.
+    -   This increases the consumer utility by $\frac{\partial U(C_t,t)}{\partial C Q_t}$
+2. Invest \$1 to buy $\frac{1}{Z(t,T)}$ units of zero coupon bond.
+    -   Allows the consumer to buy $\frac{1}{Z(t,T) Q_T}$ of CPI, increasing utility at the future time T to $\frac{1}{Z(t,T)}\frac{\partial U(C_T,T)}{\partial C_T Q_T}$
+3. This leads to an equilibrium condition: $\frac{\partial U(C_t,t)}{\partial C Q_t} = \frac{1}{Z(t,T)}\frac{\partial U(C_T,T)}{\partial C_T Q_T}$
+4. Solving for what the theoretical zero coupon bond price should be: $Z(t,T) = E_t [\frac{Q_t \partial( U(C_T,T) / \partial C_T}{Q_T \partial U(C_t, t) / \partial C_t}]$
+5. Plug in the utility function directly to get: $Z(t,T) = E_t [\frac{Q_t C_T^{-h} e^{-\rho T}}{Q_T C_t^{-h} e^{-\rho t}}]$
+6. Assume that $C_t = kY_t$ and plug in the dynamics for Q and Y to then get:
+
+$$
+Z(i,t,T) = e^{A(t;T) - B(t;T)(i+c)} 
+\begin{cases}
+B(t;T) = \frac{1}{\gamma}(1 - e^{-\gamma(T-t)}) \\
+A(t;T) = \left(B(t;T) - (T-t))(\bar{r}^* - \frac{\sigma_i^2}{2\gamma^2}\right) - \frac{\sigma^2_i B(t;T)^2}{4\gamma}
+\end{cases}
+$$
+
+The spot nominal rate is given by the sum of expected inflation, $i_t = E[dq]$, and a constant c: $r_t = i_t + c$
+
+**Additional formulas:**
+
+$$
+\bar{r} = \bar{i} + c \\
+c = \underbrace{(\rho + hg - \frac{1}{2} h^2 \sigma^2_y)}_\text{measure of the real rate of interest} - \underbrace{h \sigma_y \sigma_q \rho_{qy}}_\text{inflation risk premium} - \frac{1}{2} \sigma^2_q \\
+\bar{r}^* = \bar{r} - \frac{1}{\gamma}(h\sigma_i\sigma_y \rho_{yi} + \sigma_i \sigma_y \rho_{iq}) \\
+\text{Dynamics of the spot nominal rate } r_t: \\
+\text{Risk natural:} dr_t = \gamma(\bar{r} - r_t) dt + \sigma_i dX_i \\
+\text{Risk neutral:} dr_t = \gamma(\bar{r}^* - r_t)dt + \sigma_i dX_i \\
+\text{Market price of risk:} \lambda = \frac{\gamma}{\sigma_i}(\bar{r} - \bar{r}^* = h\sigma_y\rho_{yi} + \sigma_y)
+$$
+
+ - $\rho$: Higher means people earn more utility by consuming today. This results in more borrowing which increases the real rate of interest
+ - hg: When the growth rate of the economy g is high, then people want to borrow to consume today, thus increasing the real interest rate.
+ - $\frac{1}{2}h^2 \sigma^2_y$: When volatility of GDP growth is high, there is higher risk there will be less consumption in the future.
+ - $\sigma_y \sigma_q \rho_{qy}$: Covariance of GDP growth (dy) and inflation (dq). When covariance is negative, a short term nominal investment rate $r_t$ will be more risky. Thus the nominal rate must increase to compensate for this risk.
+ - $-h\sigma_i\sigma_y \rho_{yi}$: is an adjustment to the long-term unconditional average nominal rate $\bar{r}$
+ - Since covariance ($\sigma_i\sigma_y \rho_{yi}$) between inflation and GDP is typically negative, this implies that the adjustment for risk is normally positive
+ - $\bar{r}^*$ typically increases when:
+    + The risk aversion h increases
+    + The covariance cov(di,dy) becomes more negative
+    + The mean reversion speed $\gamma$ decreases (is slower)
+
+# Ho-Lee Model {#HoLee}
+
+$$
+dr_t = \theta_t dt + \sigma dX_t
+$$
+
+ - The parameter $\theta_t$ is a deterministic *function* that is chosen to match the market zero-coupon bond term structure.
+ - $r_t$ is normally distributed
+ - No mean-reversion, so future distribution of $r_t$ is unbounded
+ - Rates can be negative
+ 
+$$
+Z(r,0; T) = e^{A(0,T)-T \times r} \\
+A(0,T) = -\int_0^T (T-t) \theta_T dt + \frac{T^3}{6} \sigma^2 \\
+\theta_t = \frac{\partial f(0,t)}{\partial t} + \sigma^2 \times t \\
+\text{}
+$$
+
+Substituting in $\theta_t$ we can solve for A(0,T) analytically:
+
+$$
+A(t;T) = \ln \left( \frac{Z(r_0, 0;T)}{Z(r_0, 0;t)}\right) + (T-t)f(0,t) -\frac{\sigma^2}{2}(T-t)^2t
+$$
+
+## Approximating $\theta_t$
+
+ 1. Given the market STRIP zero-coupon bond prices, derive corresponding spot rates for each tenor T as: 
+ 
+ $$
+ r(0,T) = -\frac{\ln(Z^\text{Mkt}(0,T))}{T}
+ $$
+
+ 2. Interpolate the spot rates in order to obtain a twice differentiable spot rate curve
+ 3. Compute the instantaneou forward curve numerically as:
+ 
+ $$
+ f(0,t) \approx r(0,t) + t \times \frac{r(0, t+ \delta) - r(0,t)}{\delta}
+ $$
+
+4. Approximate the deterministic function $\theta_t$ as:
+
+$$
+\theta_t \approx \frac{f(0, t+ \delta) - f(0,t)}{\delta} + \sigma^2 \times t
+$$
+
+## Term Structure of Volaitility
+
+ - The yield $r_t(\tau)$ on a zero-coupon bond with maturity $\tau$ is: $r_t(\tau) = -\ln (Z(r,t;t + \tau))/\tau$
+ - Plugging in the formula for $Z(r,t; t+\tau)$, $r_t(\tau) = -A(t;t+\tau)/\tau + r_t$
+ - Taking the differentials of both sides results in the annualized volatility, $dr_t(\tau)$, denoted as $\sigma_t (\tau) = stdev(dr_t(\tau)) / \sqrt{dt} = \sigma$
+ - The Ho-Lee model implies a flat term structure of volatility of change in spot rates. However, in the market, the volatility term structure is typically downward sloping
+ 
+ 
+## Summary
+
+**Advantages**
+
+- Simple and has closed form solutions for many interest rate derivatives.
+- A no-arbitrage model that is able to reprice market-zero coupon bond prices exactly
+
+**Disadvantages**
+
+- Non constant short rate $r_t$, as in the interest rates can grow to $\pm \infty$
+- Implies a flat term structure of volatility of changes in bond yields, which is inconsistent with what is observed in the market.
+- One factor model; assumes all points on the yield curve are perfectly correlated with each other.
+
+
+# Theory
+
+## Doob-Meyer Theorem
+
+Suppose that $X_t , 0 \leq t \leq \infty$, is a right-continuous
+submartingale w.r.t the family $\lbrace I_t \rbrace$ and
+$E(X_t) < \infty$ for all t. Then $X_t$ admits the decomposition
+$X_t = \mu_t + A_t$ where:
+
+-   $\mu_t$ is a right-continuous martingale w.r.t P
+-   $A_t$ is an increasing process measurable w.r.t $I_t$
+
+## Riemann-Stieltjes
+
+A generalization of the Riemann integral that can be denoted as:
+
+$$
+\int_{x=a}^b f(x)dg(x)
+$$
+
+Using a sequence of partitions $P = {a = x_0 < x_1 < \dots < x_n = b}$
+we can approximate the integral to be the sum:
+
+$$
+S(P,f,g) = \sum^{n-1}_{i=0} f(c_i)[g(x_{i+1}) - g(x_i)]
+$$
+
+## Girsanov Theorem {#Girsanov}
+
+### Preliminary Setup
+
+Define a random process and impose a cndontion in $X_t$ where it cannot
+vary "too much"
+
+$$
+\begin{matrix}
+\xi_t = e^{\int_0^tX_udW_u - \frac{1}{2} \int_0^t X^2_udu} & t \in [0,\infty) \\
+E[e^{\int_0^t X^2_udu}] < \infty  & t \in [0,\infty)
+\end{matrix}
+$$
+
+Using Ito's Lemma, we can calculate
+
+$$
+d\xi_t = [e^{\int_0^tX_udW_u - \frac{1}{2} \int_0^t X^2_udu}][X_tdW_t] \rightarrow d\xi_t = \xi_tX_t dW_t
+$$
+
+By setting t = 0 we see $\xi_0 = 1$. Thus by taking the stochastic
+integral of the above becomes:
+
+$$
+\xi_t = 1 + \int_0^t \xi_sX_sdW_s
+$$
+
+$\int_0^t \xi_sX_sdW_s$ is a stochastic integral with respect to a
+Wiener process and is $I_t$ adapted and does not move rapidly. Implying
+that this integral is a square integrable martingale.
+
+### Theorem
+
+If the process $\xi_t$ defined by
+$\xi_t = e^{(\int_0^t X_u dW_u - \frac{1}{2}\int_0^t X^2_u du)}$ is a
+martingale with respect to information sets $I_t$, and the probability
+$\bP$, then $W^{*}_t$ , defined by
+
+$$
+W^{*}_t = W_t - \int_0^t X_u dW_u \quad t \in [0, \infty)
+$$
+
+is a Wiener process with respect to $I_t$ and with respect to the
+probability measure $\bQ$ given by
+
+$$
+\bQ(A) = E^\bP(1_A\xi_T)
+$$
+
+with A being an event determined by $I_T$ and $1_A$ being the indicator
+function of the event.
+
+All this to say that basically multiplying a Wiener process with a
+probability distribution $\xi_t$ gives us a new Wiener process. The two
+processes are related through:
+
+$$
+dW^*_t = dW_t - X_tdt
+$$
+
+### Notes
+
+-   $W_t$ has zero drift under $\bP$
+-   $W^*_t$ has zero drift under $\bQ$
+-   The definition $\bQ(A)$ is used so that for infinitesimal intervals,
+    $d\bQ = \xi d \bP$
+-   $\bQ(A) - E^P(1_A\xi_T) = \int 1_A \xi_T d\bP = \int_A \xi_T d\bP \rightarrow d\bQ = \xi d \bP$
+-   TO remove drift, subracting the mean is usually not plausible since
+    the risk premium may not be known. Sometimes switching to a
+    risk-neutral setting is simpler. This is where the Girsanov Theorem
+    can become a huge benefit.
+
+# Examples <span style="color: red;">Consider moving this to another markdown file<span style="color: red;">
+
+## Brownian Motion
+
+$$
+\Delta X_t \sim N(\mu\Delta, \sigma^2\Delta) \\
+X_t \text{ is not a martingale because }E_t[X_t] = X_t \mu(T-t) \\
+Z_t = X_t - \mu t \text{ is a martingale} \Rightarrow E_t[Z_{t+T} = Z_t]
+$$
+
+### Distribution of $W_5 - W_2$
+
+$W_5 - W_2 \sim N(\mu = 0, \sigma^2 = 3)$
+
+### Lognormal
+
+Let $Y(t) = e^{cW(t)}$
+
+Find $E[Y(t)]$
+
+Note $cW(t) \sim N(c^2,t)$
+
+Thus, $E_0[Y(t)] = \exp\left(\frac{c^2 t}{2}\right)$
+
+## Forecasting
+
+-   $\mu_t$ is the forecast of some random variable $Y_t$ for $t \leq T$
+-   The information set grows over time so that
+    $I_t \subseteq I_{t+1} \subseteq \dots \subseteq I_T$
+-   $\mu_t = E^P[Y_T | I_t]$ is the forecast $\mu_t$ of the random
+    variable $Y_T$ given the information set $I_t$
+-   Let the sequence of forecasts $\mu_t$ w.r.t probability distribution
+    P and information sets $I_t$ be a martingale. Then:
+
+$$
+E^P[\mu_{t+s} | I_t] = \mu_t \rightarrow \underbrace{E^P[E^P[Y_T | I_{t+s}]|I_t]}_{\text{Tower Property}} = E^P[Y_T | I_t] = \mu_t
+$$
+
+The eq. above states that the best forecast of a future forecast is what
+we forecast now since that is all the info we have.
+
+<span style="color: red;"><span style="color: red;">

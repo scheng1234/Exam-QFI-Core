@@ -1,0 +1,559 @@
+<span style="display: none;">
+$$
+\newcommand{\Lagr}{\mathcal{L}}
+\newcommand{\bP}{\mathbb{P}}
+\newcommand{\bR}{\mathbb{R}}
+\newcommand{\bQ}{\mathbb{Q}}
+\newcommand{\bE}{\mathbb{E}}
+\Lagr \bP \bR \bQ \bE 
+$$ 
+<span style="display: none;">
+
+# Financial Derivatives {#FD}
+
+**Financial Derivatives** are securities that derive their value from
+cash markets. In Ingersoll's definition, a financial contract is a
+derivative security.
+
+**Cash and Carry Markets**: Gold, silver, T-bonds. The idea is to borrow
+cash, buy asset, and hold until expiration.
+
+**Forward Contract**: obligation to buy/sell an asset at a specified
+price at a future date. if cash price is higher at expiration then
+forward, and long position make a profit.
+
+```{r, echo = FALSE}
+ForwardContracts <- cbind(c( "Mark to Market", "Settlement", "Margin System", "Trading", "Types", "Flexibility", "Liquidity", "Counterparty Risk"),
+                          c( "Yes", "Daily", "Yes", "Exchanges", "Standardized" , "Less", "More", "Less"),
+                          c("No", "Upon Maturity", "No", "OTC", "Custom", "More", "Less", "More")
+                          )
+
+kableExtra::kbl(ForwardContracts, col.names = c("Characteristic", "Futures", "Forwards"), format = "html") %>% kable_minimal("hover")
+
+
+```
+
+**Repurchase Agreement (REPO)**: A transaction in which one party sells
+a security in return for cash, with an agreement to repurchase the
+security at an agreed upon price at a future date.
+
+[**Options**](#Options):
+
+-   European: The right to buy $S_t$ at strike k. This right may be
+    excercised at time T. Where $S_T <K$ is out the money and $S_T > K$
+    is in the money. $$C_T = \max(S_T -K)$$
+
+**Swaps**: Exchange of one set of cashflows for another. Swaps are
+simultaneous and can involve curruncies, interst rates, etc. Swaps can
+be priced through forwards. Cancelable swaps allow the right to cancel
+swap contracts.
+
+**Arbitrage** : Taking simultaneous positions so that it guarantees a
+riskless profit higher than the risk-free rate. Let $d_{ij}$ be the
+number of units of account paid by one unit of security i in state j.
+Rows represent asset, columns represent state (interest, conflict,
+recession, etc...)
+
+
+::: columns
+::: {.column width="20%"}
+:::
+
+::: {.column width="30%"}
+$$
+\text{Asset Values} = S_T = 
+\begin{bmatrix} 
+S_1(t) \\
+S_2(t) \\
+\vdots \\
+S_n(t)
+\end{bmatrix}
+$$
+:::
+
+::: {.column width="30%"}
+$$
+D_t = \begin{bmatrix}
+d_{11} & d_{12} & \cdots & d_{1k} \\
+d_{21} & d_{22} & & d_{2k} \\
+\vdots & & \ddots & \vdots\\
+d_{i1} & d_{i2} & \cdots & d_{ik}
+\end{bmatrix}
+$$
+:::
+
+::: {.column width="20%"}
+:::
+:::
+
+$$
+\text{example of a 2 state portfolio with cash, security, and call}\\ \begin{bmatrix}
+(1+r\Delta) & (1+r\Delta) \\
+S_1(t + \Delta) & S_2(t + \Delta) \\
+C_1(t + \Delta) & C_2(t + \Delta) 
+\end{bmatrix}
+$$
+
+No arbitrage possibility exists iff:
+
+$$
+\begin{bmatrix}
+1 \\ S(t) \\ C(t)
+\end{bmatrix} 
+=
+\begin{bmatrix}
+(1+r\Delta) & (1+r\Delta) \\
+S_1(t + \Delta) & S_2(t + \Delta) \\
+C_1(t + \Delta) & C_2(t + \Delta) 
+\end{bmatrix} 
+\begin{bmatrix}
+\psi_1 \\ \psi_2
+\end{bmatrix} 
+$$
+
+$\psi_n$ represents the risk neutral probability discounted at the risk
+free rate and:
+
+$$ \sum_i^n \psi_i = v = \frac{1}{1+r} \rightarrow \sum_i^n \psi_i \cdot (1+r) = \sum_i^n  \bQ_i  = 1 $$
+
+|       **Binomial Tree Pricing**: A method of valuing options. Steps to determine option value is to first determine the value at expiration, then work backwards each step until the current price is obtained.
+
+$$
+C_T = \frac{1}{1+r}[Q_{up} C_{t+\Delta}^{up} + Q_{down} C_{t+\Delta}^{down}]
+$$
+
+```{tikz, BinomialTree, fig.ext = 'png', cache=TRUE, echo = FALSE, fig.dim = c(5, 4), fig.align="center"}
+  \begin{tikzpicture}[>=stealth,sloped]
+    \matrix (tree) [%
+      matrix of nodes,
+      minimum size=1cm,
+      column sep=3.5cm,
+      row sep=1cm,
+    ]
+    {
+            &     & {$C^{uu}$} \\
+            & {$C^u$} &   \\
+      {$C_T$} &     & {$C^{ud/du}$} \\
+            & {$C^d$} &   \\
+            &     & {$C^{dd}$} \\
+    };
+    \draw[->] (tree-3-1) -- (tree-2-2) node [midway,above] {$P$};
+    \draw[->] (tree-3-1) -- (tree-4-2) node [midway,below] {$(1-p)$};
+    \draw[->] (tree-2-2) -- (tree-1-3) node [midway,above] {$P^2$};
+    \draw[->] (tree-2-2) -- (tree-3-3) node [midway,below] {$(1-p)p$};
+    \draw[->] (tree-4-2) -- (tree-3-3) node [midway,above] {$(1-p)p$};
+    \draw[->] (tree-4-2) -- (tree-5-3) node [midway,below] {$(1-p)^2$};
+  \end{tikzpicture}
+```
+
+If we assume dividends are paid as a % of $S_{t+\Delta}$. Then by
+arbitrage: $$
+\begin{bmatrix}
+1 \\ S(t) \\ C(t)
+\end{bmatrix} =
+\begin{bmatrix}
+B^u_{t+\Delta} & B^d_{t+\Delta} \\
+S^u_{t+\Delta} + d_tS^u_{t+\Delta} & S^d_{t+\Delta} + d_tS^d_{t+\Delta} \\
+C^u_{t+\Delta} & C^d_{t+\Delta} 
+\end{bmatrix} 
+\begin{bmatrix}
+\psi_1 \\ \psi_2
+\end{bmatrix}\\
+E^Q[\frac{S_{t+\Delta}}{S}] = \frac{1+r\Delta}{1+d\Delta} \approx 1+(r-d)\Delta \\
+E^Q[\frac{C_{t+\Delta}}{C}] = 1+r\Delta
+$$ Under risk-neutral expectations. S grows below the risk free rate at
+r-d while the call option is expected to return r. For foreign
+currencies, replace d with the foreign savings interest rate rf.
+
+## Risk Neutral Pricing Summary
+
+-   Obtain a model to track dynamics of underlying
+-   Calculate how derivative asset price relates to the price of the
+    underlying asset ast expiration or other boundaries
+-   Obtain risk adjusted probabilities
+-   Calculate expected payoffs of derivative at expiration using risk
+    adjusted probabilities
+-   Discount this expectation using the risk-free return.
+
+## Exotic Options {#Options}
+
+
+### Lookback Options
+
+Floating lookback call option payoff: $\max{(S_T - S_{min}, 0)}$
+
+Fixed lookback call option payoff: $\max{(S_{max}-kK,0)}$
+
+### Ladder Options
+
+Has several thresholds, such that if the underlying price reaches these
+thresholds, the return of the option is locked in.
+
+### Trigger or Knock-in Options
+
+A down-and-in option gives its holder a European option if the spot
+price falls below a barrier during the life of the option. If the
+barrier is not reached, the option expires with some rebate as a payoff.
+The up-and-in option is similar but with the spot price going above the
+barrier price.
+
+### Knock-out Options
+
+Kncok-out options are European options that expire immediately if the
+underlying asset price falls below a barrier during the life of the
+option The option pays a rebate if the barrier is reached. Also called
+down and out. There are also up-and-out variations.
+
+### Other Exotics
+
+1.  *Basket options*, which are derivatives where the underlying asset
+    is a basket of various financial instruments. Such basket dampen the
+    volatility of the individual securities. Basket options become more
+    afforable in the case of emerging market derivatives.
+2.  *Multi-asset options* have payoffs depending on the underlying price
+    of more than one asset
+
+| Example Payoff          | $F(S_{1T}, S_{2T}, T)$                             |
+|:------------------------|:---------------------------------------------------|
+| Multi-Asset Option      | $\max{[0, \max{(S_{1T},S_{2T})-K}]}$               |
+| Spread Call             | $\max{[0, (S_{1T}-S_{2T})-K]}$                     |
+| Portfolio Call          | $\max{[0, (\theta_1S_{1T}+\theta_2S_{2T})-K]}$[^1] |
+| dual strike call option | $\max{[0, S_{1T}-K, S_{2T}-K]}$                    |
+
+[^1]: $\theta_2 , \theta_2$ represents the weight of each asset in the
+    portfolio.
+
+3.  *Average or Asian options* have payoffs depending on the average
+    price of the underlying asset over the lifetime of the option.
+
+## Interest Rate Sensitive Securities
+
+-   So far we've discussed tools for securities that:
+-   Don't pay dividends
+-   Have risk-free interest rates
+-   Underlying volatility is constant.
+-   Derivatives in financial markets are more complicated.
+-   Only applies to European Options.
+
+### Interest Rate Derivatives
+
+**Interest Rate Forwards and Futures**:
+
+-   $L_{t_i}$ (Libor rates, average of loan quotes from selected banks in London) represents the annualized simple interest
+    rate on a loan that begins at time $t_i$ and ends $t_{i+1}$
+-   For a forward: The buyer of a forward will receive a loan with sum
+    $N$ at time $t_i$
+-   The loan is then paid back at time $t_{i+1}$ with amount
+    $N(1+F_t \delta)$
+-   $F_t$ is the interest rate and $\delta$ is the days adjustment
+    factor, equal to the number of days between $t_i$, and $t_{i+1}$ over 365
+
+**Forward Rate Agreements (FRA)**: As discussed in an earlier section,
+these instruments provide a more convenient way to hedge interest rate
+risk.
+
+-   The buyer of an FRA either receives or pays $N[F_t - L_{t_i}]\delta$
+    in-arrears at time $t_{i+1}$. (i.e. contract is established at time 0, Value of FRA contract determined at time 1, and then payment happens at time 2)
+-   The buyer receives when $L_{t_{i}} < F_t$
+-   The buyer pays when $L_{t_{i}} > F_t$
+-   For a Standard FRA, the settlement date happens at the set date, which means that the payoff amount must be discounted back to time 1. $\text{Receipt} = \frac{N(F_t - L_{t_1})\delta}{1+L_{t_1}\delta}$
+
+**Caps and Floors**:
+
+-   Caps hedge against rising interest rates
+-   Floors do the same but for decreasing rates.
+-   The buyer of a caplet will receive $N \max{[\delta (L_{t_i}-R_{cap}),0]}$ where $R_{cap}$ is the cap rate
+-   Can be thought of as a put on bond prices or call on interest rate.
+
+
+```{r, echo=FALSE}
+caps_floors <- cbind(c( "Caplet", "Floorlet"),
+                          c( "$N \\max{(\\delta(L_{t_i} - R_{\text{cap}}),0)}$", "$N \\max{(R_{\text{floor}} - \\delta(L_{t_i}),0)}$" ),
+                          c("Increase", "Decrease")
+                          )
+
+kableExtra::kbl(caps_floors, col.names = c("Instrument", "Payoff", "Gain When Interest Rates"), format = "html") %>% kable_minimal("hover")
+```
+
+**Interest Rate Swaps**:
+
+-   As discussed in a prior chapter, the interest rate swap functions as a more complex FRA.
+-   Involves an exchange of cash flows generated by a fixed pre-set swap rate $\kappa$ against cash flows generated by floating Libor rates $L_{t_i}$
+-   The swap rate $\kappa$ is set so that the time $t$ price of the swap contract is 0
+-   Can be thought of as a sequence of FRAs
+
+**Bond Options**
+
+-   A call option written on a bond gives its holder the right, but not the obligation, to buy a bond with price $B_t$ at strike price K
+
+**Swaptions**
+
+-   Options on swap contracts
+-   The buyer of a swaption will have the right but not the obligation to get a swap contract at some future time
+
+# Math of Financial Derivatives
+
+### Basics
+
+$$
+1 + 1 + \frac{1}{2!} + \frac{1}{3!} \dots = e \\
+e^{x+y} = e^x \cdot e^y\\
+\frac{d}{dx} e^{kx} = ke^{kx} 
+$$
+
+**Function of Bounded Variation**
+
+$$
+V_0 = \max{\sum^n_{i=1}|f(t_i) - f(t_{i-1})|} < \infty
+$$
+
+**Definition of a derivative**
+
+$$ 
+f'_x = \lim_{\Delta \rightarrow 0} \frac{f(x+\Delta) - f(x)}{\Delta} \\
+f_x'' = \frac{f_x'(x+\Delta) - f_x'(x)}{\Delta} \approx \frac{f(x+\Delta) - 2f(x) + f(x-\Delta)}{\Delta^2}
+$$
+
+**First order approximations of functions**
+
+$$ 
+f(x+\Delta) \approx f(x) + f'_x(\Delta)
+$$
+
+**Chain Rule**
+
+$$
+y_t = f(g(t)) \text{   and   } x_t = g(t) \\
+\frac{dy}{dt} = \frac{df(g(t))}{dg(t)} \cdot\frac{dg(t)}{dt} 
+$$
+
+**Probability Basics**
+
+-   $\omega = \text{particular state of the world}$
+-   $\Omega = \text{all possible states of the world}$
+-   $I = \text{set of all possible events}$
+-   $P(A) \geq 0$ for any $A \in I$
+-   $\int_{A \in I} dP(A) = 1$
+-   distribution function: $G(x) = P(X \leq x)$
+
+**Moments**
+
+-   Expectation first moment: $E(X) = \int_{-\infty}^{\infty} xf(x)dx$
+-   Second moment is variance
+-   Third moment is skew
+-   Fourth moment is kurtosis
+
+**Normal Distribution**
+
+$$
+X \sim N(\mu, \sigma^2)
+$$
+
+-   PDF:
+    $f(x) = \frac{1}{\sigma \sqrt{2\pi}}e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}$
+-   $E(X) = \mu$
+-   $V(X) = \sigma^2$
+-   skew = $E((X - E(X))^3) = 0$
+-   kurtosis = $E[\left(\frac{x-\mu}{\sigma}\right)^4]$
+
+### Intermediate
+
+**Riemann Integral**
+
+Given max $|t_i - t_{i+1}| \rightarrow 0$, the Riemann integral will be
+defined by the limit
+
+$$
+\sum_{i=1}^n f\left(\frac{t_i + t_{i-1}}{2}\right)(t_i + t_{i-1}) \rightarrow \int_0^T f(s)ds
+$$
+
+**Integration by Parts**
+
+$$
+d(f(t) \cdot h(t)) = f'(t)h(t) + f(t)h'(t) \Rightarrow f(T)h(T) -f(0)h(0) - \int_0^Tf(t)h'(t)dt
+$$
+
+**Partial vs Total Differentials**
+
+Let $C_t = F(S_t,t)$
+
+$$
+\frac{\partial F(S_t,t)}{\partial S_t} = F_s : \text{Partial Derivative} \\
+df = F_sdS_t + F_tdt : \text{Total Differential}
+$$
+
+**1D Taylor Series**
+
+Let f(x) be an infinitely differentiable function of $x \in \bR$.
+Expanding around point $x_0$
+
+$$
+f(x) = f(x_0) + f'_(x_0)(x-x_0) + \frac{1}{2}f''_x(x_0)(x-x_0)^2 + \dots = \sum_{n=0}^\infty \frac{f^n_x(x_0)}{n!}(x-x_0)^n
+$$
+
+**Ordinary Differential Equations**
+
+$$
+dB_t = -r_tB_tdt \Rightarrow B_t = e^{\int_0^tr_udu}
+$$
+
+**Conditional Expectation**
+
+-   $I_{t_0} \subseteq I_{t_1} \subseteq \dots \subseteq I_{t_k}$
+-   A family $I_t$ satisfying the above property is called filtration.
+-   $I_t$ contains the information that we condition on
+-   $P(|X-X_0| \leq \frac{dx}{2} \approx f(x_0)dx$
+-   $E(S_t | I_u) = \int_{-\infty}^\infty S_t f(S_t | I_u) dS_t, u < t$
+-   Linearity property: $E[S_t + F(t)] = E[S_t] + E[F(t)]$
+
+**Moments**
+
+-   Let $Y_t \sim N(\mu t, \sigma^2 t)$
+-   Recall the definition of a moment generating function
+    $M(\lambda) = E(e^{\lambda Y_t})$
+-   Given the definition of $Y_t$ the moment generating function of
+    $Y_t$ can be explicitly calculated:
+    $M(\lambda) = e^{\lambda \mu t + \frac{1}{2}\sigma^2 t\lambda^2}$
+-   Assume that $S_t = S_0 e^{Y_t}$. This assumes $S_t$ is lognormally
+    distributed
+-   Then the following conditional expectation follows from the moment
+    generating function $M(1)$ over the time period $t - u$
+
+$$
+E[S_t | S_u, u < t] = S_u e^{\mu (t-u) + \frac{1}{2} \sigma^2 (t-u)}
+$$
+
+The following are key moments for a lognormal random variable L:
+
+$$
+E(L) = e^{\mu + \frac{1}{2} \sigma ^ 2} \\
+V(L) = [e^{\sigma^2} - 1] e^{2\mu + \sigma^2} \\
+E(L^n) = e^{n \mu + \frac{n^2 \sigma^2}{2}}
+$$
+
+# Pricing Methods
+
+1.  Arbitrage on financial assets which are martingales. Known as the
+    method of equivalent martingales.
+2.  Construct a risk-free portfolio to obtain a partial-differential
+    equation (PDE) that is implied by the lack of arbitrage
+    opportunities.
+    -   Gold Example:
+        -   Portfolio 1: Borrow money, buy gold, hold until expiration.
+            Pay back money at time T
+        -   Portfolio 2: Buy forward contract (cash exchanged at T to
+            receive gold).
+        -   $F(S_t,t) = \underbrace{S_te^{r_t(T-t)}}_{\text{loan repayment}} + \underbrace{c(T-t)}_{\text{storage costs}}$
+    -   Delta Hedging Example:
+        -   Construct a risk free portfolio by combining loans, a long
+            call, and short $\Delta$ shares. (requires continuous delta
+            hedging)
+        -   $\frac{\partial F(S_t,t)}{\partial S_t} = F(s) = \Delta$
+
+**Binomial Models**
+
+-   $Pr(\Delta F(t) = a \sqrt{\Delta} = p)$
+-   Assume F(t) is the real time price, and that over a small time
+    interval there is either an uptick or downtick.
+-   $E[\Delta F(t) = ap\sqrt{\Delta} - a(1-p)\sqrt{\Delta} ]$
+-   $V[\Delta F(t)] = 4a^2\Delta p(1-p)$
+
+**Poisson Distribution**
+
+-   Unpredictable occurrence at times t = 1,2,3.
+-   Jumps are assumed to be independent and of the same size.
+-   In a given small interval, the probability of observing more than 1
+    jump is negligible.
+-   Denote $N_t$ as number of jumps up to time t.
+-   Let $\Delta$ be a small time interval.
+-   $\lambda$ = positive constant called intensity
+-   $\Delta N_t = 1$ if there is a jump, otherwise it's 0
+-   $P(\Delta N_t =1) \approx \lambda N, P(\Delta N_t = 0) \approx 1-\lambda N, P(\Delta N_t = n) = \frac{e^{-\lambda\Delta}(\lambda \Delta)^N}{n!}$
+
+**Markov Processes**
+
+A discrete time process ${X_1, \dots ,X_t}$ with joint probability
+distribution function $F(x_1,\dots, x_t)$ is said to be a Markov Process
+iff:
+
+$$
+Pr(X_{t+s} \leq X_{t+s} | X_1, \dots, X_t) = Pr(X_{t+s} \leq X_{t+s} |  X_t)
+$$
+
+Where s \> 0, $P(. | I_t)$ is the probability conditional on the
+information set $I_t$. Basically saying that the probability of the next
+state is only conditional on the state prior to the event.
+
+## Convergence
+
+**Almost Sure Convergence**
+
+A random variable $X_n$ converges to X almost surely if, for arbitrary
+$\delta > 0$
+
+$$
+P(|\lim_{n \rightarrow \infty} X_n - X| > \delta ) = 0
+$$
+
+**Mean Square Convergence**
+
+Let $X_0, X_1, X_2 \dots ,X_n$ be a sequence of random variables. Then
+$X_n$ is said to converge to X in mean square if:
+
+$$
+\lim_{n \rightarrow \infty} E[(X_n - X)^2] =0
+$$
+
+**Weak Convergence**
+
+$X_n$ = a random variable indexed by in with probability $P_n \cdot X_n$
+converges to X weakly if $\lim_{n \rightarrow \infty} P_n = P$. Where P
+is the probability distribution of X if:
+
+$$
+E^{P_n}[F(X_n)] \rightarrow E^{P}[F(X)]
+$$
+
+## Martingales
+
+If the value of $S_t$ is included in the information set $I_t$ at t \>
+0, then it is said that $\lbrace S_t, t \in [0,t]\rbrace$ is *adapted*
+to $\lbrace I_t, t \in [0,\infty]\rbrace$. We can say that
+$E_t[S_t] = E(S_t|I_t)$ forecasts $S_t$ given information at $I_t$.
+
+A process $\lbrace S_t, t \in [0,\infty]\rbrace$ is a martingale w.r.t
+the family of information sets $I_t$ and w.r.t probability P if for all
+t \> 0, the following 3 properties are satisfied
+
+1.  $S_t$ is known given $I_t$ ($S_t$ is $I_t$ adapted).
+2.  $E^P|S_t| < \infty$ : probabilities are finite.
+3.  $E^P[S_t] = S_t$ for all t \< T
+
+Martingales satisfies the important property that it is not expected to
+grow or shrink over time (the expectation = current value)
+$E_t[S_{t+u} - S_t] = 0$
+
+-   A **submartingale** is expected to grow over time or stay the same
+    level.
+    -   $E^P[X_{t+s} | I_t] \geq X_t$
+-   A **supermartingale** is expected to shrink over time or stay the
+    same level.
+    -   $E^P[X_{t+s} | I_t] \leq X_t$
+
+To convert to a martingale:
+
+-   Change to a different probability measure.
+-   Apply scaling factor (multiplicative/additive)
+
+<!-- Suppose at time t one has information $I_t$. For a random variable $X_t$ -->
+
+<!-- such that s \> 0 satisfies the equality: -->
+
+<!-- -   $E^P[X_{t+s} | I_t] = X_t$ - This is a martingale with respect to -->
+
+<!--     probability measure P -->
+
+<!-- -   $E^P[X_{t+s} | I_t] \geq X_t$ - This is a submartingale with respect -->
+
+<!--     to probability measure P -->
+

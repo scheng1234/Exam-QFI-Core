@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta property="og:title" content="7 Black-Scholes PDE Derivation | Exam QFI" />
+<meta property="og:type" content="book" />
+
+
+
+
+<meta name="author" content="Steven Cheng" />
+
+<meta name="date" content="2023-05-03" />
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<meta name="description" content="7 Black-Scholes PDE Derivation | Exam QFI">
+
+<title>7 Black-Scholes PDE Derivation | Exam QFI</title>
+
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.5/css/simplex.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="libs/navigation-1.1/tabsets.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+/* show arrow before summary tag as in bootstrap
+TODO: remove if boostrap in updated in html_document (rmarkdown#1485) */
+details > summary {
+  display: list-item;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container-fluid main-container">
+
+
+<div class="row">
+<div class="col-sm-12">
+<div id="TOC">
+<ul>
+<li><a href="a-note-about-notations.html#a-note-about-notations" id="toc-a-note-about-notations"><span class="toc-section-number">1</span> A Note About Notations</a></li>
+<li class="has-sub"><a href="FD.html#FD" id="toc-FD"><span class="toc-section-number">2</span> Financial Derivatives</a>
+<ul>
+<li><a href="FD.html#risk-neutral-pricing-summary" id="toc-risk-neutral-pricing-summary"><span class="toc-section-number">2.1</span> Risk Neutral Pricing Summary</a></li>
+<li class="has-sub"><a href="FD.html#Options" id="toc-Options"><span class="toc-section-number">2.2</span> Exotic Options</a>
+<ul>
+<li><a href="FD.html#lookback-options" id="toc-lookback-options"><span class="toc-section-number">2.2.1</span> Lookback Options</a></li>
+<li><a href="FD.html#ladder-options" id="toc-ladder-options"><span class="toc-section-number">2.2.2</span> Ladder Options</a></li>
+<li><a href="FD.html#trigger-or-knock-in-options" id="toc-trigger-or-knock-in-options"><span class="toc-section-number">2.2.3</span> Trigger or Knock-in Options</a></li>
+<li><a href="FD.html#knock-out-options" id="toc-knock-out-options"><span class="toc-section-number">2.2.4</span> Knock-out Options</a></li>
+<li><a href="FD.html#other-exotics" id="toc-other-exotics"><span class="toc-section-number">2.2.5</span> Other Exotics</a></li>
+</ul></li>
+<li class="has-sub"><a href="FD.html#interest-rate-sensitive-securities" id="toc-interest-rate-sensitive-securities"><span class="toc-section-number">2.3</span> Interest Rate Sensitive Securities</a>
+<ul>
+<li><a href="FD.html#interest-rate-derivatives" id="toc-interest-rate-derivatives"><span class="toc-section-number">2.3.1</span> Interest Rate Derivatives</a></li>
+</ul></li>
+</ul></li>
+<li class="has-sub"><a href="math-of-financial-derivatives.html#math-of-financial-derivatives" id="toc-math-of-financial-derivatives"><span class="toc-section-number">3</span> Math of Financial Derivatives</a>
+<ul>
+<li><a href="math-of-financial-derivatives.html#basics" id="toc-basics"><span class="toc-section-number">3.0.1</span> Basics</a></li>
+<li><a href="math-of-financial-derivatives.html#intermediate" id="toc-intermediate"><span class="toc-section-number">3.0.2</span> Intermediate</a></li>
+</ul></li>
+<li class="has-sub"><a href="pricing-methods.html#pricing-methods" id="toc-pricing-methods"><span class="toc-section-number">4</span> Pricing Methods</a>
+<ul>
+<li><a href="pricing-methods.html#convergence" id="toc-convergence"><span class="toc-section-number">4.1</span> Convergence</a></li>
+<li><a href="pricing-methods.html#martingales" id="toc-martingales"><span class="toc-section-number">4.2</span> Martingales</a></li>
+</ul></li>
+<li class="has-sub"><a href="brownian-motion-and-wiener-processes.html#brownian-motion-and-wiener-processes" id="toc-brownian-motion-and-wiener-processes"><span class="toc-section-number">5</span> Brownian Motion and Wiener Processes</a>
+<ul>
+<li><a href="brownian-motion-and-wiener-processes.html#brownian-motion" id="toc-brownian-motion"><span class="toc-section-number">5.1</span> Brownian Motion</a></li>
+<li><a href="brownian-motion-and-wiener-processes.html#wiener-process" id="toc-wiener-process"><span class="toc-section-number">5.2</span> Wiener Process</a></li>
+<li><a href="brownian-motion-and-wiener-processes.html#poisson-process" id="toc-poisson-process"><span class="toc-section-number">5.3</span> Poisson Process</a></li>
+<li><a href="brownian-motion-and-wiener-processes.html#characterizing-rare-and-normal-events" id="toc-characterizing-rare-and-normal-events"><span class="toc-section-number">5.4</span> Characterizing Rare and Normal Events</a></li>
+</ul></li>
+<li class="has-sub"><a href="stochastic-calculus.html#stochastic-calculus" id="toc-stochastic-calculus"><span class="toc-section-number">6</span> Stochastic Calculus</a>
+<ul>
+<li class="has-sub"><a href="stochastic-calculus.html#stochastic-derivative" id="toc-stochastic-derivative"><span class="toc-section-number">6.1</span> Stochastic Derivative</a>
+<ul>
+<li><a href="stochastic-calculus.html#framework" id="toc-framework"><span class="toc-section-number">6.1.1</span> Framework</a></li>
+<li><a href="stochastic-calculus.html#itos" id="toc-itos"><span class="toc-section-number">6.1.2</span> Ito’s</a></li>
+<li><a href="stochastic-calculus.html#common-sdes" id="toc-common-sdes"><span class="toc-section-number">6.1.3</span> Common SDE’s</a></li>
+</ul></li>
+<li class="has-sub"><a href="stochastic-calculus.html#stochastic-variance" id="toc-stochastic-variance"><span class="toc-section-number">6.2</span> Stochastic Variance</a>
+<ul>
+<li><a href="stochastic-calculus.html#jump-diffusion" id="toc-jump-diffusion"><span class="toc-section-number">6.2.1</span> Jump-Diffusion</a></li>
+<li><a href="stochastic-calculus.html#variance-gamma-vg-process" id="toc-variance-gamma-vg-process"><span class="toc-section-number">6.2.2</span> Variance-Gamma (VG) Process</a></li>
+</ul></li>
+</ul></li>
+<li class="has-sub"><a href="black-scholes-pde-derivation.html#black-scholes-pde-derivation" id="toc-black-scholes-pde-derivation"><span class="toc-section-number">7</span> Black-Scholes PDE Derivation</a>
+<ul>
+<li><a href="black-scholes-pde-derivation.html#forming-risk-free-portfolios" id="toc-forming-risk-free-portfolios"><span class="toc-section-number">7.1</span> Forming Risk-Free Portfolios</a></li>
+<li><a href="black-scholes-pde-derivation.html#pde-classification" id="toc-pde-classification"><span class="toc-section-number">7.2</span> PDE Classification</a></li>
+<li class="has-sub"><a href="black-scholes-pde-derivation.html#black-scholes" id="toc-black-scholes"><span class="toc-section-number">7.3</span> Black-Scholes</a>
+<ul>
+<li><a href="black-scholes-pde-derivation.html#geometric-look-at-black-scholes" id="toc-geometric-look-at-black-scholes"><span class="toc-section-number">7.3.1</span> Geometric Look at Black-Scholes</a></li>
+<li><a href="black-scholes-pde-derivation.html#partial-integro-differential-equations-pide" id="toc-partial-integro-differential-equations-pide"><span class="toc-section-number">7.3.2</span> Partial-Integro Differential Equations (PIDE)</a></li>
+<li><a href="black-scholes-pde-derivation.html#complications-of-black-scholes" id="toc-complications-of-black-scholes"><span class="toc-section-number">7.3.3</span> Complications of Black-Scholes</a></li>
+</ul></li>
+</ul></li>
+<li class="has-sub"><a href="equivalent-martingale-measures.html#equivalent-martingale-measures" id="toc-equivalent-martingale-measures"><span class="toc-section-number">8</span> Equivalent Martingale Measures</a>
+<ul>
+<li><a href="equivalent-martingale-measures.html#radon-nikodym-derivative" id="toc-radon-nikodym-derivative"><span class="toc-section-number">8.1</span> Radon-Nikodym Derivative</a></li>
+<li><a href="equivalent-martingale-measures.html#converting-asset-prices-into-martingales" id="toc-converting-asset-prices-into-martingales"><span class="toc-section-number">8.2</span> Converting Asset Prices into Martingales</a></li>
+</ul></li>
+<li class="has-sub"><a href="extension-of-arbitrage-theorem.html#extension-of-arbitrage-theorem" id="toc-extension-of-arbitrage-theorem"><span class="toc-section-number">9</span> Extension of Arbitrage Theorem</a>
+<ul>
+<li><a href="extension-of-arbitrage-theorem.html#forward-measure" id="toc-forward-measure"><span class="toc-section-number">9.1</span> Forward Measure</a></li>
+<li><a href="extension-of-arbitrage-theorem.html#other-measures" id="toc-other-measures"><span class="toc-section-number">9.2</span> Other Measures</a></li>
+</ul></li>
+<li class="has-sub"><a href="modeling-term-structure-and-related-concepts.html#modeling-term-structure-and-related-concepts" id="toc-modeling-term-structure-and-related-concepts"><span class="toc-section-number">10</span> Modeling Term Structure and Related Concepts</a>
+<ul>
+<li><a href="modeling-term-structure-and-related-concepts.html#classical-vs-hjm" id="toc-classical-vs-hjm"><span class="toc-section-number">10.1</span> Classical vs HJM</a></li>
+<li><a href="modeling-term-structure-and-related-concepts.html#fitting-to-initial-term-structure-flag-review-this-section-again-or-combine-because-its-too-short" id="toc-fitting-to-initial-term-structure-flag-review-this-section-again-or-combine-because-its-too-short"><span class="toc-section-number">10.2</span> Fitting to Initial Term Structure <span style="color: red;">[FLAG] Review this section again, or combine because it’s too short? <span style="color: red;"></a></li>
+<li class="has-sub"><a href="modeling-term-structure-and-related-concepts.html#classical-pde-analysis-for-interest-rate-derivatives" id="toc-classical-pde-analysis-for-interest-rate-derivatives"><span class="toc-section-number">10.3</span> Classical PDE Analysis for Interest Rate Derivatives</a>
+<ul>
+<li><a href="modeling-term-structure-and-related-concepts.html#derivation-of-bond-price-pde" id="toc-derivation-of-bond-price-pde"><span class="toc-section-number">10.3.1</span> Derivation of Bond Price PDE</a></li>
+<li><a href="modeling-term-structure-and-related-concepts.html#comparing-to-black-scholes" id="toc-comparing-to-black-scholes"><span class="toc-section-number">10.3.2</span> Comparing to Black-Scholes</a></li>
+</ul></li>
+</ul></li>
+<li class="has-sub"><a href="term-structure-models---continuous-time.html#term-structure-models---continuous-time" id="toc-term-structure-models---continuous-time"><span class="toc-section-number">11</span> Term Structure Models - Continuous Time</a>
+<ul>
+<li class="has-sub"><a href="term-structure-models---continuous-time.html#no-arbitrage-pricing-vasicek-model" id="toc-no-arbitrage-pricing-vasicek-model"><span class="toc-section-number">11.1</span> No-Arbitrage Pricing: Vasicek Model</a>
+<ul>
+<li><a href="term-structure-models---continuous-time.html#vasicek-zero-coupon-bond" id="toc-vasicek-zero-coupon-bond"><span class="toc-section-number">11.1.1</span> Vasicek Zero Coupon Bond</a></li>
+<li><a href="term-structure-models---continuous-time.html#spot-rate-duration" id="toc-spot-rate-duration"><span class="toc-section-number">11.1.2</span> Spot Rate Duration</a></li>
+<li><a href="term-structure-models---continuous-time.html#coupon-bond" id="toc-coupon-bond"><span class="toc-section-number">11.1.3</span> Coupon Bond</a></li>
+<li><a href="term-structure-models---continuous-time.html#estimating-parameters-of-vasicek-model" id="toc-estimating-parameters-of-vasicek-model"><span class="toc-section-number">11.1.4</span> Estimating Parameters of Vasicek Model</a></li>
+<li><a href="term-structure-models---continuous-time.html#pricing-options-on-zero-coupon-bonds" id="toc-pricing-options-on-zero-coupon-bonds"><span class="toc-section-number">11.1.5</span> Pricing Options on Zero-Coupon Bonds</a></li>
+<li><a href="term-structure-models---continuous-time.html#problems" id="toc-problems"><span class="toc-section-number">11.1.6</span> Problems</a></li>
+</ul></li>
+<li><a href="term-structure-models---continuous-time.html#cir-model" id="toc-cir-model"><span class="toc-section-number">11.2</span> CIR Model</a></li>
+<li><a href="term-structure-models---continuous-time.html#replicating-portfolio-and-relative-value-trades" id="toc-replicating-portfolio-and-relative-value-trades"><span class="toc-section-number">11.3</span> Replicating Portfolio and Relative Value Trades</a></li>
+<li><a href="term-structure-models---continuous-time.html#risk-premiums" id="toc-risk-premiums"><span class="toc-section-number">11.4</span> Risk Premiums</a></li>
+</ul></li>
+<li><a href="macroeconomic-model-of-term-structure.html#macroeconomic-model-of-term-structure" id="toc-macroeconomic-model-of-term-structure"><span class="toc-section-number">12</span> Macroeconomic Model of Term Structure</a></li>
+<li class="has-sub"><a href="HoLee.html#HoLee" id="toc-HoLee"><span class="toc-section-number">13</span> Ho-Lee Model</a>
+<ul>
+<li><a href="HoLee.html#approximating-theta_t" id="toc-approximating-theta_t"><span class="toc-section-number">13.1</span> Approximating <span class="math inline">\(\theta_t\)</span></a></li>
+<li><a href="HoLee.html#term-structure-of-volaitility" id="toc-term-structure-of-volaitility"><span class="toc-section-number">13.2</span> Term Structure of Volaitility</a></li>
+<li><a href="HoLee.html#summary" id="toc-summary"><span class="toc-section-number">13.3</span> Summary</a></li>
+</ul></li>
+<li class="has-sub"><a href="theory.html#theory" id="toc-theory"><span class="toc-section-number">14</span> Theory</a>
+<ul>
+<li><a href="theory.html#doob-meyer-theorem" id="toc-doob-meyer-theorem"><span class="toc-section-number">14.1</span> Doob-Meyer Theorem</a></li>
+<li><a href="theory.html#riemann-stieltjes" id="toc-riemann-stieltjes"><span class="toc-section-number">14.2</span> Riemann-Stieltjes</a></li>
+<li class="has-sub"><a href="theory.html#Girsanov" id="toc-Girsanov"><span class="toc-section-number">14.3</span> Girsanov Theorem</a>
+<ul>
+<li><a href="theory.html#preliminary-setup" id="toc-preliminary-setup"><span class="toc-section-number">14.3.1</span> Preliminary Setup</a></li>
+<li><a href="theory.html#theorem" id="toc-theorem"><span class="toc-section-number">14.3.2</span> Theorem</a></li>
+<li><a href="theory.html#notes" id="toc-notes"><span class="toc-section-number">14.3.3</span> Notes</a></li>
+</ul></li>
+</ul></li>
+<li class="has-sub"><a href="examples-consider-moving-this-to-another-markdown-file.html#examples-consider-moving-this-to-another-markdown-file" id="toc-examples-consider-moving-this-to-another-markdown-file"><span class="toc-section-number">15</span> Examples <span style="color: red;">Consider moving this to another markdown file<span style="color: red;"></a>
+<ul>
+<li class="has-sub"><a href="examples-consider-moving-this-to-another-markdown-file.html#brownian-motion-1" id="toc-brownian-motion-1"><span class="toc-section-number">15.1</span> Brownian Motion</a>
+<ul>
+<li><a href="examples-consider-moving-this-to-another-markdown-file.html#distribution-of-w_5---w_2" id="toc-distribution-of-w_5---w_2"><span class="toc-section-number">15.1.1</span> Distribution of <span class="math inline">\(W_5 - W_2\)</span></a></li>
+<li><a href="examples-consider-moving-this-to-another-markdown-file.html#lognormal" id="toc-lognormal"><span class="toc-section-number">15.1.2</span> Lognormal</a></li>
+</ul></li>
+<li><a href="examples-consider-moving-this-to-another-markdown-file.html#forecasting" id="toc-forecasting"><span class="toc-section-number">15.2</span> Forecasting</a></li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="row">
+<div class="col-sm-12">
+<div id="black-scholes-pde-derivation" class="section level1" number="7">
+<h1><span class="header-section-number">7</span> Black-Scholes PDE Derivation</h1>
+<div id="forming-risk-free-portfolios" class="section level2" number="7.1">
+<h2><span class="header-section-number">7.1</span> Forming Risk-Free Portfolios</h2>
+<p>Suppose <span class="math inline">\(\theta_1 \&amp; \theta_2\)</span> are the quantities of the derivative
+instrument and the underlying security purchased, respective <span class="math inline">\(P_t\)</span> is
+the risk free portfolio.</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp; dS&#39;_t = a_tdt + \sigma_t dW_t \\
+&amp; dF&#39;_t = F&#39;_s a_t + 0.5F&#39;&#39;_s \sigma^2_t + F_t]dt + F&#39;_s \sigma_t dW_t
+\end{aligned}
+\]</span></p>
+<p><span class="math display">\[
+\begin{aligned}
+P_t &amp;= \theta_1 dF_t + \theta_2 dS_t \\
+&amp;= \theta_1 ([F&#39;_s a_t + 0.5F&#39;&#39;_s \sigma^2_t + F&#39;_t]dt + F&#39;_s \sigma_t dW_t) + \theta_2(a_tdt + \sigma_t dW_t)
+\end{aligned}
+\]</span></p>
+<p>By setting <span class="math inline">\(\theta_1 = 1\)</span> and <span class="math inline">\(\theta_2 = -F&#39;_s\)</span> (equivalent to delta
+hedge) Then <span class="math inline">\(dP_t = F&#39;_t dt + 0.5 F&#39;&#39;_s \sigma^2_t dt\)</span>. Because there is
+no random noise then we must have that
+<span class="math inline">\(dP_t = rP_t dt = F&#39;_t dt + 0.5 F&#39;&#39;_s \sigma^2_t dt\)</span>. (r = risk free
+rate)</p>
+<p>Note that: <span class="math inline">\(P_t = F(S_t,t) -F&#39;_sS_t\)</span></p>
+<p>Combining, we get the <strong>Black-Scholes PDE</strong></p>
+<p><span class="math display">\[
+r(F - F&#39;_sS_t)dt = F&#39;_t dt + 0.5 F&#39;&#39;_S \sigma^2_t dt \\
+\rightarrow -rF + rF&#39;_sS_t + F&#39;_t + 0.5F&#39;&#39;_s \sigma^2(t) = 0
+\]</span></p>
+<p>Note that <span class="math inline">\(\sigma_t = \sigma S_t\)</span></p>
+</div>
+<div id="pde-classification" class="section level2" number="7.2">
+<h2><span class="header-section-number">7.2</span> PDE Classification</h2>
+<p><strong>Linear and non-linear:</strong> this deals with how partial derivatives are
+aggregated</p>
+<ul>
+<li>Linear: <span class="math inline">\(F&#39;_s + 0.2F&#39;_t = 4\)</span></li>
+<li>non-linear <span class="math inline">\(F&#39;^2_s + F&#39;^3_t = 4\)</span></li>
+</ul>
+<p><strong>Order:</strong> this deals with the highest power of partial derivative
+involved</p>
+<ul>
+<li>First Order: <span class="math inline">\(F&#39;_s + 0.2 F&#39;_t = 4\)</span></li>
+<li>Second Order: <span class="math inline">\(F&#39;&#39;_s + 0.2F&#39;&#39;_t = 4, F&#39;_{st} + F_t = 1\)</span></li>
+</ul>
+<p><span class="math inline">\(a_0 + a_1F&#39;_t + a_2F&#39;_s + a_3 F&#39;&#39;_s + a_4 F&#39;&#39;_t + a_5 F&#39;_{st} = 0\)</span></p>
+<ul>
+<li>Elliptic PDE: <span class="math inline">\(a^2_5 -4a_3a_4 &lt; 0\)</span></li>
+<li>Parabolic PDE: <span class="math inline">\(a^2_5 -4a_3a_4 = 0\)</span></li>
+<li>Hyperbolic PDE: <span class="math inline">\(a^2_5 -4a_3a_4 &gt; 0\)</span></li>
+</ul>
+</div>
+<div id="black-scholes" class="section level2" number="7.3">
+<h2><span class="header-section-number">7.3</span> Black-Scholes</h2>
+<ol style="list-style-type: decimal">
+<li>Assume that <span class="math inline">\(dS_t = a(S_t,t)dt + \sigma (S_t,t)dW_t\)</span></li>
+<li>Under Black-Scholes, we assume that
+<ul>
+<li><span class="math inline">\(a(S_t,t) = \mu S_t\)</span></li>
+<li><span class="math inline">\(\sigma(S_t,t) = \sigma S_t\)</span></li>
+</ul></li>
+<li>The PDE and boundary conditions are given by:
+<ul>
+<li><span class="math inline">\(-rF + rF&#39;_s S_t + F&#39;_t + 0.5 \sigma^2 F&#39;&#39;_s s^2_t = 0\)</span></li>
+<li><span class="math inline">\(F(T) = \max(S_T-K, 0)\)</span> (Assumes we’re looking at a call option)</li>
+</ul></li>
+<li>Solution to Black-Scholes given boundary conditions.
+<ul>
+<li><span class="math inline">\(F(S_t,t) = S_t N(d_1) - Ke^{-r(T-t)}N(d_2)\)</span></li>
+<li><span class="math inline">\(d_1 = \frac{ \ln{\frac{s_t}{k}}+ (r + 0.5 \sigma^2)(T-t)}{\sigma \sqrt{T-t}}\)</span></li>
+<li><span class="math inline">\(d_2 = d_1 - \sigma \sqrt{T-t}\)</span></li>
+</ul></li>
+</ol>
+<p>Recall that <span class="math inline">\(N(d_i), i = 1,2\)</span> are the two integrals of the standard
+normal density:
+<span class="math inline">\(N(d_i) = \int_{-\infty}^{d_i} \frac{1}{\sqrt{2 \pi}} e^{-\frac{1}{2}x^2}dx\)</span>.</p>
+<p>Solutions can be verified by taking all the partial derivatives in the
+Black-Scholes PDE and show that the sum equals 0. Verify that the
+boundary conditions work.</p>
+<p><strong>Assumptions of Black-Scholes</strong></p>
+<ol style="list-style-type: decimal">
+<li>The underlying asset is a stock</li>
+<li>The stock does not pay dividends</li>
+<li>The derivative asset is a European-style call option (i.e. cannot be
+exercised before the expiration date)</li>
+<li>The risk-free rate r is constant</li>
+<li>there are no indivisibilities or transaction costs such as
+commissions and bid-ask spreads.</li>
+</ol>
+<div id="geometric-look-at-black-scholes" class="section level3" number="7.3.1">
+<h3><span class="header-section-number">7.3.1</span> Geometric Look at Black-Scholes</h3>
+<ul>
+<li>Fix r, K, <span class="math inline">\(\sigma\)</span> and T. Assume no dividends</li>
+<li>A call price surface will be defined as a three-dimensional graph
+<span class="math inline">\(C_t = F(S_t, T-t)\)</span> where the value of the call is determined by
+varying the strike and time to expiration.</li>
+</ul>
+</div>
+<div id="partial-integro-differential-equations-pide" class="section level3" number="7.3.2">
+<h3><span class="header-section-number">7.3.2</span> Partial-Integro Differential Equations (PIDE)</h3>
+<p><span style="color: red;">I don’t believe the exam will test extensively
+on PIDE’s. Hopefully just knowing what they are is enough and we won’t
+have to use them. I have no idea where the (r-q) term comes from in the
+equation below either.<span style="color: red;"></p>
+<p>Consider the Black-Scholes PDE:</p>
+<p><span class="math display">\[
+\frac{\partial F}{\partial t} + \underbrace{\frac{\sigma^2 S^2}{2}\frac{\partial^2F}{\partial S^2}}_{\text{Diffusion Term}} + (r-q)S \frac{\partial F}{\partial S} = rF(S,t)
+\]</span></p>
+<p>Pricing European options under the variance-gamma model involves first
+conditioning on the random-time g and then simplifying using a
+Black-Scholes type formula to solve for the conditional option value.</p>
+<p>The levy measure for the variance gamma process given by:
+<span class="math display">\[
+\begin{matrix}
+\underbrace{dv(y)}_{\text{levy measure under Q}} = k(y)dy &amp; \text{Define } k(y) &amp;
+\begin{cases}
+\text{if } y&gt; 0 ,  k(y) = \frac{e^{-\lambda_p} \rho^y}{vy^{1+Y}} \\
+\text{if } y&lt; 0 ,  k(y) = \frac{e^{-\lambda_n} \rho^y}{v|y|^{1+Y}} \\
+\lambda_p = \sqrt{\frac{\theta^2}{\sigma^4} + \frac{2}{\sigma^2 v}} - \frac{\theta}{\sigma^2} \\
+\lambda_n = \sqrt{\frac{\theta^2}{\sigma^4} + \frac{2}{\sigma^2 v}} + \frac{\theta}{\sigma^2}
+\end{cases}
+\end{matrix}
+\]</span></p>
+<p>Behavior of Jumps Given Y.</p>
+<table>
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Threshold</th>
+<th align="left">Behavior Below</th>
+<th align="left">Behavior Above</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Y = 1</td>
+<td align="left">Finite Variation</td>
+<td align="left">Infinite Variation</td>
+</tr>
+<tr class="even">
+<td align="left">Y = 0</td>
+<td align="left">Finite Arrival Rate</td>
+<td align="left">Infinite Arrival Rate</td>
+</tr>
+<tr class="odd">
+<td align="left">Y = -1</td>
+<td align="left">Activity concentrated away from 0</td>
+<td align="left">Activity concentrated towards 0</td>
+</tr>
+</tbody>
+</table>
+<p>The PIDE for Variance Gamma is:</p>
+<p><span class="math display">\[
+\int_{-\infty}^\infty [F(S_{t-} e^y, t) - F(S_{t-},t) - \frac{\partial V(S_{t-, t})}{\partial S} S_t (e^y - 1)]k(y) dy+ \frac{\partial V (S_t,t)}{\partial t} + (r-q) S_t \frac{\partial V (S_t,t)}{\partial S} - rF(S_t,t) = 0
+\]</span></p>
+<p>The first term of the PIDE is the complications due to the stochastic
+time component. Back terms are similar to Black-Scholes. We can think of
+<span class="math inline">\(k(y)\)</span> as the function that gives the behavior of the jumps as
+illustrated in the table. Rewriting Black-Scholes as a PIDE (steps
+involved here are tedious but involves substituting the second
+derivative of F and S using chain rule, substituting <span class="math inline">\(\sigma^2\)</span> with the
+levy density, applying an Taylor Expansion, dropping off 3rd order terms
+from expansion, and simplifying):</p>
+<p><span class="math display">\[
+\underbrace{\int_{|y|\leq \epsilon} F(Se^y, t) - F(S_{t},t) - (e^y - 1)\frac{\partial F(S, t)}{\partial S} ]k(y) dy}_{\text{diffusion term}} + \frac{\partial F}{\partial t} + (r-q) S \frac{\partial F}{\partial S}= rF(S_t,t)
+\]</span></p>
+<ol style="list-style-type: decimal">
+<li>The diffisuion term is replaced by an integral in a narrow range</li>
+<li>The PIDE is better for fitting smiles (related to implied vol which
+is expected to be constant under the regular Black-Scholes PDE. PIDE’s
+allow the integral part of the diff eq. to add additional complexity in
+the volatility component):</li>
+</ol>
+</div>
+<div id="complications-of-black-scholes" class="section level3" number="7.3.3">
+<h3><span class="header-section-number">7.3.3</span> Complications of Black-Scholes</h3>
+<ol style="list-style-type: decimal">
+<li>Has to meet the assumptions discussed previously. No early-exercise possibility, and also the risk free interest rate is assumed to be constant.</li>
+<li>Many interest sensitive securities have early exercise provisions</li>
+<li>Assets with term structures or random expiration dates (such as with American Options or Barrier Derivatives)</li>
+<li>Bonds converge in price to the face value as time approaches expiration, so the assumption of constant volatility is unrealistic.</li>
+<li>Mark-to-market securities will also introduce complications since these cash flows will be discounted by stochastic discount factors.</li>
+<li>Additional modifications necessary for bonds that pay coupons.</li>
+<li>Girsanov correspondence is not obvious.</li>
+<li>Does not take into account multiple underlying assets.</li>
+</ol>
+</div>
+</div>
+</div>
+<p style="text-align: center;">
+<a href="stochastic-calculus.html"><button class="btn btn-default">Previous</button></a>
+<a href="equivalent-martingale-measures.html"><button class="btn btn-default">Next</button></a>
+</p>
+</div>
+</div>
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+# A Note About Notations
+
+<span style="display: none;">
+$$
+\newcommand{\Lagr}{\mathcal{L}}
+\newcommand{\bP}{\mathbb{P}}
+\newcommand{\bR}{\mathbb{R}}
+\newcommand{\bQ}{\mathbb{Q}}
+\newcommand{\bE}{\mathbb{E}}
+\Lagr \bP \bR \bQ \bE 
+$$ 
+<span style="display: none;">
+
+
+<span style="color: red;">Consider moving this as a
+footnote<span style="color: red;">
+
+In the book:
+
+-   $dF_t$ represents the total change in the derivative price
+    $F(S_t, t)$.
+-   $F_t$ represents the partial derivative of $F(S_t, t)$ with respect
+    to t.
+-   In the notes, I attempt to make things more clear by denoting the
+    the first order derivative with respect to t written as $F'_t$ and
+    second order as $F''_t$
+    
+-   $B(t,T)$: price at time t<T of a discount bond maturing at time T
+-   $r-t$: instantaneous spot rate on riskless borrowing
+-   $R(t,T)$: yield of the discount bond $B(t,T)$
+-   $F(t,T,U)$: forward rate at time t over the period T to U
+-   $F(t,s)$: instantaneous forward rate contracted at time t over the interval s to s+ds
+-   $(t-T)$: Often times represents the time to maturity and in some forumalas substituted to be $\tau$
+

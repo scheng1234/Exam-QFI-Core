@@ -1,0 +1,141 @@
+# Theory
+
+## Doob-Meyer Theorem
+
+Suppose that $X_t , 0 \leq t \leq \infty$, is a right-continuous
+submartingale w.r.t the family $\lbrace I_t \rbrace$ and
+$E(X_t) < \infty$ for all t. Then $X_t$ admits the decomposition
+$X_t = \mu_t + A_t$ where:
+
+-   $\mu_t$ is a right-continuous martingale w.r.t P
+-   $A_t$ is an increasing process measurable w.r.t $I_t$
+
+## Riemann-Stieltjes
+
+A generalization of the Riemann integral that can be denoted as:
+
+$$
+\int_{x=a}^b f(x)dg(x)
+$$
+
+Using a sequence of partitions $P = {a = x_0 < x_1 < \dots < x_n = b}$
+we can approximate the integral to be the sum:
+
+$$
+S(P,f,g) = \sum^{n-1}_{i=0} f(c_i)[g(x_{i+1}) - g(x_i)]
+$$
+
+## Girsanov Theorem {#Girsanov}
+
+### Preliminary Setup
+
+Define a random process and impose a cndontion in $X_t$ where it cannot
+vary "too much"
+
+$$
+\begin{matrix}
+\xi_t = e^{\int_0^tX_udW_u - \frac{1}{2} \int_0^t X^2_udu} & t \in [0,\infty) \\
+E[e^{\int_0^t X^2_udu}] < \infty  & t \in [0,\infty)
+\end{matrix}
+$$
+
+Using Ito's Lemma, we can calculate
+
+$$
+d\xi_t = [e^{\int_0^tX_udW_u - \frac{1}{2} \int_0^t X^2_udu}][X_tdW_t] \rightarrow d\xi_t = \xi_tX_t dW_t
+$$
+
+By setting t = 0 we see $\xi_0 = 1$. Thus by taking the stochastic
+integral of the above becomes:
+
+$$
+\xi_t = 1 + \int_0^t \xi_sX_sdW_s
+$$
+
+$\int_0^t \xi_sX_sdW_s$ is a stochastic integral with respect to a
+Wiener process and is $I_t$ adapted and does not move rapidly. Implying
+that this integral is a square integrable martingale.
+
+### Theorem
+
+If the process $\xi_t$ defined by
+$\xi_t = e^{(\int_0^t X_u dW_u - \frac{1}{2}\int_0^t X^2_u du)}$ is a
+martingale with respect to information sets $I_t$, and the probability
+$\bP$, then $W^{*}_t$ , defined by
+
+$$
+W^{*}_t = W_t - \int_0^t X_u dW_u \quad t \in [0, \infty)
+$$
+
+is a Wiener process with respect to $I_t$ and with respect to the
+probability measure $\bQ$ given by
+
+$$
+\bQ(A) = E^\bP(1_A\xi_T)
+$$
+
+with A being an event determined by $I_T$ and $1_A$ being the indicator
+function of the event.
+
+All this to say that basically multiplying a Wiener process with a
+probability distribution $\xi_t$ gives us a new Wiener process. The two
+processes are related through:
+
+$$
+dW^*_t = dW_t - X_tdt
+$$
+
+### Notes
+
+-   $W_t$ has zero drift under $\bP$
+-   $W^*_t$ has zero drift under $\bQ$
+-   The definition $\bQ(A)$ is used so that for infinitesimal intervals,
+    $d\bQ = \xi d \bP$
+-   $\bQ(A) - E^P(1_A\xi_T) = \int 1_A \xi_T d\bP = \int_A \xi_T d\bP \rightarrow d\bQ = \xi d \bP$
+-   TO remove drift, subracting the mean is usually not plausible since
+    the risk premium may not be known. Sometimes switching to a
+    risk-neutral setting is simpler. This is where the Girsanov Theorem
+    can become a huge benefit.
+
+# Examples <span style="color: red;">Consider moving this to another markdown file<span style="color: red;">
+
+## Brownian Motion
+
+$$
+\Delta X_t \sim N(\mu\Delta, \sigma^2\Delta) \\
+X_t \text{ is not a martingale because }E_t[X_t] = X_t \mu(T-t) \\
+Z_t = X_t - \mu t \text{ is a martingale} \Rightarrow E_t[Z_{t+T} = Z_t]
+$$
+
+### Distribution of $W_5 - W_2$
+
+$W_5 - W_2 \sim N(\mu = 0, \sigma^2 = 3)$
+
+### Lognormal
+
+Let $Y(t) = e^{cW(t)}$
+
+Find $E[Y(t)]$
+
+Note $cW(t) \sim N(c^2,t)$
+
+Thus, $E_0[Y(t)] = \exp\left(\frac{c^2 t}{2}\right)$
+
+## Forecasting
+
+-   $\mu_t$ is the forecast of some random variable $Y_t$ for $t \leq T$
+-   The information set grows over time so that
+    $I_t \subseteq I_{t+1} \subseteq \dots \subseteq I_T$
+-   $\mu_t = E^P[Y_T | I_t]$ is the forecast $\mu_t$ of the random
+    variable $Y_T$ given the information set $I_t$
+-   Let the sequence of forecasts $\mu_t$ w.r.t probability distribution
+    P and information sets $I_t$ be a martingale. Then:
+
+$$
+E^P[\mu_{t+s} | I_t] = \mu_t \rightarrow \underbrace{E^P[E^P[Y_T | I_{t+s}]|I_t]}_{\text{Tower Property}} = E^P[Y_T | I_t] = \mu_t
+$$
+
+The eq. above states that the best forecast of a future forecast is what
+we forecast now since that is all the info we have.
+
+<span style="color: red;"><span style="color: red;">
