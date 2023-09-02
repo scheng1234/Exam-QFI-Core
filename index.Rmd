@@ -25,6 +25,7 @@ classoption:
 knitr::opts_chunk$set(echo = TRUE)
 library("kableExtra")
 library("tidyverse")
+library("bookdown")
   
 ```
 

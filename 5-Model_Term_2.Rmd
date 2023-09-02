@@ -1,0 +1,782 @@
+# More Black Scholes {#BSCaplet}
+
+Caplets can be priced as the risk-neutral expected present-value of the cashflow:
+
+$$
+\text{Caplet}(0; T_{i+1}) = E_f^*[e^{-\int_0^{T_{i+1}}r_sds}CF(T_{i+1})]
+$$
+
+Thus the Black Scholes Formula is:
+
+$$
+\text{Caplet}(0; T_{i+1}) = N \times \Delta \times Z(0,T_{i+1})[f_n(0, T_i, T_{i+1})N(d_1) - r_kN(d_2)] \\
+d_1 = \frac{1}{\sigma_f\sqrt{T_i}}\ln\left(\frac{f_n(0,T_i,T_{i+1})}{r_k}\right) + \frac{1}{2} \sigma_f \sqrt{T_i} \\
+d_2 = d_1 - \sigma_f \sqrt{T_i}
+$$
+
+$\sigma_f$ is the volatility of the forward rate $f_n(0,T_i,T_{i+1})$. The value of the Cap is the sum of the prices of each caplet.
+
+**Flat volatility**: The quoted volatility of$\sigma_f(T)$ that must be inserted in the Black Scholes formula for every caplet inside the cap in order to obtain the market cap price.
+
+ - The same caplet can have a different volatility depending on which cap it is a part of
+ - This is not theoretically inconsistent, however, since flat volatilities are simply a quoting convention that traders adopt to exchange caps and floors
+ 
+**Forward volatility**: The volatility $\sigma_f^{Fwd}(T)$ of a caplet with maturity T and strike rate $r_K$ that characterizes that particular caplet.
+
+ - This volatility is not dependent on which cap the caplet belongs to, and reflects no-arbitrage.
+ 
+Note that the sum of caplets using the flat volatilty must equal the sum of caplets using the forward volatility. Thus the forward volatilities can be extracted from the flat volatilities. The general steps are:
+ 
+ 1. Use he quoted flat volatilities to obtain cap prices for all maturities.
+ 2. Since the shorter cap only consists of one caplet, the forward volatility is equal to the flat volatility
+ 3. for i=2,...,n:
+    + Use the previously exctracted forward volatility to compute the corresponding caplet prices.
+    + The dollar value of the remaining caplet that matures at $T_i$ is: $T_i \text{caplet} = Cap(T_i) - \sum_{j=1}^{i-1} Caplet(T_j, r_{K,i}, \sigma_f^{fwd}(T_j)$
+    + Invert the Black_Scholes formula using the price of the $T_i$-caplet to solve for the forward volatility
+    
+The following is the premise by which the forward volatility can be derived from the flat volatility through the iterative process
+
+$$
+Cap(T_i) = \sum_{j=1}^i Caplet(T_j, r_{K,i}, \sigma_f(T_i)) = \sum_{j=1}^i Caplet(T_j, r_{K,i}, \sigma_f^{fwd}(T_j))
+$$
+ - $\sigma_f(T_i)$ is the flat volatility, which is the same across all the caplets
+ - $\sigma_f^{fwd}(T_j)$ is the forward volatility (from no arbitrage) which is different across caplets
+ 
+ # Swaptions
+ 
+ $$
+ \text{Payoff receiver swaption} = N \times \Delta \times \left[\sum_{i=1}^nZ(T_O;T_i)\right] \times \max(r_K - c(T_O;T_S),0) \\
+ \text{Payoff payer swaption} = N \times \Delta \times \left[\sum_{i=1}^nZ(T_O;T_i)\right] \times \max(c(T_O;T_S) -r_K,0)
+ $$
+ 
+  - $T_S$: the maturity date of the swap underlying the option
+  - $T_O - T_S$: the tenor of the underlying swap
+  - $c(T_O; T_S)$: the value of the swap rate at expiration of the swaption
+  - $T_i$'s for i=1,...,n are the payment dates of the underlying swap
+  - $\sum_{i=1}^nZ(T_O;T_i)$ can be thought of as discounting each of the swap payments
+  
+Let $f_n^s(t, T_O; T_S)$ denote the forward swap rate. The value of the receiver swaption under BS is:
+
+$$
+V(0,T_O;T_S) = N \times \Delta \times \sum_{i=1}^nZ(T_O;T_i) \times [r_K N(-d_2) - f_n^s (0,T_O;T_S)N(-d_1)] \\
+d_1 = \frac{1}{\sigma_f^s \sqrt{T_O}} \ln \left(\frac{f_n^s (0,T_O;T_S)}{r_K}\right) + \frac{1}{2}\sigma_f^s \sqrt{T_O} \\
+d_2 = d_1 - \sigma_f^s \sqrt{T_O}
+$$
+ 
+ 
+# Forward Risk Neutral Pricing
+
+## Numeraire
+
+Let V(r,t;T) be the price of a security at time t:
+
+ - The security's payoff at T is given by $g_T$
+ - Typically, one would price this security under the risk-neutral measure $V(r,t;T) = E^*[e^{-\int_t^T r_s ds}g_T]$
+ 
+When $r_s$ is stochastic and the payoff $g_T$ depends on $r_s$, this expectation is more complex because it involves modeling the correlation between $g_T$ and $e^{-\int_t^T r_s ds}$. So we express V(r,t;T) in terms of a numeraire, and then calculate the value of the normalized security value under the probability measure induced by the numeraire.
+
+1. Let P(r,t) be the numeraire that will be used for the price of the normalized security: $\tilde{V}(r,t;T) = \frac{V(r,t;T)}{P(r,t)}$. This equation satisifies the Fundamental Pricing Equation given by:
+
+$$
+0 = \frac{\partial \tilde{V}}{\partial t} + \frac{\partial \tilde{V}}{\partial r}(m^*(r,t) + \sigma_P (r,t)s(r,t)) + \frac{1}{2}\frac{\partial^2 \tilde{V}}{\partial r^2}s(r,t)^2 \\
+\sigma_P(r,t) = \frac{\partial P}{P\partial r}S(r,t)
+$$
+ 
+The final condition of the partial differential equation is $\tilde{V}(r,t;T) = \frac{g_T}{P(r,T)}$
+
+2. The Feynmac-Kac theorem implies that the value $\tilde{V}(r,t;T)$ is given by $\tilde{V}(r,t;T) = E^*\left[\frac{g_T}{p(r,T)}\right]$
+    + The expectation is taken under teh probability measure induced by the numeraire P(r,t), which results in the interest rate process given by:
+    
+    $$
+    dr_t = (m^*(r,t) + \sigma_P(r,t)s(r,t))dt + s(r,t)dX_t
+    $$
+ 
+ 
+ 3. Since $\tilde{V}(r,t:T) = \frac{V(r,t;T)}{P(r,t)}$, solving for V(r,t;T) results in
+ 
+ $$
+ V(r,t;T) = P(r,t)E^*_f\left[\frac{g_T}{p(r,T)}\right]
+ $$
+
+4. The stochastic dynamics for V(r,t;T) under the probability measure induced by numeraire P9r,t) is:
+
+$$
+dV = (r + \sigma_P \sigma_V)dt + \sigma_V VdX_t
+$$
+
+ - $\sigma_V = \frac{1}{V}\frac{\partial V}{\partial r}s(r,t)$ is the volatility of $\frac{dV}{V}$
+ 
+ **Forward Risk Neutral Measure**
+ 
+ A popular numeraire is Z(r,t;T), the zero-coupon bond price with maturity T
+ 
+  - The probability measure induced by this numeraire is the T-forward, or T-forward risk neutral measure
+  - Since Z(r,T;T) = , the value of the security V(r,t;T) from the previous slides using Z(r,t;T) as the numeraire is $V(r,t;T) = Z(r,t;T)E^*_f[g_T]$
+
+Consider a forward contract that delivers at T an interset rate security with payoff $g_T$. Under the T-forward dynamics, the forward price F(t,T) is lognormally distributed and is a martingale: $F(t,T) = E^*_f[F(T,T)] = E^*_f[g_T]$ and $dF(t,T) = \sigma_{F,t}F(t,T)dX_t$
+ 
+If $g_T$ is lognormally distributed under the T-forward risk neutral dynamics: $ln(g_T) \sim N(\mu_T, \sigma^2_T)$. It follows that:
+
+$$
+E_f^*[\max(g_T -K,0)] = F(0,T) N(d_1)- KN(d_2) \\
+d_1 = \frac{1}{\sigma_T}\ln\left(\frac{F(0,T)}{K}\right) + \frac{1}{2}\sigma_T \\
+d_2 = d_1 - \sigma_T
+$$
+ 
+ - The Value of a call option with  payoff $g_T$ and strike K that expires at T is:
+ 
+$$
+Call = Z(0,T) \times [F(0,T)N(d_1) - KN(d_2)]
+$$
+
+## LIBOR Market Model
+ 
+Consider a forward contract on the n-times compounded LIBOR, $r_n(\tau, T)$, with delivery rate K
+
+$$
+\text{Payoff at maturity T} = N\Delta(r_n(\tau,T) -K)
+$$
+ 
+  - $\tau = T-\Delta$ is the reset date of the LIBOR rate that determines the payoff
+  
+The Value of the forward contract at t=0 under the T-forward probability measure is:
+
+$$
+V^{fwd}(0;T) = Z(0,T)N\Delta E_f^*[r_n(\tau,T)-K]
+$$
+ 
+The forward rate today, $f_n(0,\tau,T)$, is the delivery rate K that makes this contracts value equal to 0: $f_n(0,\tau,T) = E^*_f[r_n(\tau,T)]$
+
+The **LIBOR market model** assumes the forward rate is a martingale and follwos a lognormal diffusion process under the T-forward risk neutral dynamics (zcb expiring big T, at the numeraire, generating the probability measure) given by:
+
+$$
+df_n(t,\tau, T) = f_n(t,\tau, T)\sigma_f(t)dX_t
+$$
+ 
+The volatility term $\sigma_f(t)$ is a deterministic function that will be calibrated from market data. The distribution of the LIBOR spot rate is:
+
+$$
+r_n(\tau,T) \sim LogN(f_n(0,\tau,T), \int_0^\tau \sigma_f(t)^2)
+$$
+ 
+Consider the [Cap Payoff](#CapPayoff) equation. To price the caplet with reference rate $r_n(T_i, T_{i+1})$ and paying at $T_{i+1}$, apply the numeraire $P(r,t) = Z(t,T_{i+1})$:
+
+$$
+Caplet(0;T_{i+1}) = Z(0, T_{i+1}) \times N \times \Delta \times E^*_f [\max(r_n(T_i,T_{i+1})-r_K, 0)]
+$$
+
+
+* The expectation is with respect to the $T_{i+1}$-forward dynamics induced by the numeraire $Z(t,T_{i+1})$!
+
+If we assume the volatility is constant $\sigma_f(t) =\sigma_f$.
+
+ - Under the $T_{i+1}$-forward dynamics, the LIBOR rate $r_n(T_i,T_{i+1})= f_n(T_i, T_i, T_{i+1})$ has a lognormal distribution with mean $f_n(0, T_i, T_{i+1})$ and variance $\sigma_f^2T_i$.
+ - Since the caplet is an option-like payoff on the underlying $r_n(T_i, T_{i+1})$, the price is given by [Black Scholes](#BSCaplet)
+
+The LIBOR market model also provides a theoretical basis for the Black formula for caps and floors
+
+ - Market quoted volatilities from caps and floors are used to calibrate the volatility of forwards rates
+ - With a calibrated volatility function, we can use the LMM dynamics to price more complicated interest rate securities that depend on a specific LIBOR rate, often using monte carlo simulations.
+
+A zero-coupon bond price can depend on many underlying forward rates. 
+
+$$
+Z(T_i, T_{i+m}) = \frac{1}{1+r_n(T_i, T_{i+1})\Delta}\times\frac{1}{1+f_n(T_i, T_{i+1}, T_{i+2})\Delta}\dots\times\frac{1}{1+f_n(T_i, T_{i+m-1}, T_{i+m})\Delta}
+$$
+ 
+ Under a common $\bar{T}$-forward measure, where $\bar{i}$ is the index such that $T_{\bar{i}} = \bar{T}$:
+ 
+$$
+\begin{matrix}
+ \frac{df_n(t, T_{i}, T_{i+1})}{f_n(t, T_{i}, T_{i+1})} = \sigma_f^{i+1}(t)\left(\sum_{j=\bar{i}}^i\frac{\Delta f_n(t, T_{j}, T_{j+1})\sigma_f^{j+1}(t)}{1+\Delta f_n(t, T_{j}, T_{j+1})}\right)dt + \sigma_f^{i+1}(t)dX_t & \text{for }\bar{T} < T_{i+1} \\
+  \frac{df_n(t, T_{i}, T_{i+1})}{f_n(t, T_{i}, T_{i+1})} = -\sigma_f^{i+1}(t)\left(\sum_{j=\bar{i}}^i\frac{\Delta f_n(t, T_{j}, T_{j+1})\sigma_f^{j+1}(t)}{1+\Delta f_n(t, T_{j}, T_{j+1})}\right)dt + \sigma_f^{i+1}(t)dX_t & \text{for }\bar{T} > T_{i+1}
+\end{matrix}
+$$
+ 
+### Calibrating Volatility of Forward Rates
+
+Standard alternate assumptions about $\sigma_f^{i+1}(t)$:
+
+ - The volatility of the forward rates only depend on the time to maturity: $\sigma_f^{i+1}(t)= S(T_{i+1} - t)$ for some function S.
+ - The function S is constant on each expiry period of the cap (i.e. $(t,T_1), (T_1,T_2), \dots, (T_{i-1}, T_i)$ )
+ 
+These assumptions imply that the distribution of the LIBOR rate $r_n(T_i, T_{i+1}) = f_n(T_i, T_i, T_{i+1})$ has variance
+
+$$
+Var(r_n(T_i, T_{i+1}))=S_i^2(T_i - t) + S_{i-1}i^2 \Delta + \dots + S_1^2 \Delta
+$$
+ 
+#### Bootstrap Procedure
+
+Given the market volatility of the caplets obtained from the Black model, impose the following condition for each caplet:
+
+$$
+Var(r_n(T_i, T_{i+1}))_\text{Black Scholes} = Var(r_n(T_i, T_{i+1}))_\text{implied}
+$$
+
+1. Start with initial condition: $S_1 = \sigma_f^{fwd}(0.25)$
+2. Other S's can be solved for using the market volatilities provided at later tenors in the recursive formula:
+
+$$
+S_i = \sqrt{\frac{1}{\Delta}\left( \sigma_f^{fwd}(T_{i+1})\times T_i - \sum_{j=1} ^{i-1}S^2_j\times \Delta   \right)}
+$$
+ 
+**Drawbacks**
+
+ - May not be able to fit term structures of forward volatilities if they are decreasing very rapidly over time.
+
+## Log-Normal Swaption Model
+
+$$
+\text{Payoff Swaption} = N\Delta \sum_{i=1}^n Z(T_O;T_i)\max(r_K - c(T_O; T_s),0)
+$$
+
+  - $r_K$ is the strike rate of the swaptoin
+  - $c(T_O; T_S)$ is the swap rate associated with the tenor of the swap, $T_s$, that is observed when the swaption expires at $T_O$.
+  - The $T_i$'s for i=1,...,n  are the payment dates of the underlying swap
+  - $Z(T_O;T_i)$: zero-coupon bond factors discounting payments at $T_i$ back to $T_O$
+  
+We can derive the Black formula for swaptions by applying a *Change of Numeraire* to obtain the *log-normal swap market (LSM) model*
+
+1. Re-express the swap payoff in terms of the numeraire given by:
+
+$$
+P(t) = \sum_{i=1}^n Z(t;T_i)
+$$
+  
+The normalized payoff at $T_O$ then:
+
+$$
+\begin{aligned}
+T_O &= \frac{N\Delta \sum_{i=1}^n Z(T_O;T_i)\max(r_K - c(T_O; T_s),0)}{P(T_O)} \\
+ &= N \Delta \max(r_K - c(T_O; T_s),0)
+\end{aligned}
+$$
+ 
+2. Let $f_n^s(t, T_O; T_S)$ denote the forward swap rate that underlies a forward swap contract.
+
+ - The forward swap rate is the delivery rate K that makes the value of the forward swap contract equal 0
+ - $c(T_O; T_s)$ is a martingale under the probability measure implied by the numeraire $P(t) = \sum_{i=1}^n Z(t;T_i)$
+ - As a result, the forward swap rate is given by: $f_n^s(t, T_O; T_S) = E^*_f [c(T_O; T_s)]$
+ 
+3. Under the P(t)-forward risk neutral dynamics, assume that the forward swap rate has log-normal dynamics given by:
+
+$$
+\frac{df_n^s(t, T_O; T_S)}{f_n^s(t, T_O; T_S)} = \sigma_f^s  dX_t
+$$
+
+4. Value of the receiver swaption given by Black Scholes:
+
+$$
+V(0, T_O; T_S) = N \Delta \sum_{i=1}^n Z(T_O;T_i) [r_K N(-d_2) -f_n^s(t, T_O; T_S)N(-d_1)] \\
+d_1 = \frac{1}{\sigma_f^s \sqrt{T_O}}\ln\left(\frac{f_n^s(t, T_O; T_S)}{r_K}\right)+ \frac{1}{2}\sigma_f^s \sqrt{T_O} \\
+d_2 = d_1 - \sigma_f^s \sqrt{T_O}
+$$
+
+## Heath-Jarrow-Morton (HJM)
+
+Suppose that a zero-coupon bond follows the risk-neutral process given by:
+
+$$
+\frac{dZ(t,T)}{Z(t,T)} = r_t dt+ \sigma_z(t,T)dX_t
+$$
+
+Applying Ito's lemma: $\left(r_t - \frac{\sigma_z(t,T)^2}{2}\right)dt + \sigma_z(t,T)dX_t $
+
+The continuously compounded forward rate $f(t,T, T+ \tau)$:
+
+$$
+f(t,T, T+ \tau) = \frac{\ln(Z(t,T))- \ln(Z(t,T+\tau))}{\tau }
+$$
+
+Plugging in for dynamics $d\ln(Z(t,T))$ and $d\ln(Z(t,T+\tau))$ to obtain the stochastic dynamics for $f(t,T, T+\tau)$
+
+$$
+\begin{aligned}
+df(t,T, T+\tau) &= \frac{d\ln(Z(t,T))- d\ln(Z(t,T+\tau))}{\tau } \\
+&= \frac{\sigma_Z(t,T+\tau)^2 - \sigma_Z(t,T)^2}{2\tau}dt + \frac{\sigma_Z(t,T)^2 - \sigma_Z(t,T+\tau)^2}{\tau}dX_t
+\end{aligned}
+$$
+
+The key result of HJM is that the volatility term of the bond determines the risk neutral process for all forward rates. By letting $\tau \rightarrow 0 $, we get the instantaneous forward rate as:
+
+$$
+df(t,T) = \left(\sigma_Z(t,T)\frac{\partial\sigma_z(t,T)}{\partial T}\right)dt - \frac{\partial\sigma_z(t,T)}{\partial T} dX_t
+$$
+
+By letting $\sigma_f(t,T) = -\frac{\partial \sigma_Z(t,T)}{\partial T}$ and re-writing the drift of df(t,T) in terms of an integral. we can rewrite the instantaneous forward rate as:
+
+$$
+df(t,T) = m(t,T)dt + \sigma_f(t,T)dX_t \\
+m(t,T) = \sigma_f(t,T) \int_t^T \sigma_f(t,\tau)d_\tau
+$$
+
+The instantaneous forward rate and change of the forward rate can then be applied to the volatility of other models. For example, applying it to the Ho-Lee should return the appropriate volatility of the instantaneous forward rate and risk-neutral drift terms.
+
+### Convexity Adjustment
+
+Consider a futures contract with maturity $\tau$ on the floating rate $r(\tau, T)$
+
+ - Since it costs nothing to enter into a futures position, the risk-neutral process of the futures must be driftless, so it is a martingale. $f^{fut}(0,\tau,T) = E^*[f^{fut}(\tau,\tau, T)] = E^*[r(\tau,T)]$
+ - The last equality comes from the futures converging to the underlying $r(\tau,T)$ at maturity.
+ 
+Taking the continuously compounded forward rate, $df(t,\tau, T)$, derived under HJM and integrating it, we get
+
+$$
+f(\tau,\tau,T) - f(0,\tau,T) = \int_0^\tau \frac{\sigma_Z(t,T)^2 - \sigma_Z(t,\tau)^2}{2(T-\tau)}dt + \int_0^\tau \frac{\sigma_Z(t,\tau)^2 - \sigma_Z(t,T)^2}{T-\tau}dX_t
+$$
+
+Take the risk-neutral expectations of both sides, and note that $f(\tau,\tau, T) = r(\tau,T)$
+
+$$
+E^*[r(\tau,T)] = f(0,\tau,T) + \int_0^\tau \frac{\sigma_Z(t,T)^2 - \sigma_Z(t,\tau)^2}{2(T-\tau)}dt
+$$
+
+Plugging in $f^{fut}(0,\tau,T) = E^*[r(\tau,T)]$, we get:
+
+$$
+ f(0,\tau,T) = f^{fut}(0,\tau,T)  - \underbrace{\int_0^\tau \frac{\sigma_Z(t,T)^2 - \sigma_Z(t,\tau)^2}{2(T-\tau)}dt}_\text{convexity adjustment}
+$$
+
+**The convexity adjustment** is used to switch between the forward rate and the futures rate. Under the Ho-Lee model, the the derivation for the convexity adjustment gives us: $\frac{1}{2}\sigma^2\tau T$
+
+### Floating Rate Payments - "In Arrears"
+
+Pricing becomes more complicated when both the fixing of the reference rate and payoff of the security occur at time $\tau$ (i.e. "in-arrears")
+
+Consider a linear payoff:
+
+$$
+g_\tau = G(r_n(\tau,T)) = N\Delta (r_n(\tau,T)-r_K)
+$$
+Two approaches for applying a Change-of-Numeraire
+
+ 1) Using numeraire $Z(t,T)$ (Exact Value)
+    +   Apply the Change-of Numeriare on the payoff $V= Z(0,T)E^*_f\left[\frac{N\Delta (r_n(\tau,T)-r_K)}{Z(\tau,T)}\right]$
+    +   Plug in for $Z(\tau,T) = 1/(1+r_n(\tau,T)\Delta)$ and the fact that $E^*_f[r_n(\tau,T)]$
+    +
+$$
+\begin{aligned}
+V &= Z(0,T) N\Delta E^*_F[(r_n(\tau,T)-r_K)(1-r_n(\tau,T)\Delta)] \\
+&= Z(0,T) N\Delta\left(f_N(0,\tau,T) - r_K - f_n(0,\tau,T)r_K\Delta + E^*_f[r_n(\tau,T)^2]\Delta\right)
+\end{aligned}
+$$
+    +   Under the LMM, the quantity $E^*_f[r_n(\tau,T)^2] = f_n(0,\tau,T)^2 e^{\sigma_f(T)^2\times\tau}$
+
+ 2) Using numeraire $Z(t,\tau)$ (Approximate Value)
+    + $V=Z(0,\tau)N\Delta (E^{*\tau}_f[r_n(\tau,T)] - r_K)$
+    + **Problem:** $r_n(\tau,T)$ is not a martingale under the $\tau$-forward dynamics: $E^{*\tau}_f[r_n(\tau,T)] \neq f_n(0,\tau,T)$
+    + **Solution:** Approximate $E^{*\tau}_f[r_n(\tau,T)]$ by applying a convexity adjustment to $f_n(0,\tau,T)$
+
+Let G(x) be a function such that $G(x) = 1/(1+x\Delta)$. It follows that:
+
+$$
+Z(\tau,T) = G(r_n(\tau,T)) \\
+F(0,\tau,T) = G(f_n(0,\tau,T))
+$$
+
+Apply a Taylor Expansion of $G(r_n(\tau,T))$ around $f_n(0,\tau,T)$.
+
+$$
+G(r_n(\tau,T)) \approx G(f_n(0,\tau,T)) + G'(f_n(0,\tau,T))(r_n(\tau,T) - f_n(0,\tau,T)) + \frac{1}{2}G''(f_n(0,\tau,T))(r_n(\tau,T) - f_n(0,\tau,T))^2 
+$$
+
+Taking the expectations of both sides noting that $G(f_n(0,\tau,T) = F(0,\tau,T) = E^{*\tau}_f[Z(\tau,T)] = E^{*\tau}_f[G(r_n(\tau,T))]$:
+
+$$
+E^{*\tau}_f[G(r_n(\tau,T))] \approx G(f_n(0,\tau,T)) + G'(f_n(0,\tau,T))E^{*\tau}_f[(r_n(\tau,T)] - f_n(0,\tau,T)) + \frac{1}{2}G''(f_n(0,\tau,T))E^{*\tau}_f[(r_n(\tau,T) - f_n(0,\tau,T))^2] 
+$$
+ 
+It follows that the first term will cancel out so that we can solve for $E^{*\tau}_f[r_n(\tau,T)]$ using the fact that $ E^{*\tau}_f \left[\left(\frac{r_n(\tau,T) - f_n(0,\tau,T)}{f_n(0,\tau,T)}\right)^2 \right] \approx \sigma^2_f \tau$:
+
+$$
+\begin{aligned}
+E^{*\tau}_f[r_n(\tau,T)] &\approx f_n(0,\tau,T) - \frac{1}{2} \frac{G''(f_n(0,\tau,T))}{G'(f_n(0,\tau,T))} E^{*\tau}_f [(r_n(\tau,T) - f_n(0,\tau,T))^2] \\
+ & \approx f_n(0,\tau,T) + \frac{f_n(0,\tau,T)^2 \Delta}{1+f_n(0,\tau,T) \Delta}\sigma^2_f\tau
+\end{aligned}
+$$
+
+# Two Factor Models
+
+## Two Factor Vasicek
+
+$r_t = \phi_{1,t} + \phi_{2,t}$
+
+Their stochastic dynamics follow:
+
+$$
+d\phi_{1,t} = \gamma_1^* (\phi_1^* - \phi_{1,t})dt + \sigma_1 dX_{1.t} \\
+d\phi_{2,t} = \gamma_2^* (\phi_2^* - \phi_{2,t})dt + \sigma_2 dX_{2.t}
+$$
+
+The two Brownian Motions $dX_{1,t}$ and $dX_{2,t}$ have correlation $\rho$
+
+$$
+E[dX_{1,t},dX_{2,t}] = \rho dt
+$$
+
+Zero Coupon Bond Pricing:
+
+$$
+Z(\phi_{1,t},\phi_{2,t},t,T) = e^{A(t;T) - B_1 (t;T)\phi_{1,t} - B_2(t;T)\phi_{2,t}} \\ 
+\text{where: } 
+\begin{cases}
+\begin{aligned}
+B_i &= \frac{1}{\gamma^*_i}(1-e^{-\gamma^*_i(T-t)}) \\
+A(t;T) &= (B_1(t;T) - (T-t)) \left(\bar{\phi}_1^* - \frac{\sigma_1 ^ 2}{2(\gamma_1^*)^2} - \frac{\sigma_1 \sigma_2 \rho}{\gamma^*_1 \gamma^*_2}\right) - \frac{\sigma_1^2 B_1(t;T)^2}{4\gamma_1^*} \\ &+ (B_2(t;T) - (T-t)) \left(\bar{\phi}_2^* - \frac{\sigma_2 ^ 2}{2(\gamma_2^*)^2} - \frac{\sigma_1 \sigma_2 \rho}{\gamma^*_1 \gamma^*_2}\right) - \frac{\sigma_2^2 B_2(t;T)^2}{4\gamma_@^*} \\ 
+&+ (B_3(t;T) - (T-t))\frac{\sigma_1 \sigma_2 \rho}{\gamma^*_1 \gamma^*_2} \\
+B_3(t;T) &= \frac{1 - e^{-(\gamma_1^* + \gamma_2^*)(T-t)}}{\gamma_1^* + \gamma_2^*}
+\end{aligned}
+\end{cases}
+$$
+
+Variance is log-normally distributed and is given by:
+
+$$
+S_Z(T_O)^2 = B_1^2(T_O;T_B)\frac{\sigma_1}{2\gamma_1^*}(1-e^{-2\gamma_1^*T_O}) + B_2^2(T_O;T_B)\frac{\sigma_2}{2\gamma_2^*}(1-e^{-2\gamma_2^*T_O}) + B_1^2(T_O;T_B)B_2^2(T_O;T_B)\sigma_1 \sigma_2\rho \frac{1-e^{-(\gamma_1^* + \gamma_2^*)T+O}}{\gamma_1^* + \gamma_2^*}
+$$
+
+Price of an option:
+
+$$
+V_{call}(\phi_{1,0},\phi_{2,0},0) = Z(\phi_{1,0},\phi_{2,0},0;T_B)N(d_1) - KZ(\phi_{1,0},\phi_{2,0},0;T_B)N(d_2) \\
+V_{put}(\phi_{1,0},\phi_{2,0},0) = -Z(\phi_{1,0},\phi_{2,0},0;T_B)N(-d_1) + KZ(\phi_{1,0},\phi_{2,0},0;T_B)N(-d_2) \\
+\text{where: }
+\begin{cases}
+d_1 = \frac{1}{S_Z(T_O)}\ln \left(\frac{ Z(\phi_{1,0},\phi_{2,0},0;T_B)}{KZ(\phi_{1,0},\phi_{2,0},0;T_B)}\right) + \frac{S_Z(T_O)}{2} \\
+d_2 = d_1 - S_Z(T_O)
+\end{cases}
+$$
+
+Dynamics of the short rate:
+
+$$
+dr_t = [\gamma_1^*(\bar{\phi}_1^* - r_t) + \gamma_2^* \bar{\phi}_2^* + (\gamma_1^* - \gamma_2^*)\phi_{2,t}]dt + \sigma_1 dX_{1,t} + \sigma_2 dX_{2,t} \\
+d \phi_{2,t} = \gamma_2^*(\bar{\phi}_2^* - \bar{\phi}_1^*)dt + \sigma_2 dX_{2,t}
+$$
+
+ - If $\gamma_1^* - \gamma_2^* >0$, then if $\phi_{2,t}$ increases, the risk neutral expectation of the future value of $r_t$ also increases
+ - This implies that the term structure of interest rates will steepen
+ - The second factor $\phi_{2,t}$ also affects the slope of the term structure
+ 
+Spot rate associated with a longer-term tenor, $\tau = T-t$:
+
+$$
+r_t(\tau) = -\frac{\ln(Z(\phi_{1,t},\phi_{2,t},t;T))}{\tau} = -\frac{A(\tau)}{\tau} + \frac{B_1(\tau)}{\tau}\phi_{1,t} + \frac{B_2(\tau)}{\tau}\phi_{2,t}
+$$
+
+Applying Ito's Lemma on the equation above gives us the dynamics of $r_t(\tau)$:
+
+$$
+\begin{aligned}
+dr_t(\tau) &= \frac{B_1(\tau)}{\tau}d\phi_{1,t} + \frac{B_2(\tau)}{\tau}d\phi_{2,t} \\
+&= \left(\frac{B_1(\tau)}{\tau}\gamma_1^*(\bar{\phi}_1^* - \phi_{1,t}) + \frac{B_2(\tau)}{\tau}\gamma_2^*(\bar{\phi}_2^* - \phi_{2,t})\right)dt + \frac{B_1(\tau)}{\tau}\sigma_1dX_{1,t} + \frac{B_2(\tau)}{\tau}\sigma_2dX_{2,t}
+\end{aligned}
+$$
+
+Substituting $\phi_{1,t} = r_t - \phi_{2,t}$, we can express the long-term yield as:
+
+$$
+r_t(\tau) = -\frac{A(\tau)}{\tau} + \frac{B_1(\tau)}{\tau}r_t + \frac{C(\tau)}{\tau}\phi_{2,t}
+$$
+
+ - $C(\tau) = B_2(\tau) - B_1(\tau)$
+ - This equation demonstrates that we can have different long term yields, $r_t(\tau)$ based on the value of $\phi_{2,t}$
+
+We can also express the dynamics of all spot rates in terms of only $r_t$ and a long-term yield $r_{l,t} = r_t(\tau_l)$ by substituting $\phi_{2,t}$ for $r_{l,t}$ in the equation for long term yields.
+
+ - $A_{\tau_l}(\tau) = A(\tau) - C(\tau) \frac{A(\tau_l)}{C(\tau_l)}$
+ - $B_{\tau_{l,1}}(\tau) = B_1(\tau) - C(\tau) \frac{B_1(\tau_{l})}{C(\tau_l)}$
+ - $C_{\tau_l} = C(\tau)\frac{\tau_l}{C_{\tau_l}}$
+ - $Z(r_t, r_l), t; T) =e^{A_{\tau_l}(\tau)-B_{\tau_l}(\tau)r_t - C_{\tau_l}(\tau)r_{l,t}}$
+ - Volatilities: $\sigma_{l,i} = \sigma_i\frac{1 - e^{\gamma_i \tau_l}}{\tau_l}$
+ 
+ 
+ 
+ Volatility of the short rate:
+ 
+ $$
+ Var[dr_t] = \sigma_r^2 = (\sigma_1^2 + \sigma_2^2 + 2\sigma_1 \sigma_2 \rho)dt
+ $$
+
+Similarly for the spot rate:
+
+$$
+Var[dr_t(\tau)] = \sigma(\tau)^2 = \sigma_1^2 \left(\frac{B_1(\tau)}{\tau} \right)^2 + \sigma_2^2 \left(\frac{B_2(\tau)}{\tau} \right)^2 + 2\sigma_1 \left(\frac{B_1(\tau)}{\tau} \right)\sigma_2 \left(\frac{B_2(\tau)}{\tau} \right)\rho
+$$
+
+Correlation:
+
+$$
+dr_t, dr_t(\tau) = \rho(0,\tau) = \frac{Var[dr_t(\tau)]}{\sigma_r \sigma(\tau)}
+$$
+
+## Two Factor Hull White
+
+$$
+dr_t = [\theta_t - \gamma_1^*r_t + (\gamma_1^* - \gamma_2^*)\phi_{2,t}]dt + \sigma_1dX_1 + \sigma_2 dX_2 \\
+d\phi_{2,t} = -\gamma_2^*\phi_{2,t}dt + \sigma_2dX_{2,t}
+$$
+
+$\theta_t$ is a deterministic function of time that is defined to match exactly the term structure of market zero-coupon bond prices. The benefit of using the Hull White 2 factor model is that by introducing $\theta_t$, it allows us to exactly match the term structure of interest rates. The other parameters of the model can be chosen to better match the volatility structure of the data.
+
+Formulas for correlation and volatility will be the same as the Vasicek model.
+
+## Calibration
+
+1. Choose proxies for the short-term and long-term yields.
+    + For example, a 1 month T-Bill rate can be short term rate, and the 5-year yield represent the long term rate $r_{l,t}$
+2. Fix the volatility of the 1-month rate and 5-year yield to their empirical values.
+3. For convenience, impose the restriction that $\bar{\phi}_2^* = 0$ because the cross-section of bonds does not contain enough information for us to estimate both long term values of $\bar{\phi}^*_1$ and $\bar{\phi}^*_2$ independently.
+4. Search for the set of parameters that satisfy the volatility constraint while minimizing the pricing errors:
+    + $J(\gamma_1^*, \bar{\phi}_1^*, \sigma_1, \gamma_2^*, \sigma_2) = \sum_{j=1}^n (P_i^\text{model} - P_i^\text{data})^2$
+
+The two-factor Vasicek model typically does much better than the one factor model in matching the term structure of the bonds.
+ - Additional parameters from the two-factor model enhances the ability to add curvature to the yield curve.
+ - The one-factor model will have difficulty fitting market term structures that have some curvature
+ - In order to obtain the necessary curvature in the market term structure, the calibrated mean reversion speed of the second factor will be negative.
+ 
+If the factors are not independent, then we also have to calibrate $\rho$. Additional constraint based on the correlation of the short-term and long-term rates that is observed in the market.
+
+For calibrating the Hull-White model, we choose parameters that match the volatility and correlation structure of yields. Already have deterministic function $\theta_t$ that has already been set so the model can reprice market zero-coupon bond prices. Formulas for spot rate and correlation between the short and spot rate are the same as under the Vasicek two-factor model. One could also calibrate the model by targeting market caplet or swaption volatilities instead.
+
+**Takeaways**
+
+ - One-factor Vasicek: Not great, Model has only one parameter $\sigma$ that is used to target the volatility. Doesn't do a good job at capturing correlation term strucutre since it simply gives a flat line at 100% correlation
+ - Two-factor Vasicek with independent factors: Does a good job. Has more parameters to match short-end and long-end of the term structure. Does a better job at modeling correlation, but model correlations are still high.
+ - Two-factor Vasicek with correlated factors: Does worse since calibration also needs to focus on correlation constraints. Does an even better job, bust still overestimates the correlation between short-tenor spot rates and the short rate.
+ - Two-factor Hull-White model: Does a good job. Good at matching correlation structure.
+ - Hull-White 2 factor model still has difficulties capturing the curvature of the market cap volatiltiy curve.
+ - A flexible model with many parameters, like LMM, will do a better job of fitting market swaption or cap vols.
+
+### Curve Steepener
+
+A **curve steepener** is an interest rate security whose cashflows depend on the relative value of different points on the term structure of interest rates.
+
+1. Estimate the parameters of the two-factor Vasicek model.
+2. Simulate the factor processes (taking baby time steps to discretize the dynamics).
+3. Compute the discounted payoff.
+    + For each simulation, use the last two simulated factor values to calculate the model-implied spot rates for maturities.
+4. Average over the Monte Carlo value 
+
+Simulating Correlated Brownian Motions. Relevant: Cholesky decomposition
+
+$$
+z_1 = \epsilon_1 \\
+z_2 = \rho \epsilon_1 + \sqrt{1 - \rho^2} \epsilon_2
+$$
+
+## G2++
+
+$$
+r(t) = x(t) + y(t) + p(t), r(0) = 0 \\
+dx(t) = -ax(t)dt + \sigma dW_1(t) \\
+dy(t) = -by(t)dt + \eta dW_2(t) \\
+dW_1(t) dW_2(t) = \rho dt
+$$
+
+ - a, mean reversion speed of x(t)
+ - $\sigma$, volatility of x(t)
+ - b, mean reversion speed of y(t)
+ - $\eta$, volatility of y(t)
+ - $\rho$, correlation between $W_1(t)$ and $W_2(t)$
+
+Solve the SDE for r(t):
+
+$$
+r(t) = x(s) e^{-a(t-s)} + y(s) e^{-b(t-s)} + \sigma \int_s^t e^{-a(t-u)}dW_1(u) + \eta \int_s^t e^{-b(t-u)} dW_2(u) + p(t) \\
+E(r(t) | F_s) = x(s) e^{-a(t-s)} +  y(s) e^{-b(t-s)} + p(t) \\
+Var[r(t) | F_s] = \frac{\sigma^2}{2a}[1-e^{-2a(t-s)}] + \frac{\eta^2}{2b}[1-e^{-2b(t-s)}] + \frac{2 \sigma \eta \rho}{a+b}[1-e^{-(a+b)(t-s)}]
+$$
+
+Since the Ito integrals are normally distributed, r(t) is also normally distributed. 
+
+If we let $\tilde{W_1}(t)$ and $\tilde{W_2}(t)$ be independent brownian motions, we can recover the correlated brownian motions:
+
+$$
+dW_1(t) = d \tilde{W_1}(t) \\
+dW_2(t) = \rho d\tilde{W_1}(t) + \sqrt{1-\rho^2}d\tilde{W_2}(t) \\
+dW_1(t)dW_2(t) = d\tilde{W_1}(t)(\rho d\tilde{W_1}(t) + \sqrt{1-\rho^2}d\tilde{W_2}(t)) = \rho dt
+$$
+
+With the above knowledge, we can rewrite dx(t), dy(t), and r(t) with the independent brownian motions by substitution.
+
+### ZCB Pricing under G2++
+
+$$
+P(t,T) = E[e^{-\int_t^T r(s)ds}] = E[e^{-\int_t^T x(s) + y(s) + p(s)ds}] = e^{-\int_t^T p(s)ds}E[e^{-\int_t^T x(s) + y(s)ds}]
+$$
+
+Conditional on $F_s, \int_t^T x(s) + y(s)ds$ is normally distributed with mean M(t,T) and V(t,T)
+
+$$
+M(t,T) = \frac{1-e^{-a(T-t)}}{a}x(t) + \frac{1-e^{-b(T-t)}}{b}y(t) \\
+V(t,T) : \text{on the formula sheet}
+$$
+
+If $X \rightarrow N(\mu,\sigma^2)$ then: $E[e^X] = e^{\mu + \frac{\sigma^2}{2}}$. 
+
+Letting $X = - \int_t^T x(s) + y(s)ds$ then: 
+
+$$
+P(t,T) = e^{-\int_t^T p(s)ds -  \frac{1-e^{-a(T-t)}}{a}x(t) - \frac{1-e^{-b(T-t)}}{b}y(t) + \frac{V(t,T)}{2}}
+$$
+
+**Alternative Representation of ZCB**
+
+$$
+P^M(0,t) = e^{-\int_0^t p(s) ds + \frac{V(0,t)}{2}} \\
+P^M(0,T) = e^{-\int_0^T p(s) ds + \frac{V(0,T)}{2}} \\
+\text{since: }   e^{-\int_t^T p(s) ds} = e^{-\int_0^T p(s) ds}e^{-\int_0^t p(s) ds} \\
+e^{-\int_t^T p(s) ds} = \frac{P^M(0,T)}{P^M(0,t)}e^{-\frac{1}{2}[V(0,T) - V(0,t)]}
+$$
+
+Plugging into the formula for $P(t,T)$ we get:
+
+$$
+P(t,T) = \frac{P^M(0,T)}{P^M(0,t)} e^{A^*(t,T)} \\
+A^*(t) = \frac{1}{2}[V(t,T) - V(0,T) + V(0,t)] - \frac{1-e^{-a(T-t)}}{a}x(t) - \frac{1-e^{-b(T-t)}}{b}y(t)
+$$
+
+if we solve for $p(T)$, the change in price over a change in expiration, we get:
+
+$$
+p(T) = f^M(0,T) + \frac{\sigma^2}{2a^2}(1-e^{-aT})^2 + \frac{\eta^2}{2b^2}(1 - b^{-b(T)})^2 + \frac{\rho \sigma \eta}{ab}(1-e^{-aT})(1-e^{-bT})
+$$
+
+Note that the Hull-White 2 factor model is just a special case of the G2++ model.
+
+$$
+dr(t) = [\theta(t) + u(t) - \bar{a}(t)]dt + \sigma_1 dZ_1(t), r(0) = r_0 \\ 
+du(t) = -\bar{b}u(t)dt + \sigma_2 dZ_2(t), u(0) = 0
+$$
+
+ - $\bar{a}$, the mean reversion of r(t)
+ - $\bar{b}$, the mean reversion of u(t)
+ - $\sigma_1$, the volatility of r(t)
+ - $\sigma_2$, the volatility of u(t)
+ - $\bar{\rho}$, the correlation between brownian motion $Z_1$ and $Z_2$
+ - $\theta(t)$, is the deterministic shift that is solved for so that the model can fit the initial term structure of rates
+ 
+**Converting from Hull White to G2++ and vice Versa**
+
+$$
+\sigma_3 = \sqrt{\sigma_1^2 + \frac{\sigma_2^2}{(\bar{a} - \bar{b})^2} + 2\bar{\rho}\frac{\sigma_1 \sigma_2}{\bar{b} - \bar{a}}} \\
+\sigma_4 = \frac{\sigma_2}{\bar{a} - \bar{b}}
+$$
+
+| Hull White to G2++ |  G2++ to Hull White  |
+|:----------:|:----------:|
+| $a = \bar{a}$ | $\bar{a} = a$ |
+|  $b = \bar{b}$  |       $\bar{b} = b$ |
+| $\sigma = \sigma_3$ | $\sigma_1 = \sqrt{\sigma^2 + \eta^2 + 2\rho \sigma \eta}$ |
+| $\eta = \sigma_4$ | $\sigma_2 = \eta(a-b)$|
+| $\rho = \frac{\sigma_1 \bar{\rho} - \sigma_4}{\sigma_3}$ | $\bar{\rho} = \frac{\sigma \rho + \eta}{\sqrt{\sigma^2 + \eta^2 + 2 \rho \sigma \eta}}$|
+
+# Calibrating Interest Rate Models
+
+Recall the [vasicek model](#Vasicek). The conditional distribution of the short rate is normally distributed which allows for positive probability of negative interest rates.
+
+1) **Euler-Maruyama discretization:** Relies on discretizing the SDE:
+
+$$
+r_{i\Delta} = r_{(i-1)\Delta} + \gamma(\bar{r} - r_{(i-1)\Delta})\Delta + \epsilon_{i \Delta}, i = 1,2, \dots
+$$
+
+ - $r_{(i-1)\Delta}$ is the simulated value of the short rate at the prior timestep i
+ - $\epsilon_{i \Delta} \sim N(0, \sigma^2 \Delta)$ 
+ - We can also rewrite the discretization as:
+    + 
+    $$
+    r(i) = \alpha + \beta r(i-1) + \epsilon_i, i = 1,2, \dots \\
+    \alpha = \gamma \bar{r} \Delta, \beta = 1 - \gamma \Delta \\
+    \sigma^* = \sigma \sqrt{\Delta}, \epsilon_i = \epsilon_{i \Delta}
+    $$
+
+2) **Transition Density method**: An exact method of simulation that utilizes the conditional probability distribution of the short rate. The conditional distribution of the short rate $r_{i\Delta} | r_{(i-1)\Delta}$ has a normal distribution with mean and variance:
+
+$$
+E[r_{i\Delta} | r_{(i-1)\Delta}] = \bar{r} + (r_{(i-1)\Delta} - \bar{r})e^{-\gamma \Delta} \\
+Var[r_{i\Delta} | r_{(i-1)\Delta}] = \frac{\sigma^2}{2 \gamma}(1-e^{-2 \gamma \Delta})
+$$
+
+We can then simulate $r_{i\Delta}$ from the prior timestep's value and a standard normal random number Z:
+
+$$
+r_{i\Delta} = E[r_{i\Delta} | r_{(i-1)\Delta}] + \sqrt{Var[r_{i\Delta} | r_{(i-1)\Delta}]}Z
+$$
+
+ - Define new variables $\alpha^*, \beta^*, \sigma^*$
+    + 
+    $$
+    \alpha^* = (1-e^{-\gamma \Delta})\bar{r}, \beta^* = e^{-\gamma \Delta} \\
+    \sigma^* = \sqrt{\frac{\sigma^2}{2 \gamma}(1-e^{-2 \gamma \Delta})}
+    $$
+ - Rewrite the conditional expectation and variance of the short rate as:
+    + $E[r_{i\Delta} | r_{(i-1)\Delta}] = \alpha^* + \beta^*r_{(i-1)\Delta}$
+    + $Var[r_{i\Delta} | r_{(i-1)\Delta}] = \sigma^{*2}$
+ - The equation for simulating $r_{i\Delta}$ can then be rewritten as $r_{i\Delta} = \alpha^* + \beta^*r_{(i-1)\Delta} + \epsilon_i, i = 1,2 \dots$
+ 
+## Calibration
+
+### Log Likelihood
+
+ - For real-world calibration, there are two main techniques
+    + Maximum Likelihoood Estimation (MLE)
+    + Long-term quantile method
+ - For risk-neutral calibration, we fit the model to market zero-coupon bond prices.
+ 
+The joint likelihood function of a random sample of short rates can be written as:
+
+$$
+L(\alpha^*, \beta^*, \sigma^*) = f_0 (r_0 | \alpha^*, \beta^*, \sigma^*) \prod_{i=1}^n f(r_{i\Delta} | r_{(i-1)\Delta}) \\
+ = f_0 (r_0 | \alpha^*, \beta^*, \sigma^*) \prod_{i=1}^n \frac{1}{\sqrt{2 \pi}\sigma^*}\exp\left(-\frac{(r_{i\Delta} - \alpha^* - \beta^* r_{(i-1)\Delta})^2}{2 \sigma^{*2}}\right) \\ 
+ =  f_0 (r_0 | \alpha^*, \beta^*, \sigma^*) \frac{1}{\sqrt{(2 \pi)^n}\sigma^{*n}}\exp\left(-\sum_{i=1}^n \frac{(r_{i\Delta} - \alpha^* - \beta^* r_{(i-1)\Delta})^2}{2 \sigma^{*2}}\right) 
+$$
+
+The log likelihood function is then:
+
+$$
+\ln(L) = \ln( f_0 (r_0 | \alpha^*, \beta^*, \sigma^*)) - \ln (\sqrt{(2\pi)^n}) - n \ln (\sigma^*)
+$$
+
+ - $\hat{\beta^*} = \frac{\sum_{i=1}^n r_{i\Delta}r_{(i-1)\Delta} - \frac{1}{n} \sum_{i=0}^{n-1} r_{i\Delta}\sum_{i=1}^n r_{i\Delta}}{\sum_{i=0}^{n-1}r_{i\Delta}^2 - \frac{1}{n}( \sum_{i=0}^{n-1}r_{i\Delta} )^2 }$
+ - $\hat{\alpha^*} = \frac{1}{n}( \sum_{i=1}^{n}r_{i\Delta} - \hat{\beta}\sum_{i=0}^{n-1}r_{i\Delta})$
+ - $\hat{\sigma}^{*2} = \frac{1}{n-2} \sum_{i=1}^{n}(r_{i\Delta} - \hat{\alpha} - \hat{\beta}r_{(i-1)\Delta})$
+ 
+With the MLE estimates, we can then solve for the original Vasicek parameters
+
+ - $\hat{\gamma} = -\frac{\ln(\hat{\beta}^*)}{\Delta}$
+ - $\bar{r} = \frac{\hat{\alpha}^*}{1-\hat{\beta}^*}$
+ - $\hat{\sigma} = \sqrt{\frac{2 \hat{\gamma} \hat{\sigma}^{*2}}{1-\hat{\beta}^{*2}}}$
+
+**Drawbacks**
+
+ - Provides no information on whether the model used to fit the data is a reasonable fit to the true underlying distribution
+ - Relies on asymptotic properties of large datasets which may not hold for interest rates. i.e. A long historical time series of interest rate data may not cover different economic and policy environments.
+ - Assumes the data is stationary, which may not be a realistic assumption over a long period of time.
+
+
+### Long-Term Quantile Method
+
+$$
+\lim_{t\rightarrow \infty} E[r_t | r_0] = \bar{r}\\
+\lim_{t\rightarrow \infty} Var[r_t | r_0] = \frac{\sigma^2}{2\gamma}
+$$
+
+The long-run 2.5th and 97.5th percentiles of $r_t$ are given by, where the constants (1.96) are given by the confidence intervals of the normal distribution:
+
+$$
+\hat{q}_{0.025} = \bar{r} - \frac{1.96 \sigma}{\sqrt{2\gamma}} \\
+\hat{q}_{0.975} = \bar{r} + \frac{1.96 \sigma}{\sqrt{2\gamma}}
+$$
+
+Solve for the two equations to obtain the following long term quantile estimates:
+
+$$
+\gamma = 2\left(\frac{1.96 \sigma}{\hat{q}_{0.975} - \hat{q}_{0.025}}\right)^2 \\
+\bar{r} = \frac{\hat{q}_{0.975} - \hat{q}_{0.025}}{2}
+$$
+
+This method assumes there is a seperate method for estimating $\sigma$. Solve for the risk neutral parameters that minimize the [square error function](#VasicekSquareError).
+

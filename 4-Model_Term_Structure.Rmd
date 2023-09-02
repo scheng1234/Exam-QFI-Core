@@ -244,7 +244,7 @@ $$
   + the market price of interest rate risk $\lambda_t$
 - Made the simplifying assumption that all bonds are driven by the same Wiener Process $W_t$. This led us to having a single market price of risk $\lambda_t$
 
-# Term Structure Models - Continuous Time
+# Vasicek Model {#Vasicek}
 
 Introduction to stochastic interest rate models: **Vasicek**
 
@@ -387,7 +387,7 @@ The weights for $w_i$ are given by for $i = 1, \dots,n$ : $w_i = 100 \frac{c}{2}
 
 The weight for $i=n$, denoted by $w_n$ is: $w_n = 100 \left(1+\frac{c}{2}\right)\frac{Z(r,\tau_n)}{P(r,\tau)}$
 
-### Estimating Parameters of Vasicek Model
+### Estimating Parameters of Vasicek Model {#VasicekSquareError}
 
 $\sigma, \bar{r}, \gamma$ can be estimated from historical data.
 
@@ -779,6 +779,135 @@ $$
 
 The higher the mean reversion speed ($\gamma^*$), the lower the volatility($S_Z(T_O,T_B)$), and hence the option price will be. This is because a higher mean reversion reduces both $B(T_O;T_B)$ and the dispersion of interest rates at time $T_O$
 
+## Options on Coupon Bonds
+
+Call option with maturity $T_O$ and strike K on a coupon bond, $P_c(r_t, t; T_B)$. The bond pays a coupon rate c and matures at $T_B$. Let $\Delta$ be time interval between coupon payments.
+
+1. Find the value of $r^*$ such that: $P_c(r^*, T_O, T_B) = K$
+2. Calculate $K_i = Z(r^*, T_O; T_i)$ for each coupon date $T_i$
+
+$$
+Call = \sum_{i=1}^n c(i) (Z(r_0, 0; T_i)N(d_1(i)) - K_iZ(r_0, 0;T_O)N(d_2(i)))
+$$
+ 
+ - c(i) = cash flow paid by coupon bond at $T_i$, For semi-annually compounded bond, $c(i) = c/2$ for $i=1,\dots,n-1$ and $c(n) = 1 + c/2$
+ - The formulas for $d_1(i)$ and $d_2(i)$ are different for each coupon payment date $T_i$. (d1 and d2 are the same as zero-coupon bonds)
+
+## Cap Payoff {#CapPayoff}
+
+A cap with maturity T, strike rate $r_K$, and annual payment frequency n with cashflows $T_1, T_2, \dots, T_m = T$:
+
+$$
+CF(T_i) = \Delta \times N \times \max(\underbrace{r_n(T_{i-1}, T_i)}_\text{reference rate}-r_K,0)
+$$
+
+Each individual cash flow is known as a caplet. Each caplet resembles the payoff of a put option on a zero coupon bond.
+
+A floor is defined analogously as:
+
+$$
+CF(T_i) = \Delta \times N \times \max(r_K- r_n(T_{i-1}, T_i),0)
+$$
+
+### Derivation
+
+1. The cashflow paid at time T will be known at time $T-\Delta$, so the PV of this cash flow as of time $T-\Delta$ is:
+
+$$
+\begin{aligned}
+PV_{T-\Delta} (CF(T)) &= Z(T-\Delta; T) \times \Delta \times N \times \max(r_n(T-\Delta;T) - r_K, 0) \\
+&= Z(T-\Delta; T) \times N \times \max[(1+r_n(T-\Delta;T)\Delta) -(1+ r_K\Delta, 0)] \\
+&= N \times \max[1 - (1+r_K\Delta)Z(T-\Delta,T),0] \because Z(T-\Delta;T) = \frac{1}{1 + r_n(T-\Delta;T)\Delta} \\
+&= N \times(1+r_K \Delta) \times \max\left(\frac{1}{1+r_K \Delta}- Z(T-\Delta,T),0\right)
+\end{aligned}
+$$
+
+2. For many caplets, we add them all together to get the final value of the cap. Note that d1 and d2 again are the same as in the zero coupon bond.
+
+$$
+Cap = \sum_{i=2}^n M \times [KZ (0,r_0;T_{i-1})N(-d_2(i)) - Z(0,r_0;T_i)N(-d_1(i))]
+$$
+
+**Conclusion**: The cap's cashflow at $T_i$ equals the payoff of a put option that expires at $T_{i=1}$ on a zero coupon bond, $Z(T_{i=1},T_i)$.The strike price of the put option is $K=\frac{1}{1+r_K \Delta}$ and notional is $M=N(1+r_K\Delta)$
+
+In practice, traders don't use historical volatilities for $\sigma$ to calculate cap prices because:
+
+1.  The volatility of interset rate securities is not constant, but changes stochastically over time.
+2.  Additionally the interest rate can jumpj discretely, which makes it difficult to effectively hedge it.
+
+As a result using a constant $\sigma$ calculated from historical data can underprice options. 
+
+- Instead traders use $\sigma$ implied by optoins
+- For the Ho-Lee model, this implied $\sigma$ minimizes the errors between the market and model cap prices $J(\sigma)=\sum_{i=1}^n(Cap_i^\text{Data} - Cap_i^\text{Ho-Lee})^2$
+
+## Swaptions
+
+A receiver swaption with maturity $T_O$ is the option to enter into a swap that matures at $T_S > T_O$ and receive a fixed rate $r_K$. The value of the swap at any time t is given by:
+
+$$
+V_t^\text{Swap} = \underbrace{P_c(r_t,t;T_S)}_\text{value of fixed coupon bond} - \overbrace{P_{FR}(r_t,t;T_S)}^\text{value of floating rate bond}
+$$
+
+Assuming the floating rate bond is priced at par at time $T_O$, it follows that the payoff of the swaption at $T_O$ is:
+
+$$
+\text{Payoff receiver swaption} = \max(P_c(r_{T_O},T_O;T_S) - 100,0)
+$$
+
+The payoff of a European receiver swaption is identical to a call option on a coupon bearing bond. The coupon rate is $r_K$ and strike price of the option is K=100.
+
+One can also calibrate the parameters of the Ho-Lee or Hull_White to minimize the pricing errors between market and model swaption prices: $J(\gamma^*,\sigma)=\sum_{i=1}^n(\text{Swaption}_i^\text{Data} - \text{Swaption}_i^\text{Model})^2$
+
+Empirical data suggests that the models do not provide as good of a fit for short-tenor swaps vs longer tenor swaps.
+
+
+# Lognormal Models
+
+**Black, Derman, Toy**
+
+Let $y_t = \ln(r_t)$. The dynamics of $y_t$ are:
+
+$$
+dy_t = \left(\theta_t + \frac{\partial \sigma_t / \partial t}{\sigma_t}\right)dt + \sigma_t dX_t
+$$
+
+ - $\theta_t$ and $\sigma_t$ are deterministic functions of time
+ - When $\sigma_t = \sigma$ and $\partial \sigma_t / \partial t =0$, the model reduces to Ho-Lee on the quantity $y_t = \ln(r_t)$
+ - Drawbacks: Does not have a closed form formula for bond prices
+ 
+**Black-Karasinski**
+
+$$
+dy_t = (\theta_t - \gamma_t y_t)dt + \sigma_t dX_t
+$$
+
+ - The model reduces to the Black, Derman, Toy model with $\gamma_t = -\frac{\partial \sigma_t / \partial t}{\sigma_t}$ 
+ - Drawbacks: Does not have a closed form formula for bond prices
+
+**Affine Term Structure Models**
+
+Affine term structure models have the form:
+
+$$
+dr_t = = (\theta_t - \gamma_t r_t)dt + \sqrt{\sigma_t^2 + \alpha_t r_t}dX_t
+$$
+
+ - Ho-Lee model: $\gamma_t=0, \alpha_t = 0, \sigma)t = \sigma$
+ - Hull-White model: $\alpha_t = 0, \gamma_t = \gamma, \sigma_t = \sigma$
+ - CIR model: $\alpha_t = \alpha, \gamma_t = \gamma, \sigma_t = 0$
+
+The zero coupon bond price will have the general form: 
+
+$$
+Z(r,t;T) = e^{A(t;T) - B(t,T) \times r}
+$$
+
+The formulas for A(t;T) and B(t;T) are given by the solutions of two differential equations with the final conditions A(T;T)=0 and B(T;T)=0
+
+$$
+\frac{\partial B(t;T)}{\partial t} = B(t;T) \gamma_t + \frac{1}{2}B(t;T)^2 \alpha_t -1 \\
+\frac{\partial A(t;T)}{\partial t} = B(t;T) \theta_t - \frac{1}{2}B(t;T)^2\sigma^2_t
+$$
 
 
 

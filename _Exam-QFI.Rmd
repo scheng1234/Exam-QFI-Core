@@ -60,6 +60,9 @@ In the book:
 -   $F(t,s)$: instantaneous forward rate contracted at time t over the interval s to s+ds
 -   $(t-T)$: Often times represents the time to maturity and in some forumalas substituded to be $\tau$
 
+<span style="color: red;">review chapter 5 for forward swap rates <span style ="color: red;">
+
+
 # Financial Derivatives {#FD}
 
 **Financial Derivatives** are securities that derive their value from
